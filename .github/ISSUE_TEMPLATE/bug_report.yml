@@ -1,0 +1,63 @@
+name: 🐛 Bug 反馈
+description: 功能不正常、渲染错乱、打不开文件等
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提 Issue 前请先：① 看右下角状态栏版本号（应为 v1.3）；② 搜一下已有 Issue。
+        **请勿上传含内网 IP、账号、密钥或客户资料的文档**，Issue 是公开的。
+
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 发行形态
+      options:
+        - Windows 桌面安装版（.exe）
+        - Windows 便携版（zip + bat）
+        - 直接双击 MDReader.html
+        - macOS
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 状态栏显示的版本与环境
+      placeholder: "例：MD Reader v1.3 · 桌面版"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: 系统版本
+      placeholder: "例：Windows 11 23H2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 一步一步写，一次只描述一个症状
+      placeholder: |
+        1. 打开 xxx.md
+        2. 顶栏切换到「纸张」
+        3. 点 A+ 两次
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望 / 实际
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 截图、控制台报错或其他补充
+    validations:
+      required: false

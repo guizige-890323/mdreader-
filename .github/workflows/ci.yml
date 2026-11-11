@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: 语法检查 + 单文件构建 + 便携版回归
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: JS 语法检查
+        shell: bash
+        run: |
+          node --check MDReader/src/app.js
+          node --check MDReader/desktop/main.js
+          node --check MDReader/desktop/preload.js
+
+      - name: 构建单文件 HTML
+        shell: bash
+        run: python MDReader/src/build.py
+
+      - name: 同步进桌面壳
+        shell: bash
+        run: python MDReader/desktop/scripts/sync-app.py
+
+      - name: 校验内嵌依赖完整
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          h = Path('MDReader/dist/MDReader.html').read_text(encoding='utf-8')
+          assert 'marked.js v15' in h, 'marked 未内嵌'
+          assert 'highlight.js v11' in h, 'hljs 未内嵌'
+          assert 'mermaid v10' in h, 'mermaid 未内嵌'
+          assert 'MD Reader v1.3' in h, '版本号缺失'
+          assert 'id="btnRecent"' in h, '最近打开控件缺失'
+          assert '__MD_DESKTOP__' in h, '桌面桥缺失'
+          print('单文件校验通过: %.2f MB' % (len(h.encode()) / 1024 / 1024))
+          PY
+
+      - name: 打包便携版
+        shell: bash
+        run: python MDReader/src/pack.py
+
+      - name: 便携版 17 项回归（无头 Edge）
+        shell: bash
+        run: python MDReader/desktop/scripts/verify-portable.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MDReader-portable
+          path: MDReader-Windows11便携版.zip
+
+  build-ios-pwa:
+    name: 构建 iOS 主屏幕 PWA 包
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: 安装 Pillow 并生成 PWA
+        shell: bash
+        run: |
+          pip install pillow
+          python MDReader/src/build.py
+          python MDReader/ios/build-pwa.py
+      - name: 校验注入结果
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          h = Path('MDReader/ios/site/index.html').read_text(encoding='utf-8')
+          assert 'rel="manifest"' in h and 'apple-touch-icon' in h, 'PWA 标签缺失'
+          assert 'MD Reader v1.3' in h, '阅读器版本缺失'
+          print('PWA 校验通过')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MDReader-iOS-PWA
+          path: MDReader-iOS-PWA.zip
+
+  build-mac:
+    name: 构建 macOS dmg（手动触发）
+    runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: 安装依赖并构建
+        working-directory: MDReader/desktop
+        run: |
+          npm install --no-audit --no-fund
+          npm run sync
+          npm run build:mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MDReader-mac-dmg
+          path: MDReader/desktop/release/*.dmg

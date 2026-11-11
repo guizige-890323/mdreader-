@@ -1,0 +1,43 @@
+name: 💡 功能建议
+description: 想要新能力、新皮肤、新平台支持
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你遇到的具体场景
+      description: 先讲痛点，比直接说"加个 X 功能"更有用
+      placeholder: "排查手册有 30 节，每次都要滚到底找第 17 节……"
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: 你希望怎么做
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影响范围
+      options:
+        - 两种形态都要（便携版 + 桌面版）
+        - 仅桌面安装版
+        - 仅渲染 / 排版
+        - 新平台（macOS / iOS / Linux）
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 现在是怎么绕过去的
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        需求会先标 `enhancement` 排期，维护者不承诺具体完成时间，请理解。

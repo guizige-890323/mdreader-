@@ -1,0 +1,38 @@
+{
+  "card-light": {
+    "lay": "card",
+    "thm": "light",
+    "reader_bg": "rgb(250, 250, 250)",
+    "canvas_var": "#fafafa",
+    "paper_bg": "rgb(255, 255, 255)",
+    "cards": 8,
+    "h": 825
+  },
+  "paper-light": {
+    "lay": "paper",
+    "thm": "light",
+    "reader_bg": "rgb(245, 242, 234)",
+    "canvas_var": "#f5f2ea",
+    "paper_bg": "rgb(253, 251, 246)",
+    "cards": 0,
+    "h": 825
+  },
+  "card-dark": {
+    "lay": "card",
+    "thm": "dark",
+    "reader_bg": "rgb(9, 9, 11)",
+    "canvas_var": "#09090b",
+    "paper_bg": "rgb(18, 18, 21)",
+    "cards": 8,
+    "h": 825
+  },
+  "paper-dark": {
+    "lay": "paper",
+    "thm": "dark",
+    "reader_bg": "rgb(21, 19, 15)",
+    "canvas_var": "#15130f",
+    "paper_bg": "rgb(28, 26, 21)",
+    "cards": 0,
+    "h": 825
+  }
+}

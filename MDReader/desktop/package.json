@@ -1,0 +1,122 @@
+{
+  "name": "mdreader",
+  "version": "1.3.0",
+  "description": "零安装、零联网、零上传的本地 Markdown 阅读器；支持卡片 / 纸张双排版皮肤、表格可视化、Mermaid、Obsidian 语法与 MD 文件关联",
+  "main": "main.js",
+  "author": "MDReader Contributors",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "sync": "python scripts/sync-app.py",
+    "icons": "python scripts/make-icons.py",
+    "start": "npm run sync && electron .",
+    "build:win": "npm run sync && electron-builder --win --x64",
+    "build:mac": "npm run sync && electron-builder --mac",
+    "build:all": "npm run sync && electron-builder --win --mac"
+  },
+  "devDependencies": {
+    "electron": "45.3.0",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "cn.mdreader.app",
+    "productName": "MD Reader",
+    "copyright": "Copyright © 2026 MDReader Contributors",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "build/icon.ico",
+      "build/icon.png",
+      "build/mdfile.ico",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      { "from": "app/使用说明.md", "to": "使用说明.md" },
+      { "from": "app/示例文档.md", "to": "示例文档.md" }
+    ],
+    "asar": true,
+    "compression": "maximum",
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown Document",
+        "description": "Markdown 文档",
+        "mimeType": "text/markdown",
+        "role": "Viewer",
+        "icon": "build/mdfile.ico"
+      },
+      {
+        "ext": "markdown",
+        "name": "Markdown Document",
+        "description": "Markdown 文档",
+        "mimeType": "text/markdown",
+        "role": "Viewer",
+        "icon": "build/mdfile.ico"
+      },
+      {
+        "ext": "mdown",
+        "name": "Markdown Document",
+        "description": "Markdown 文档",
+        "mimeType": "text/markdown",
+        "role": "Viewer",
+        "icon": "build/mdfile.ico"
+      },
+      {
+        "ext": "mkd",
+        "name": "Markdown Document",
+        "description": "Markdown 文档",
+        "mimeType": "text/markdown",
+        "role": "Viewer",
+        "icon": "build/mdfile.ico"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "legalTrademarks": "MDReader Contributors",
+      "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "MD Reader",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "language": "2052",
+      "include": "build/installer.nsh",
+      "warningsAsErrors": false
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "minimumSystemVersion": "11.0"
+    },
+    "dmg": {
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "build/icon.png",
+      "category": "Utility;TextEditor;Viewer"
+    }
+  }
+}
