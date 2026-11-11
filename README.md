@@ -261,7 +261,7 @@ mdreader/
 
 ## 发布前必改
 
-仓库里的 `OWNER` 是占位符（badge 与 clone 链接共 6 处），发布前全局替换成你的 GitHub 用户名：
+仓库里的 `OWNER` 是占位符，出现在 `README.md`（8 处）、`CONTRIBUTING.md`、`docs/RELEASE.md`，发布前全局替换成你的 GitHub 用户名：
 
 ```bash
 # 在仓库根目录执行

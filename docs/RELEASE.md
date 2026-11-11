@@ -8,7 +8,7 @@
 
 | # | 操作 | 位置 |
 | --- | --- | --- |
-| 1 | 把 `OWNER` 全局替换成你的 GitHub 用户名 | `README.md`（badge / 链接共 6 处）、`.github/workflows/ci.yml`、`CONTRIBUTING.md` |
+| 1 | 把 `OWNER` 全局替换成你的 GitHub 用户名 | `README.md`（badge / 链接 / 示例，共 8 处）、`CONTRIBUTING.md`、本文件 |
 | 2 | 确认仓库名是 `mdreader`，`package.json` 里 `appId` 用 `cn.mdreader.app` | `desktop/package.json` |
 | 3 | 确认 `LICENSE` 里的版权人符合你的署名习惯 | `LICENSE` |
 | 4 | 加 Topics（见第四节） | GitHub 仓库页 → About → ⚙ |
