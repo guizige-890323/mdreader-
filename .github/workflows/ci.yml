@@ -68,7 +68,7 @@ jobs:
 
       - name: 打包便携版
         shell: bash
-        run: python MDReader/src/pack.py
+        run: python MDReader/tools/pack-portable.py
 
       - name: 便携版 17 项回归（无头 Edge）
         shell: bash
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: MDReader-portable
-          path: MDReader-Windows11便携版.zip
+          path: 发布包/MDReader-便携版-v*.zip
 
   build-ios-pwa:
     name: 构建 iOS 主屏幕 PWA 包
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: MDReader-iOS-PWA
-          path: MDReader-iOS-PWA.zip
+          path: 发布包/MDReader-iOS-PWA-v*.zip
 
   build-mac:
     name: 构建 macOS dmg（手动触发）
