@@ -1,0 +1,29 @@
+# Normalise line endings so a Windows clone and a Linux CI runner agree.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF, otherwise cmd.exe misparses them.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Shell scripts must stay LF, otherwise the shebang breaks on macOS / Linux.
+*.sh    text eol=lf
+
+# Binary assets — never diff, never convert.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.icns  binary
+*.exe   binary
+*.dmg   binary
+*.zip   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+
+# Lockfiles and generated bundles: keep them out of language stats.
+package-lock.json  linguist-generated=true
+MDReader/dist/MDReader.html  linguist-generated=true
+MDReader/src/vendor/*  linguist-vendored=true

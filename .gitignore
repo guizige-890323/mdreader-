@@ -1,0 +1,52 @@
+# ---- Node / Electron ----
+# 注意：带斜杠的规则必须写全路径，否则只匹配仓库根目录那一层
+node_modules/
+npm-debug.log*
+npm-install.log
+electron-dl.log
+MDReader/desktop/release*/
+MDReader/desktop/.buildcache/
+# 浏览器测试 profile（验证脚本现在改用系统临时目录，这些是历史残留）
+MDReader/desktop/.e*/
+MDReader/desktop/*.log
+MDReader/desktop/app/_autoload.js
+
+# ---- iOS PWA 生成物与浏览器测试 profile ----
+MDReader/ios/site/
+MDReader/ios/.epwa/
+MDReader/ios/.e[0-9]*/
+
+# ---- 构建产物（保留 dist/ 里的成品，忽略临时注入文件）----
+MDReader/dist/_*
+MDReader/dist/.edge*/
+MDReader/src/.edge*/
+MDReader/src/.e[0-9]*/
+MDReader/src/.es*/
+MDReader/src/.ef*/
+MDReader/src/.et*/
+MDReader/src/_*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# ---- 本地验证脚本产生的副本 ----
+*_verify*.html
+*_test.html
+*.zip.local
+
+# ---- 用户数据 / 临时 ----
+_autoload.js
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+
+# ---- 工作区私有目录 ----
+.workbuddy/
+.finalcheck/
+.finalcheck2/
