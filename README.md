@@ -13,6 +13,19 @@
 
 **一个 HTML 文件就是完整程序**：marked、highlight.js、mermaid 全部内嵌，运行时不发起任何网络请求。
 
+<p align="center">
+  <img src="docs/screenshots/01-card-light.png" alt="MD Reader 卡片皮肤：按二级标题把 2000 行手册切成带编号的面板" width="880">
+</p>
+
+<!-- 待补：录一段 20 秒操作演示（双击打开 → 切皮肤 → 表格排序出图 → 切深色），
+     存为 docs/screenshots/demo.gif 后替换下面这段注释。GIF 必须在第一屏，放太靠下等于没放。
+<p align="center">
+  <img src="docs/screenshots/demo.gif" alt="演示：双击 .md 秒开 → 切换卡片/纸张皮肤 → 表格排序与柱状图" width="880">
+</p>
+-->
+
+**目录**：[解决的痛点](#解决的痛点) · [三种发行形态](#三种发行形态) · [特性](#-特性) · [界面预览](#界面预览) · [安装](#-安装) · [平台支持矩阵](#平台支持矩阵) · [对比同类工具](#和同类工具比) · [常见问题](#常见问题) · [从源码构建](#从源码构建) · [目录结构](#目录结构) · [隐私与安全](#隐私与安全) · [版本与路线图](#版本与路线图) · [贡献与协议](#贡献与协议)
+
 ---
 
 ## 解决的痛点
@@ -154,6 +167,38 @@
 
 ---
 
+## 和同类工具比
+
+如果你的需求是"**写** Markdown"，这个工具不适合你——它不能编辑。它只解决"**看**一份已经存在的本地文档"。
+
+| 场景 | 更该用谁 | 为什么 |
+| --- | --- | --- |
+| 要写文档 | Typora | 所见即所得，写作体验是这个品类的标杆 |
+| 要管理 1000+ 篇笔记、要双链与图谱 | Obsidian | 知识库是它的核心；本项目只做了"显示"那一层 |
+| 边写代码边看 README | VS Code | 你本来就在里面，多装一个工具是负担 |
+| 要多人协作 / 云同步 | 飞书文档 / 语雀 / Notion | 本项目明确不做账号与同步 |
+| 文档里有数学公式 | 换别的 | **不支持 KaTeX / MathJax，这是硬缺口** |
+| 只看本地 `.md`，不想开任何编辑器 | **MD Reader** | 双击即开、零联网、按章节切卡片、表格可排序出图 |
+
+完整的 16 维对比（含 Typora / Obsidian / MarkText / VS Code / 在线编辑器）见 **[docs/COMPARISON.md](docs/COMPARISON.md)**。
+
+---
+
+## 常见问题
+
+| 问题 | 答案 |
+| --- | --- |
+| 能不能编辑？ | 不能，这是设计选择，不是没做完 |
+| 真的完全不联网？ | 是，而且可以自己 grep + 拔网线验证 |
+| 3.8 MB 打开慢吗？ | 冷启动约 0.4–0.8 秒，本地文件无网络请求 |
+| 安装包为什么 100 多 MB？ | 便携版 1.3 MB 就够用；安装版大是因为自带 Electron 运行时 |
+| macOS 能用吗？ | 能用，但要自己编译，作者未实测 |
+| 流程图为什么有的不跟随深色主题？ | 进阶语法交回官方 Mermaid 渲染，是有意的降级设计 |
+
+17 个问题的完整版（含编码、图片路径、iOS 限制、导出 PDF）：**[docs/FAQ.md](docs/FAQ.md)**。
+
+---
+
 ## 从源码构建
 
 ```bash
@@ -217,6 +262,8 @@ mdreader/
 ├── docs/
 │   ├── screenshots/             6 张界面截图
 │   ├── PLATFORM.md               三平台能力边界
+│   ├── FAQ.md                    17 个常见问题（能力边界 / 体积 / 隐私 / 编码）
+│   ├── COMPARISON.md             与 Typora / Obsidian / MarkText / VS Code 的 16 维对比
 │   ├── RELEASE.md                发版流程 / Release 文案模板 / 仓库元信息
 │   └── THIRD-PARTY-LICENSES.md   第三方依赖许可清单
 └── MDReader/
@@ -293,4 +340,26 @@ mdreader/
 欢迎提 Issue / PR，见 [CONTRIBUTING.md](CONTRIBUTING.md)。参与前请阅读[行为准则](CODE_OF_CONDUCT.md)，安全问题请按 [SECURITY.md](SECURITY.md) 私下上报。
 
 基于 **MIT** 协议开源，见 [LICENSE](LICENSE)。内嵌的第三方组件（marked / highlight.js / Mermaid）及其传递依赖的许可清单见 [docs/THIRD-PARTY-LICENSES.md](docs/THIRD-PARTY-LICENSES.md)，`LICENSE` 末尾另附摘要。
+
+---
+
+## 关注公众号
+
+产品更新、源码解析与技术分享首发在公众号 **「晨曦AI研习」**。回复 `MDReader` 可直接拿到三个版本的下载地址与 30 秒上手指引。
+
+<p align="center">
+  <img src="MDReader/src/brand-qr.jpg" alt="公众号「晨曦AI研习」，回复 MDReader 获取下载地址" width="200">
+</p>
+
+---
+
+## Star History
+
+<a href="https://star-history.com/#guizige-890323/mdreader&Date">
+  <img src="https://api.star-history.com/svg?repos=guizige-890323/mdreader&type=Date" alt="Star History Chart" width="620">
+</a>
+
+---
+
+**如果这个项目对你有用，点个 ⭐ Star 是成本最低的支持方式** —— 也是我唯一会看的指标。有 bug 或想要的功能，按 [Issue 模板](.github/ISSUE_TEMPLATE/bug_report.yml) 提一个，或个人项目响应可能慢一两天，但都会看。
 

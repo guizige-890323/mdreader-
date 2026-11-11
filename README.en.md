@@ -13,6 +13,15 @@
 
 **One HTML file is the whole application.** marked, highlight.js and Mermaid are inlined at build time, and the running program makes zero network requests.
 
+<p align="center">
+  <img src="docs/screenshots/01-card-light.png" alt="MD Reader card skin: a 2,000-line runbook split into numbered panels by heading" width="880">
+</p>
+
+<!-- TODO(demo): record a 20-second walkthrough (open → switch skins → sort a table → chart → dark theme),
+     save as docs/screenshots/demo.gif, then replace this comment. The GIF must sit above the fold. -->
+
+**Contents:** [Why this exists](#why-this-exists) · [Three ways to run it](#three-ways-to-run-it) · [What makes it different](#what-makes-it-different) · [Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Platform support](#platform-support) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Build from source](#build-from-source) · [Repository layout](#repository-layout) · [Privacy & security](#privacy--security) · [Version & roadmap](#version--roadmap) · [Contributing](#contributing) · [License](#license)
+
 ---
 
 ## Why this exists
@@ -166,6 +175,38 @@ Source and build configuration live in `MDReader/desktop/`. The `.dmg` **must be
 
 ---
 
+## How it compares
+
+If your need is **writing** Markdown, this tool is not for you — it cannot edit. It solves exactly one problem: **reading a local document that already exists.**
+
+| Your situation | Use instead | Why |
+| --- | --- | --- |
+| You need to write Markdown | Typora | WYSIWYG writing is the benchmark of this category |
+| 1,000+ notes, backlinks and a graph | Obsidian | The knowledge base is its core; MD Reader only renders that layer |
+| Reading README files while coding | VS Code | You are already in it |
+| Real-time collaboration or cloud sync | Notion / Google Docs | MD Reader deliberately has no accounts and no sync |
+| Documents containing math | Something else | **No KaTeX / MathJax support — a real gap** |
+| Just reading a local `.md` without opening an editor | **MD Reader** | Double-click, zero network, section cards, sortable tables |
+
+Full 16-dimension comparison (Typora / Obsidian / MarkText / VS Code / online editors): **[docs/COMPARISON.md](docs/COMPARISON.md)**.
+
+---
+
+## FAQ
+
+| Question | Answer |
+| --- | --- |
+| Can it edit? | No — a design decision, not an unfinished feature |
+| Is it really fully offline? | Yes, and you can verify it yourself with grep plus an unplugged cable |
+| Does a 3.8 MB HTML file open slowly? | Cold start is roughly 0.4–0.8 s; it is a local file with no network round-trip |
+| Why is the Windows installer over 100 MB? | The portable build (1.3 MB) is usually enough; the installer bundles the Electron runtime |
+| Does it run on macOS? | It does, but you must compile it — the maintainer has not tested it on a Mac |
+| Why do some diagrams ignore the dark theme? | Advanced syntax is handed back to stock Mermaid on purpose — a deliberate fallback |
+
+All 17 questions (encoding, image paths, iOS limits, PDF export): **[docs/FAQ.md](docs/FAQ.md)**.
+
+---
+
 ## Build from source
 
 ```bash
@@ -229,6 +270,8 @@ mdreader/
 ├── docs/
 │   ├── screenshots/             6 UI screenshots
 │   ├── PLATFORM.md              capability matrix across three platforms
+│   ├── FAQ.md                   17 answers (limits / size / privacy / encoding)
+│   ├── COMPARISON.md            16-dimension comparison with Typora / Obsidian / MarkText / VS Code
 │   ├── RELEASE.md               release process, release-note template, repo metadata
 │   └── THIRD-PARTY-LICENSES.md  bundled dependency licenses
 └── MDReader/
@@ -298,3 +341,25 @@ Issues and pull requests are welcome — please read [CONTRIBUTING.md](CONTRIBUT
 ## License
 
 [MIT](LICENSE). Third-party dependency licenses: [`docs/THIRD-PARTY-LICENSES.md`](docs/THIRD-PARTY-LICENSES.md).
+
+---
+
+## Follow along (Chinese)
+
+Release notes, source walkthroughs and technical write-ups are published first on the WeChat account **「晨曦AI研习」**. Reply `MDReader` to get download links for all three builds plus a 30-second quick start.
+
+<p align="center">
+  <img src="MDReader/src/brand-qr.jpg" alt="WeChat: 晨曦AI研习 — reply MDReader for downloads" width="200">
+</p>
+
+---
+
+## Star History
+
+<a href="https://star-history.com/#guizige-890323/mdreader&Date">
+  <img src="https://api.star-history.com/svg?repos=guizige-890323/mdreader&type=Date" alt="Star History Chart" width="620">
+</a>
+
+---
+
+**If this saved you a few IDE launches, a ⭐ Star is the cheapest way to say thanks** — and it is the only metric I watch. Found a bug? Use the [issue template](.github/ISSUE_TEMPLATE/bug_report.yml). Solo project, so replies may take a day or two, but every issue gets read.
