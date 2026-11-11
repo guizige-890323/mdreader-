@@ -6,6 +6,18 @@
   "author": "MDReader Contributors",
   "license": "MIT",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guizige-890323/mdreader.git",
+    "directory": "MDReader/desktop"
+  },
+  "homepage": "https://github.com/guizige-890323/mdreader#readme",
+  "bugs": {
+    "url": "https://github.com/guizige-890323/mdreader/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "sync": "python scripts/sync-app.py",
     "icons": "python scripts/make-icons.py",

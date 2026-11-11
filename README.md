@@ -201,23 +201,26 @@ python src/pack.py                   # 重新打便携版 zip
 mdreader/
 ├── README.md                    中文版（本文件）
 ├── README.en.md                 英文版
-├── LICENSE                      MIT
-├── CHANGELOG.md                 版本变更记录
+├── LICENSE                      MIT + 第三方组件附录
+├── CHANGELOG.md                 版本变更记录（唯一事实源）
 ├── CONTRIBUTING.md              贡献指南
 ├── CODE_OF_CONDUCT.md           贡献者公约 2.1
 ├── SECURITY.md                  安全漏洞上报流程
+├── .editorconfig                跨编辑器缩进 / 换行约定
+├── .gitattributes               换行符与二进制文件规则
+├── .gitignore
 ├── .github/
-│   ├── ISSUE_TEMPLATE/           Bug / 需求模板
+│   ├── ISSUE_TEMPLATE/           Bug / 需求表单 + config.yml
 │   ├── PULL_REQUEST_TEMPLATE.md  PR 自查清单
 │   ├── dependabot.yml            依赖漏洞自动扫描
-│   └── workflows/ci.yml          语法检查 + 单文件构建校验
+│   └── workflows/ci.yml          语法检查 + 构建 + 生成物漂移检查 + 回归
 ├── docs/
 │   ├── screenshots/             6 张界面截图
 │   ├── PLATFORM.md               三平台能力边界
-│   ├── RELEASE.md                发版流程 / Release 文案模板 / Topics
+│   ├── RELEASE.md                发版流程 / Release 文案模板 / 仓库元信息
 │   └── THIRD-PARTY-LICENSES.md   第三方依赖许可清单
 └── MDReader/
-    ├── dist/                    便携版成品（解压即用）
+    ├── dist/                    便携版成品（构建产物，提交进仓库）
     │   ├── MDReader.html          主程序，3.8 MB 单文件
     │   ├── 启动 MDReader.bat
     │   ├── 用此程序打开MD.bat
@@ -232,17 +235,20 @@ mdreader/
     │   ├── vendor/               marked 15 / hljs 11 / mermaid 10（离线）
     │   ├── build.py               内嵌依赖 → 单文件 HTML
     │   └── pack.py                便携版打包
-    └── desktop/                  桌面安装版
-        ├── main.js                单实例 / 文件关联 / 菜单 / 编码识别
-        ├── preload.js             安全桥接白名单
-        ├── app/                   与便携版共用的渲染产物
-        ├── build/                 图标 + NSIS 片段
-        ├── scripts/               同步 / 图标 / 回归验证
-        └── release/               构建输出（.exe / .dmg）
-    └── ios/                       iOS / iPadOS 主屏幕版（PWA）
+    ├── tools/                    图标生成 / 截图 / 浏览器验证脚本
+    ├── desktop/                  桌面安装版
+    │   ├── main.js                单实例 / 文件关联 / 菜单 / 编码识别
+    │   ├── preload.js             安全桥接白名单
+    │   ├── app/                  ← 生成物：sync-app.py 从 dist/ 复制，不入库
+    │   ├── build/                 图标 + NSIS 片段 + 离线 rcedit
+    │   ├── scripts/               同步 / 图标 / 回归验证
+    │   └── release/              ← 构建输出（.exe / .dmg），不入库
+    └── ios/                      iOS / iPadOS 主屏幕版（PWA）
         ├── build-pwa.py           注入 manifest / 图标 → 站点 + zip
-        └── site/                  生成物（已 gitignore）
+        └── site/                 ← 生成物，不入库
 ```
+
+`dist/` 是**提交进仓库的构建产物**：改了 `src/` 下的源码后必须重新执行 `python MDReader/src/build.py` 并一起提交，否则 CI 的生成物漂移检查会失败。`desktop/app/`、`desktop/release/`、`ios/site/` 均由脚本生成，不提交。
 
 ---
 
@@ -266,6 +272,7 @@ mdreader/
 | Windows 安装包 + `.md` 关联 + 桌面图标 | ✅ v1.3.0 |
 | macOS `.dmg` 构建配置 | ✅ 配置就绪，需在 Mac 上编译 |
 | iOS 文档类型注册（共享表单接收 `.md`） | 🔜 规划中，需另起 SwiftUI 工程 |
+| 产品界面多语言（UI i18n） | 🔜 规划中，当前仅文档双语 |
 | 全文搜索跨文档 | 💡 待评估 |
 
 ---
@@ -275,13 +282,15 @@ mdreader/
 - 仓库地址：<https://github.com/guizige-890323/mdreader>
 - 当前版本：**v1.3.0**
 - 许可证：MIT
+- 支持平台：Windows 10 / 11 · macOS 11+（需自行编译）· iOS / iPadOS（PWA）
 
-Topics 建议：`markdown` `markdown-viewer` `offline` `electron` `obsidian` `mermaid` `table-visualization` `windows` `file-association` `中文`。
+仓库简介与 Topics 的填写建议见 [docs/RELEASE.md](docs/RELEASE.md#四仓库元信息)。
 
 ---
 
 ## 贡献与协议
 
-欢迎提 Issue / PR，见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+欢迎提 Issue / PR，见 [CONTRIBUTING.md](CONTRIBUTING.md)。参与前请阅读[行为准则](CODE_OF_CONDUCT.md)，安全问题请按 [SECURITY.md](SECURITY.md) 私下上报。
 
-基于 **MIT** 协议开源，见 [LICENSE](LICENSE)。第三方依赖协议见 `MDReader/src/vendor/`。
+基于 **MIT** 协议开源，见 [LICENSE](LICENSE)。内嵌的第三方组件（marked / highlight.js / Mermaid）及其传递依赖的许可清单见 [docs/THIRD-PARTY-LICENSES.md](docs/THIRD-PARTY-LICENSES.md)，`LICENSE` 末尾另附摘要。
+

@@ -37,6 +37,20 @@ jobs:
         shell: bash
         run: python MDReader/desktop/scripts/sync-app.py
 
+      # 生成物漂移是这类仓库最隐蔽的坑：产物已提交、源码又改了，仓库里就躺着一份旧界面。
+      # 这里做两道校验：① 提交的 dist 必须与本次构建完全一致；② 桌面壳副本必须与 dist 字节一致。
+      - name: 生成物漂移检查
+        shell: bash
+        run: |
+          if ! git diff --exit-code -- MDReader/dist; then
+            echo "::error::MDReader/dist 与源码不一致。请在本地执行 python MDReader/src/build.py 后提交产物。"
+            exit 1
+          fi
+          cmp MDReader/dist/MDReader.html MDReader/desktop/app/MDReader.html
+          cmp MDReader/dist/示例文档.md MDReader/desktop/app/示例文档.md
+          cmp MDReader/dist/使用说明.md MDReader/desktop/app/使用说明.md
+          echo "生成物与提交内容一致（dist + desktop/app）"
+
       - name: 校验内嵌依赖完整
         shell: bash
         run: |

@@ -131,7 +131,13 @@ function createWindow() {
   });
 
   win.loadFile(APP_HTML, { query: { desktop: '1' } }).catch((e) => {
-    dialog.showErrorBox('MD Reader 启动失败', '找不到 app/MDReader.html\n\n' + e.message);
+    const hint = fs.existsSync(path.join(__dirname, 'app'))
+      ? ''
+      : '\n\napp/ 是构建产物，不随仓库提交。请先在 MDReader/desktop/ 下执行：\n    npm run sync\n或直接 npm start（会自动同步后再启动）。';
+    dialog.showErrorBox(
+      'MD Reader 启动失败',
+      '找不到 app/MDReader.html' + hint + '\n\n' + e.message
+    );
   });
 
   win.webContents.once('did-finish-load', () => {

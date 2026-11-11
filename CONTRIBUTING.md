@@ -30,6 +30,24 @@ python MDReader/src/pack.py                          # 重新打便携版 zip
 
 **硬约束**：`app.js` 里的桌面桥只允许在 `window.__MD_DESKTOP__` 存在时启用。任何改动都必须保证纯 HTML 下行为不变，`verify-portable.py` 是防线。
 
+### 产物提交规则（容易踩）
+
+| 目录 | 是否提交 | 说明 |
+| --- | --- | --- |
+| `MDReader/dist/` | ✅ **必须提交** | 便携版成品，CI 会校验它与你改的源码一致 |
+| `MDReader/desktop/app/` | ❌ 不提交 | `sync-app.py` 生成，已 gitignore |
+| `MDReader/desktop/release/` | ❌ 不提交 | electron-builder 输出 |
+| `MDReader/ios/site/` | ❌ 不提交 | PWA 生成目录 |
+| 根目录 `MDReader-*.zip` | ❌ 不提交 | `pack.py` / `build-pwa.py` 输出 |
+
+提交前自查产物是否已重建：
+
+```bash
+git status --short MDReader/dist    # 有输出 = 忘了重建或忘了 git add
+```
+
+CI 的「生成物漂移检查」会跑一遍构建，`dist/` 与提交内容不一致就直接失败。
+
 ### 桌面层
 
 `MDReader/desktop/main.js`（主进程）、`preload.js`（白名单桥）、`package.json`（构建与文件关联配置）。

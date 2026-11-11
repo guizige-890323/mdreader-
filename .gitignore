@@ -9,6 +9,10 @@ MDReader/desktop/.buildcache/
 # 浏览器测试 profile（验证脚本现在改用系统临时目录，这些是历史残留）
 MDReader/desktop/.e*/
 MDReader/desktop/*.log
+
+# ---- 桌面壳的渲染副本：全部由 scripts/sync-app.py 从 dist/ 生成，不入库 ----
+# `npm start` / `npm run build:*` 都会先跑 sync，因此 clone 后无需手工处理
+MDReader/desktop/app/
 MDReader/desktop/app/_autoload.js
 
 # ---- iOS PWA 生成物与浏览器测试 profile ----
@@ -33,6 +37,11 @@ __pycache__/
 *_verify*.html
 *_test.html
 *.zip.local
+
+# ---- 打包产物：由 src/pack.py 与 ios/build-pwa.py 生成到仓库根，不入库 ----
+MDReader-Windows11便携版.zip
+MDReader-iOS-PWA.zip
+MDReader-*.zip
 
 # ---- 用户数据 / 临时 ----
 _autoload.js
