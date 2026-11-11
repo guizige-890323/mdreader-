@@ -177,7 +177,7 @@ Source and build configuration live in `MDReader/desktop/`. The `.dmg` **must be
 
 ## How it compares
 
-If your need is **writing** Markdown, this tool is not for you — it cannot edit. It solves exactly one problem: **reading a local document that already exists.**
+If you write long-form Markdown every day, this is not your main tool — **editing only goes as far as "fix a line or two"** (block editing plus `Ctrl+S` writing back to the original file; no syntax-highlighted editor, no plugins). It mainly solves **reading a local document that already exists.**
 
 | Your situation | Use instead | Why |
 | --- | --- | --- |
@@ -196,7 +196,7 @@ Full 16-dimension comparison (Typora / Obsidian / MarkText / VS Code / online ed
 
 | Question | Answer |
 | --- | --- |
-| Can it edit? | No — a design decision, not an unfinished feature |
+| Can it edit? | Yes — block editing plus `Ctrl+S` writes back to the original file; but it is not a primary writing tool |
 | Is it really fully offline? | Yes, and you can verify it yourself with grep plus an unplugged cable |
 | Does a 3.8 MB HTML file open slowly? | Cold start is roughly 0.4–0.8 s; it is a local file with no network round-trip |
 | Why is the Windows installer over 100 MB? | The portable build (1.3 MB) is usually enough; the installer bundles the Electron runtime |
