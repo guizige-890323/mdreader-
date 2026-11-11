@@ -87,7 +87,9 @@
   }
   async function ingest(items, opts) {
     opts = opts || {};
-    S.files = []; S.byKey.clear(); S.images.clear(); S.baseDir = opts.baseDir || '';
+    if (opts.baseDir) S.baseDir = opts.baseDir;
+    var _existing = new Set(S.files.map(function (f) { return norm(f.rel || f.name); }));
+    var newFiles = [], reused = [];
     var mds = [];
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
@@ -100,24 +102,33 @@
         continue;
       }
       if (!isMd(nm) && it.cached == null) continue;
+      if (_existing.has(norm(rel))) { for (var z = 0; z < S.files.length; z++) if (norm(S.files[z].rel || S.files[z].name) === norm(rel)) { reused.push(S.files[z]); break; } continue; }
+      _existing.add(norm(rel));
       var obj = { name: nm, rel: rel, dir: dirOf(rel), file: it.file || null, cached: it.cached != null ? it.cached : null, enc: it.enc || '', absPath: it.absPath || '' };
-      mds.push(obj);
+      newFiles.push(obj);
       if (!S.byKey.has(keyOf(nm))) S.byKey.set(keyOf(nm), obj);
     }
-    mds.sort(function (a, b) { return a.rel.localeCompare(b.rel, 'zh-CN', { numeric: true }); });
-    S.files = mds;
+    newFiles.sort(function (a, b) { return a.rel.localeCompare(b.rel, 'zh-CN', { numeric: true }); });
+    S.files = S.files.concat(newFiles);
+    S.files.sort(function (a, b) { return a.rel.localeCompare(b.rel, 'zh-CN', { numeric: true }); });
     resetEditing();
-    S.tabs = []; S.activeKey = null; S.current = null;
     buildTree();
     updateStatus();
-    if (!mds.length) { toast('没有找到 .md 文件'); enterWelcomeView(); renderTabbar(); return 0; }
+    if (!newFiles.length) {
+      if (reused.length) { await openFile(reused[0], null, { activate: true, pushRecent: false }); }
+      else if (!S.tabs.length) { toast('没有找到 .md 文件'); enterWelcomeView(); }
+      renderTabbar();
+      return 0;
+    }
     var cap = opts.maxTabs || 12;
-    for (var j = 0; j < mds.length && j < cap; j++) {
-      await openFile(mds[j], null, { activate: j === 0, pushRecent: j === 0 });
+    var opened = 0;
+    for (var j = 0; j < newFiles.length && opened < cap; j++) {
+      await openFile(newFiles[j], null, { activate: j === 0, pushRecent: j === 0 });
+      opened++;
     }
     renderTabbar();
-    if (mds.length > cap) toast('已打开前 ' + cap + ' 个文档，其余 ' + (mds.length - cap) + ' 个可在左侧文件树点击打开');
-    return mds.length;
+    if (newFiles.length > cap) toast('已打开前 ' + cap + ' 个文档，其余 ' + (newFiles.length - cap) + ' 个可在左侧文件树点击打开');
+    return newFiles.length;
   }
   async function loadFileList(fileList) {
     var items = Array.prototype.slice.call(fileList).map(function (f) {
@@ -299,8 +310,6 @@
       var el = document.getElementById(decodeURIComponent(opts.anchor));
       if (el) scrollInReader(el, 'auto'); else reader.scrollTop = tab.scrollTop || 0;
     } else reader.scrollTop = tab.scrollTop || 0;
-    $('#crumbPath').textContent = tab.item.rel || tab.item.name;
-    $('#crumbEnc').textContent = tab.item.enc || '—';
     welcome.classList.add('hidden'); content.classList.remove('hidden');
     buildTree();
     updateStatus();
@@ -891,7 +900,7 @@
     if (D && item.absPath && typeof D.writeFile === 'function') {
       var r = await D.writeFile(item.absPath, text, item.enc || 'UTF-8');
       if (!r || !r.ok) { toast('保存失败：' + ((r && r.error) || '未知错误'), 4000); return; }
-      if (r.enc) { item.enc = r.enc; $('#crumbEnc').textContent = item.enc; }
+      if (r.enc) { item.enc = r.enc; var se = $('#stEnc'); if (se) se.textContent = '· ' + item.enc; }
       toast('已保存到 ' + item.name);
     } else {
       var blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
@@ -927,6 +936,7 @@
   function updateStatus() {
     var item = S.current;
     $('#stFile').textContent = item ? '📄 ' + item.rel : '就绪';
+    var se = $('#stEnc'); if (se) se.textContent = item && item.enc ? '· ' + item.enc : '';
     if (!item) { $('#stWords').textContent = ''; $('#stRead').textContent = ''; }
     else {
       var t = item.cached || '', chars = t.replace(/\s/g, '').length;
@@ -1000,7 +1010,7 @@
     if (!S.current) { toast('请先打开一个文档'); return; }
     await inlineBlobImages();
     var css = $('style').textContent;
-    var extra = 'body{overflow:auto;height:auto}#app{display:block}.toolbar,.sidebar,.crumb,.statusbar,.tw-bar,.chart-box,.code-bar,#welcome,.mf-tools,.tf-block-bar{display:none!important}.reader-inner{max-width:980px;margin:0 auto;padding:24px 36px 60px}';
+    var extra = 'body{overflow:auto;height:auto}#app{display:block}.toolbar,.sidebar,.statusbar,.tw-bar,.chart-box,.code-bar,#welcome,.mf-tools,.tf-block-bar{display:none!important}.reader-inner{max-width:980px;margin:0 auto;padding:24px 36px 60px}';
     var html = '<!DOCTYPE html><html lang="zh-CN" data-theme="' + S.theme + '" data-layout="' + S.layout +
       '" data-table-theme="' + S.tableTheme + '"><head><meta charset="UTF-8"><title>' +
       esc(S.current.name) + '</title><style>' + css + '\n' + extra + '</style></head><body><div class="reader-inner"><article id="content" style="font-size:' + S.fs + 'px">' +
@@ -1240,6 +1250,7 @@
   };
   document.addEventListener('keydown', function (e) {
     var mod = e.ctrlKey || e.metaKey;
+    if (e.key === 'Escape' && focusApp.classList.contains('focus')) { e.preventDefault(); setFocus(false); return; }
     if (e.key === 'Escape' && !$('#recentWrap').classList.contains('hidden')) { closeRecentPanel(); return; }
     if (mod && e.key.toLowerCase() === 'o') { e.preventDefault(); $('#filePicker').click(); }
     else if (mod && e.key.toLowerCase() === 'r') { e.preventDefault(); $('#btnRecent').click(); }
@@ -1640,6 +1651,38 @@
   }, true);
   window.addEventListener('drop', handleDrop, true);
   window.addEventListener('dragend', function () { showDrop(false); }, true);
+
+  /* ================================================================
+     专注阅读模式：隐去侧栏/工具条/状态栏，只留正文 + 顶部阅读进度
+     ================================================================ */
+  var focusApp = document.getElementById('app');
+  function updateFocusProgress() {
+    if (!focusApp.classList.contains('focus')) return;
+    var max = reader.scrollHeight - reader.clientHeight;
+    var pct = max > 0 ? (reader.scrollTop / max) * 100 : 0;
+    var fill = document.getElementById('focusFill');
+    if (fill) fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+  function setFocus(on) {
+    if (on) {
+      focusApp.dataset.sbCollapsed = $('#sidebar').classList.contains('collapsed') ? '1' : '0';
+      focusApp.classList.add('focus');
+      updateFocusProgress();
+    } else if (focusApp.classList.contains('focus')) {
+      focusApp.classList.remove('focus');
+      $('#sidebar').classList.toggle('collapsed', focusApp.dataset.sbCollapsed === '1');
+    }
+  }
+  $('#btnFocus').onclick = function () { setFocus(!focusApp.classList.contains('focus')); };
+  $('#focusExit').onclick = function () { setFocus(false); };
+  reader.addEventListener('scroll', updateFocusProgress, { passive: true });
+  // 欢迎屏「专注阅读」功能卡：先确保有文档可读，再进入专注
+  var wFocusCard = document.getElementById('wFocusCard');
+  if (wFocusCard) wFocusCard.onclick = function () {
+    function enter() { setFocus(true); }
+    if (S.current) enter();
+    else { $('#wDemo').click(); setTimeout(enter, 400); }
+  };
 
   /* ---------- 示例文档 ---------- */
   var DEMO = [

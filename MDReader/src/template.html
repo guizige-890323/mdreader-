@@ -342,12 +342,7 @@ select.sel{height:32px;border:1px solid var(--border);border-radius:7px;backgrou
 .outline-item[data-d="6"]{padding-left:68px}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
-.crumb{
-  flex:0 0 36px;display:flex;align-items:center;gap:8px;padding:0 22px;font-size:12px;color:var(--muted);
-  border-bottom:1px solid var(--border-2);background:var(--panel-2);white-space:nowrap;overflow:hidden;
-}
-.crumb .path{overflow:hidden;text-overflow:ellipsis}
-.crumb .badge{margin-left:auto;border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:11px}
+/* crumb 已移除：文件名由页签栏 + 状态栏展示，避免与页签重复并显示为空占位 */
 .reader{flex:1;overflow:auto;scroll-behavior:smooth;position:relative;overscroll-behavior:contain}
 /* ===== 文档标签栏（多标签模式） ===== */
 .tabbar{position:sticky;top:0;z-index:6;display:flex;gap:2px;align-items:stretch;overflow-x:auto;overflow-y:hidden;background:var(--panel-2);border-bottom:1px solid var(--border);padding:4px 6px 0;flex:none;scrollbar-width:thin}
@@ -739,6 +734,7 @@ html[data-theme="sepia"]{
   background:var(--panel);border-top:1px solid var(--border);color:var(--muted);font-size:11.5px;
 }
 .statusbar .s-right{margin-left:auto;display:flex;gap:16px}
+.statusbar .st-enc{color:var(--accent);opacity:.85;font-variant-numeric:tabular-nums}
 #drop{
   position:fixed;inset:0;background:color-mix(in srgb,var(--accent) 12%,transparent);
   border:3px dashed var(--accent);z-index:99;display:none;place-items:center;backdrop-filter:blur(2px);
@@ -793,7 +789,7 @@ html[data-theme="dark"] #toast{background:#e6edf3;color:#0d1117}
 @media print{.recent-wrap{display:none!important}}
 
 @media print{
-  .toolbar,.sidebar,.crumb,.statusbar,.tw-bar,.chart-box,.code-bar,#drop,#toast,.mf-tools{display:none!important}
+  .toolbar,.sidebar,.statusbar,.tw-bar,.chart-box,.code-bar,#drop,#toast,.mf-tools{display:none!important}
   .mf-wrap{box-shadow:none;break-inside:avoid}
   .mf-art{overflow:visible;padding:0}
   .mf-svg.is-wide{max-width:100%!important;width:100%!important;height:auto!important}
@@ -1011,6 +1007,20 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
 .sec-wc{flex:0 0 auto;font-size:10.5px;color:var(--muted)}
 .empty-hint{color:var(--muted);font-size:12.5px;padding:14px 12px;line-height:1.6}
 .st-dirty{color:var(--warn);font-weight:600}
+
+/* ===== 专注阅读模式：隐去侧栏/工具条/状态栏，只留正文 + 顶部进度 ===== */
+.focus-bar{position:fixed;top:0;left:0;right:0;height:4px;background:var(--panel-2);z-index:60;display:none}
+#app.focus .focus-bar{display:block}
+.focus-fill{height:100%;width:0;background:var(--accent);transition:width .1s linear}
+.focus-exit{position:fixed;top:10px;right:14px;z-index:61;display:none;align-items:center;gap:6px;
+  padding:7px 14px;border:1px solid var(--border);border-radius:18px;background:var(--panel);
+  color:var(--text-2);font-size:12px;cursor:pointer;box-shadow:var(--shadow)}
+.focus-exit:hover{border-color:var(--accent);color:var(--accent)}
+#app.focus .focus-exit{display:inline-flex}
+#app.focus .toolbar,#app.focus .sidebar,#app.focus .statusbar,#app.focus .tabbar{display:none}
+#app.focus .reader{scroll-behavior:smooth}
+#wFocusCard{cursor:pointer}
+#wFocusCard:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -1022,6 +1032,7 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
     </div>
     <div class="tb-sep"></div>
     <button class="btn icon" id="btnSide" title="显示/隐藏侧栏 (Ctrl+B)">☰</button>
+    <button class="btn icon" id="btnFocus" title="专注阅读模式：隐去侧栏与工具条，只留正文与进度（Esc 退出）">◎</button>
     <button class="btn" id="btnOpenFile" title="打开一个或多个 .md 文件 (Ctrl+O)">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span class="tb-label">打开文件</span></button>
     <button class="btn" id="btnOpenDir" title="导入整个文件夹（支持 Obsidian 库）">
@@ -1099,7 +1110,6 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
     </aside>
 
     <div class="main">
-      <div class="crumb"><span id="crumbPath">未打开文件</span><span class="badge" id="crumbEnc">UTF-8</span></div>
       <div class="reader" id="reader">
         <div class="tabbar hidden" id="tabbar"></div>
         <div id="welcome">
@@ -1163,7 +1173,7 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
             <div class="w-card"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">  <path d="M 9 17 C 14 13 20 13 24 17 C 28 13 34 13 39 17 L 39 33 C 34 29 28 29 24 33 C 20 29 14 29 9 33 Z" fill="currentColor"/>  <line x1="24" y1="17" x2="24" y2="33" class="fi-cut" stroke-width="2"/>  <line x1="12" y1="21" x2="21" y2="21" class="fi-cut" stroke-width="1.6"/>  <line x1="12" y1="25" x2="21" y2="25" class="fi-cut" stroke-width="1.6"/>  <line x1="27" y1="21" x2="36" y2="21" class="fi-cut" stroke-width="1.6"/>  <line x1="27" y1="25" x2="36" y2="25" class="fi-cut" stroke-width="1.6"/></g></svg></span><b>整库浏览</b></div><span>拖入即得一座文库：文件树 + 大纲 + 全文搜索 + 编码自动识别，笔记库不用导出来回折腾</span></div>
             <div class="w-card"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="9" width="15" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><line x1="13.5" y1="15" x2="21.5" y2="15" stroke="currentColor" stroke-width="2.2"/><line x1="13.5" y1="20" x2="21.5" y2="20" stroke="currentColor" stroke-width="2.2"/><line x1="13.5" y1="25" x2="18" y2="25" stroke="currentColor" stroke-width="2.2"/><path d="M 36.4 15.6 L 31.2 20.8 L 28.6 27.6 L 35.4 25 L 40.6 19.8 Q 41.8 18.6 40.6 17.2 L 39 15.6 Q 37.6 14.4 36.4 15.6 Z" fill="currentColor"/><line x1="10" y1="35.5" x2="24" y2="35.5" stroke="currentColor" stroke-width="2.6" stroke-dasharray="0.1 5"/></g></svg></span><b>按块编辑</b></div><span>段落、标题、表格、代码切成独立小块逐块修改，不再整篇塞进编辑器乱序；保存后换行与 frontmatter 分毫不差</span></div>
             <div class="w-card"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="21" r="7.2" fill="currentColor"/><circle cx="24" cy="21" r="2.6" class="fi-cut"/><path d="M 16.6 24.6 L 12 36.5" fill="none" stroke="currentColor" stroke-width="3"/><path d="M 31.4 24.6 L 36 36.5" fill="none" stroke="currentColor" stroke-width="3"/><path d="M 20 27.8 Q 24 30.8 28 27.8" fill="none" stroke="currentColor" stroke-width="3"/></g></svg></span><b>三格式导出</b></div><span>读完就能交：一键导出独立 HTML、打印存 PDF、导出 Word，排版样式全部随文档带走</span></div>
-            <div class="w-card"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="5" fill="currentColor"/></g></svg></span><b>专注阅读</b></div><span>一键隐去侧栏与工具条，只留正文与进度，沉浸读完一篇长文不被打断</span></div>
+            <div class="w-card" id="wFocusCard"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="5" fill="currentColor"/></g></svg></span><b>专注阅读</b></div><span>一键隐去侧栏与工具条，只留正文与进度，沉浸读完一篇长文不被打断</span></div>
             <div class="w-card"><div class="wc-head"><span class="feat-ico"><svg class="fi-svg" viewBox="0 0 48 48" aria-hidden="true"><rect class="fi-tile" x="3" y="3" width="42" height="42" rx="10" ry="10"/><g class="fi-glyph" fill="currentColor" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 11 A13 13 0 0 1 24 37 A9 9 0 1 0 24 11 Z" fill="currentColor"/></g></svg></span><b>主题肤色</b></div><span>浅色 / 深色 / 护眼三种肤色一键切换，长时间阅读不刺眼、不疲劳</span></div>
           </div>
 
@@ -1200,9 +1210,11 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
   </div>
 
   <div class="statusbar">
-    <span id="stFile">就绪</span><span id="stWords"></span><span id="stRead"></span><span id="stDirty" class="st-dirty"></span>
+    <span id="stFile">就绪</span><span id="stEnc" class="st-enc"></span><span id="stWords"></span><span id="stRead"></span><span id="stDirty" class="st-dirty"></span>
     <div class="s-right"><span id="stLayout"></span><span id="stCount"></span><span id="stTheme">浅色主题</span><span id="stBuild">MD Reader v1.3 · 离线版</span></div>
   </div>
+  <div class="focus-bar" id="focusBar"><div class="focus-fill" id="focusFill"></div></div>
+  <button class="focus-exit" id="focusExit" type="button" title="退出专注阅读（Esc）">退出专注 · Esc</button>
 </div>
 
 <input type="file" id="filePicker" class="hidden" multiple accept=".md,.markdown,.mdown,.mkd,.txt,text/markdown,text/plain">
@@ -1248,6 +1260,7 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
     var w = document.getElementById('welcome');
     var main = document.querySelector('.main');
     if (!w || !main) return;
+    if (!w.offsetParent) return;   // welcome 隐藏时（专注模式 / 文档阅读期间）跳过，避免把 w-bleed 内联样式算成脏值并残留
     var cs = getComputedStyle(w);
     var inner = w.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
     var target = Math.max(inner, main.clientWidth - 64);   // 左右各留 32px
@@ -1304,6 +1317,13 @@ html[data-editing="1"] .reader-inner>.paper{flex:1;display:flex;flex-direction:c
   initFeatScroll();
 
   fitBleed();
+  // 兜底：welcome 重新显示（回首页 / 关闭最后的标签 / 退出专注后回欢迎屏）时重算出血宽度，
+  // 纠正任何历史残留的脏内联样式（如旧逻辑在专注模式期间把 w-bleed 算成巨值 + 巨负 marginLeft）
+  if (window.MutationObserver) {
+    new MutationObserver(function () {
+      if (!welcome.classList.contains('hidden')) requestAnimationFrame(fitBleed);
+    }).observe(welcome, { attributes: true, attributeFilter: ['class'] });
+  }
 })();
 </script>
 </body>
