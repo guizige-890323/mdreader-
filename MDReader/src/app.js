@@ -1704,7 +1704,7 @@
     '| Q2 | +17.31% | +21.08% | +24.07% | +31.56% | +122.73% | 89.73% | 13.21% |',
     '| Q3 | +12.13% | +19.64% | +25.87% | +25.68% | +50.20% | 94.40% | 13.88% |',
     '| Q4 | +12.87% | +17.54% | +19.37% | +23.12% | +33.70% | 95.87% | 14.54% |', '',
-    '👆 点击「图表」按钮生成柱状图；点击表头可排序；「复制 CSV」可直接粘到 Excel；工具条右侧可切换黑白极简 / 蓝色科技 / 红色政商 / 粉色卡通四套表格风格。', '',
+    '👆 表格下方已自动展开柱状图；点击表头可排序；「复制 CSV」可直接粘到 Excel；工具条右侧可切换黑白极简 / 蓝色科技 / 红色政商 / 粉色卡通四套表格风格，图表配色同步联动。', '',
     '## 2. 代码块与高亮', '',
     '```python', 'def collect(devices, proto="snmpv3"):', '    # 采集策略示例', '    return [d.read(proto) for d in devices if d.online]', '```', '',
     '行内代码 `marked.parse()` 与 **加粗**、*斜体*、~~删除线~~ 均正常渲染。', '',
@@ -1767,7 +1767,15 @@
   ].join('\n');
   $('#wDemo').onclick = function () {
     ingest([{ name: '示例文档.md', rel: '示例文档.md', cached: DEMO, enc: 'DEMO' }])
-      .then(function () { toast('已载入示例文档 · 试试表格上的「图表」按钮'); });
+      .then(function () {
+        toast('已载入示例文档 · 西南财务数据图表已展开，试试切换表格风格');
+        // 示例默认展开所有财务表的图表（西南区域经营数据 + 环比与回款质量）
+        requestAnimationFrame(function () {
+          document.querySelectorAll('#content .tw button[data-act="chart"]').forEach(function (btn) {
+            if (!btn.classList.contains('on')) btn.click();
+          });
+        });
+      });
   };
 
   /* ================================================================

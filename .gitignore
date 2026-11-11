@@ -38,10 +38,13 @@ __pycache__/
 *_test.html
 *.zip.local
 
-# ---- 打包产物：由 src/pack.py 与 ios/build-pwa.py 生成到仓库根，不入库 ----
+# ---- 打包产物：由 tools/pack-portable.py 与 ios/build-pwa.py 生成，不入库 ----
 MDReader-Windows11便携版.zip
 MDReader-iOS-PWA.zip
 MDReader-*.zip
+
+# 发版产物统一输出目录（含 100 MB 级 exe，绝不能入库）
+发布包/
 
 # ---- 用户数据 / 临时 ----
 _autoload.js

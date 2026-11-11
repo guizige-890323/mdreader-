@@ -41,7 +41,7 @@
 
 | | Portable | Desktop installer | iOS / iPadOS (PWA) |
 | --- | --- | --- | --- |
-| Artifact | `MDReader-Windows11便携版.zip` (~2.9 MB) | `MD Reader Setup 1.3.0.exe` (NSIS, ~112 MB) | `MDReader-iOS-PWA.zip` (~2.3 MB) |
+| Artifact | `MDReader-便携版-v1.3.0.zip` (~1.3 MB) | `MD Reader Setup 1.3.0.exe` (NSIS, ~118 MB) | `MDReader-iOS-PWA-v1.3.0.zip` (~2 MB) |
 | Install | None — unzip and run | Double-click, choose a directory | Serve over LAN, then "Add to Home Screen" |
 | Desktop entry | Manual shortcut | **Desktop + Start Menu, created automatically** | ✅ Home screen icon, full-screen launch |
 | `.md` association | Manual "Open with" | **Registers 4 extensions, can be set as default** | ❌ iOS forbids third-party default handlers |
@@ -143,7 +143,7 @@ Select a `.md` in Finder → `⌘I` → **Open with** → MD Reader → **Change
 
 ### Portable (no install)
 
-Unzip `MDReader-Windows11便携版.zip` anywhere (USB stick included) and run `启动 MDReader.bat`.
+Unzip `MDReader-便携版-v1.3.0.zip` anywhere (USB stick included) and run `启动 MDReader.bat`.
 
 You can also drag a `.md` onto `用此程序打开MD.bat`, or associate either `.bat` through "Open with".
 
@@ -151,7 +151,7 @@ You can also drag a `.md` onto `用此程序打开MD.bat`, or associate either `
 
 ### iOS / iPadOS (PWA — what iOS actually allows)
 
-Unzip `MDReader-iOS-PWA.zip`, then in that folder run `python -m http.server 8000 --bind 0.0.0.0`. On your iPhone/iPad, open `http://<your-lan-ip>:8000/` in Safari → **Share** → **Add to Home Screen**. You get a full-screen, chrome-less "MD Reader" icon; pick files with **Open file** from the Files app.
+Unzip `MDReader-iOS-PWA-v1.3.0.zip`, then in that folder run `python -m http.server 8000 --bind 0.0.0.0`. On your iPhone/iPad, open `http://<your-lan-ip>:8000/` in Safari → **Share** → **Add to Home Screen**. You get a full-screen, chrome-less "MD Reader" icon; pick files with **Open file** from the Files app.
 
 > This is the closest thing to a home-screen app that iOS permits. It **cannot** register a `.md` default handler or open files on double-click. Details in `docs/PLATFORM.md`.
 
@@ -223,8 +223,8 @@ The portable and iOS bundles need no Node at all:
 
 ```bash
 python src/build.py                    # regenerate the single-file MDReader.html
-python src/pack.py                     # → MDReader-Windows11便携版.zip
-python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA.zip
+python MDReader/tools/pack-portable.py                     # → MDReader-便携版-v1.3.0.zip
+python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA-v1.3.0.zip
 ```
 
 > **Changing the icon means re-packaging everything.** `npm run icons` regenerates the ICO, NSIS wizard bitmaps and in-app logo from `brand-source/`; after that you must run `src/build.py` → `sync-app.py` → `build:win` → `pack.py` → `ios/build-pwa.py` in order. Editing the images in `build/` alone leaves the shipped installer and portable zip with the old icon. Full checklist: [`docs/PLATFORM.md`](docs/PLATFORM.md).
@@ -243,7 +243,7 @@ npm install
 python src/build.py                          # → dist/MDReader.html
 python desktop/scripts/sync-app.py           # sync into the Electron shell
 python desktop/scripts/verify-portable.py    # 17-check regression
-python src/pack.py                           # re-pack the portable zip
+python MDReader/tools/pack-portable.py                           # re-pack the portable zip
 ```
 
 ---

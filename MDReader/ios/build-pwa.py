@@ -20,7 +20,11 @@ SRC_HTML = ROOT / "MDReader" / "dist" / "MDReader.html"
 # 在浅色壁纸上识别度最高；软件内部 logo 仍由主题自动在两版之间切换。
 SRC_ICON = ROOT / "MDReader" / "desktop" / "build" / "icon-light.png"
 OUT = HERE / "site"
-ZIP = ROOT / "MDReader-iOS-PWA.zip"
+VERSION = __import__("json").loads(
+    (ROOT / "MDReader" / "desktop" / "package.json").read_text(encoding="utf-8")
+)["version"]
+OUT_DIR = ROOT / "发布包"
+ZIP = OUT_DIR / ("MDReader-iOS-PWA-v%s.zip" % VERSION)
 
 PWA_HEAD = """
 <!-- iOS PWA：仅影响「添加到主屏幕」后的表现，不改变阅读器逻辑 -->
@@ -163,7 +167,7 @@ README = """# MD Reader · iOS / iPadOS 主屏幕版（PWA）
 
 - **Windows 安装版**：桌面图标 + 开始菜单 + 4 种扩展名注册，可设为默认 → `MD Reader Setup 1.3.0.exe`
 - **macOS 安装版**：Dock / 应用程序 + `CFBundleDocumentTypes` → 在 Mac 上执行 `desktop/scripts/build-mac.sh`
-- **便携版**：`MDReader-Windows11便携版.zip`，解压即用
+- **便携版**：`MDReader-便携版-v__VER__.zip`，解压即用
 - 三者与本包共用**同一份** `MDReader.html`，渲染功能完全一致
 
 ---
@@ -191,7 +195,7 @@ def build():
     (OUT / "manifest.webmanifest").write_text(
         json.dumps(MANIFEST, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     (OUT / "sw.js").write_text(SW, encoding="utf-8", newline="\n")
-    (OUT / "README.md").write_text(README, encoding="utf-8", newline="\n")
+    (OUT / "README.md").write_text(README.replace("__VER__", VERSION), encoding="utf-8", newline="\n")
 
     src = Image.open(SRC_ICON).convert("RGBA")
 

@@ -79,8 +79,8 @@ git push origin v1.3.0
 3. 描述直接复制[第三节模板](#三release-描述模板)
 4. **上传附件**（下载量只统计 Release 附件，`git clone` 不计入）
    - `MD Reader Setup 1.3.0.exe` —— 桌面安装版（主线）
-   - `MDReader-Windows11便携版.zip` —— 免安装版（U 盘 / 内网）
-   - `MDReader-iOS-PWA.zip` —— iPhone / iPad 主屏幕版
+   - `MDReader-便携版-v1.3.0.zip` —— 免安装版（U 盘 / 内网）
+   - `MDReader-iOS-PWA-v1.3.0.zip` —— iPhone / iPad 主屏幕版
 5. 勾 **Set as the latest release** → **Publish release**
 
 > 安装包需在 Windows 本机构建（`cd MDReader/desktop && npm run build:win`）。CI 目前不产出 NSIS 安装包，只产出便携版与 PWA 两个 artifact。
@@ -106,8 +106,8 @@ git push origin v1.3.0
 | 附件 | 适合 |
 | --- | --- |
 | `MD Reader Setup 1.3.0.exe` | 日常主力机器，要桌面图标和 .md 默认打开 |
-| `MDReader-Windows11便携版.zip` | U 盘、临时机器、内网离线、不想装东西 |
-| `MDReader-iOS-PWA.zip` | 在 iPhone / iPad 上看 md，接受不能设为默认关联 |
+| `MDReader-便携版-v1.3.0.zip` | U 盘、临时机器、内网离线、不想装东西 |
+| `MDReader-iOS-PWA-v1.3.0.zip` | 在 iPhone / iPad 上看 md，接受不能设为默认关联 |
 
 ### 设为默认打开程序
 Windows：右键 `.md` → 打开方式 → 选择其他应用 → MD Reader → 勾选「始终使用此应用打开 .md 文件」。

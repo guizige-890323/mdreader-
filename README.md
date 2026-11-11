@@ -8,7 +8,7 @@
 [![Downloads](https://img.shields.io/github/downloads/guizige-890323/mdreader/total?label=downloads)](https://github.com/guizige-890323/mdreader/releases)
 [![Stars](https://img.shields.io/github/stars/guizige-890323/mdreader?style=flat)](https://github.com/guizige-890323/mdreader/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20macOS%2011%2B-2f6feb.svg)](https://github.com/guizige-890323/mdreader/releases)
+[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20iOS%20PWA-2f6feb.svg)](https://github.com/guizige-890323/mdreader/releases)
 [![Offline](https://img.shields.io/badge/network-0%20requests-2e7d32.svg)](#隐私与安全)
 
 **一个 HTML 文件就是完整程序**：marked、highlight.js、mermaid 全部内嵌，运行时不发起任何网络请求。
@@ -45,7 +45,7 @@
 
 | | 便携版 | 桌面安装版 | iOS / iPadOS 主屏幕版 |
 | --- | --- | --- | --- |
-| 交付物 | `MDReader-Windows11便携版.zip`（约 2 MB） | `MD Reader Setup 1.3.0.exe`（NSIS 安装包） | `MDReader-iOS-PWA.zip`（约 1 MB） |
+| 交付物 | `MDReader-便携版-v1.3.0.zip`（约 1.3 MB） | `MD Reader Setup 1.3.0.exe`（约 118 MB，NSIS） | `MDReader-iOS-PWA-v1.3.0.zip`（约 2 MB） |
 | 安装 | 不用装，解压即用 | 双击安装，可选择目录 | 局域网托管后「添加到主屏幕」 |
 | 桌面入口 | 手动建快捷方式 | **自动创建桌面 + 开始菜单快捷方式** | ✅ 主屏幕图标、全屏启动 |
 | `.md` 关联 | 手动「打开方式」 | **安装时注册 4 种扩展名，可直接设为默认** | ❌ iOS 系统不允许注册默认关联 |
@@ -135,7 +135,7 @@
 
 ### 便携版（免安装）
 
-下载 `MDReader-Windows11便携版.zip` → 解压到任意目录（含 U 盘）→ 双击 `启动 MDReader.bat`。
+下载 `MDReader-便携版-v1.3.0.zip` → 解压到任意目录（含 U 盘）→ 双击 `启动 MDReader.bat`。
 
 也可以把 `.md` 拖到 `用此程序打开MD.bat` 上，或在右键「打开方式」里关联这两个 bat。
 
@@ -143,7 +143,7 @@
 
 ### iOS / iPadOS 主屏幕版（PWA，可行范围）
 
-下载 `MDReader-iOS-PWA.zip` → 解压 → 在该目录执行 `python -m http.server 8000 --bind 0.0.0.0` → iPhone/iPad 用 Safari 打开 `http://<电脑局域网IP>:8000/` → **分享 → 添加到主屏幕**。主屏幕会出现「MD Reader」图标，全屏启动、无地址栏。看文档时在应用内点「打开文件」，从「文件」App 里选 `.md`。
+下载 `MDReader-iOS-PWA-v1.3.0.zip` → 解压 → 在该目录执行 `python -m http.server 8000 --bind 0.0.0.0` → iPhone/iPad 用 Safari 打开 `http://<电脑局域网IP>:8000/` → **分享 → 添加到主屏幕**。主屏幕会出现「MD Reader」图标，全屏启动、无地址栏。看文档时在应用内点「打开文件」，从「文件」App 里选 `.md`。
 
 > 这是 iOS 上最接近"桌面图标"的形态，**不能**注册 `.md` 默认关联，也不能双击自动打开。详见包内 `README.md` 与 [平台能力说明](docs/PLATFORM.md)。
 
@@ -215,8 +215,8 @@ npm run build:win            # → desktop/release/MD Reader Setup 1.3.0.exe
 
 ```bash
 python src/build.py                    # 重新生成单文件 MDReader.html
-python src/pack.py                     # → MDReader-Windows11便携版.zip
-python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA.zip
+python MDReader/tools/pack-portable.py                     # → MDReader-便携版-v1.3.0.zip
+python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA-v1.3.0.zip
 ```
 
 > **换图标必须重打包**：`npm run icons` 从 `brand-source/` 生成 ICO、NSIS 向导位图和应用内 logo 后，还要依次跑 `src/build.py` → `sync-app.py` → `build:win` → `pack.py` → `ios/build-pwa.py`。只改 `build/` 里的图片，已生成的安装包和便携版里仍旧是旧图。完整规格见 [平台能力说明 · 图标资源与替换清单](docs/PLATFORM.md#七图标资源与替换清单)。
@@ -235,7 +235,7 @@ npm install
 python src/build.py                  # → dist/MDReader.html
 python desktop/scripts/sync-app.py    # 同步进桌面壳
 python desktop/scripts/verify-portable.py   # 便携版 17 项回归
-python src/pack.py                   # 重新打便携版 zip
+python MDReader/tools/pack-portable.py                   # 重新打便携版 zip
 ```
 
 ---

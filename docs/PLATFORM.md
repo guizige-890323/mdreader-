@@ -81,7 +81,7 @@ npm run build:mac     # → release/MD Reader-1.3.0.dmg
 
 ## 五、iOS 能做到什么、做不到什么
 
-**本仓库已交付的最可行方案：PWA 主屏幕包** `MDReader-iOS-PWA.zip`（由 `MDReader/ios/build-pwa.py` 生成）。它把同一份 `MDReader.html` 加上 manifest / apple-touch-icon / Service Worker，局域网起一个静态服务后，用 Safari「添加到主屏幕」即可得到全屏、无地址栏的图标。HTTPS 托管时 `sw.js` 会把整站缓存下来，断网也能打开。
+**本仓库已交付的最可行方案：PWA 主屏幕包** `MDReader-iOS-PWA-v1.3.0.zip`（由 `MDReader/ios/build-pwa.py` 生成）。它把同一份 `MDReader.html` 加上 manifest / apple-touch-icon / Service Worker，局域网起一个静态服务后，用 Safari「添加到主屏幕」即可得到全屏、无地址栏的图标。HTTPS 托管时 `sw.js` 会把整站缓存下来，断网也能打开。
 
 ```bash
 cd MDReader-iOS-PWA
@@ -133,5 +133,5 @@ python -m http.server 8000 --bind 0.0.0.0
 `python MDReader/ios/build-pwa.py` 继续派生 iOS / PWA 全套：主屏 180 / 167 / 152 / 120，manifest 192 / 512，maskable 512，favicon 16 / 32 / ICO，以及 1024 源图。
 
 > **只替换 `build/` 里的图片不重打包，安装包里仍旧是旧图标。** 正确顺序：
-> `npm run icons` → `src/build.py` → `sync-app.py` → `npm run build:win` / `src/pack.py` / `ios/build-pwa.py`。
+> `npm run icons` → `src/build.py` → `sync-app.py` → `npm run build:win` / `MDReader/tools/pack-portable.py` / `ios/build-pwa.py`。
 > iOS 已添加过主屏幕的，需要删除图标后重新「添加到主屏幕」；Service Worker 缓存名同步升版（当前 `v2`，页面 network-first）。

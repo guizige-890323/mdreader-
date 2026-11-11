@@ -101,6 +101,8 @@
 - 验证脚本 `shutil.rmtree` 触发本机 safe-delete（单轮累计 50 文件限额）→ 统一改 `tempfile.mkdtemp()` 系统临时 profile，顺带根治 `verify-portable.py` 字号断言因 profile 持久化而漂移的假失败
 - 编辑断言仍要求编辑器载入整篇 >100 字符，但早已改为按块编辑 → 改校验「块 #」标签 + 当前块非空
 - 大纲滚动断言读 `#reader.scrollTop` 恒为 0（`scroll-behavior:smooth` 在无头环境不推进）→ 测试样式内覆盖为 `auto`
+- **产品内 4 处写「扫码关注同名公众号」，而实际号名是「晨曦AI研习」** → 改为「扫码关注公众号『晨曦AI研习』」，用户扫码后不再困惑「跟什么同名」
+- **便携版 zip 是手工压的，漏掉 `启动 MDReader.bat` / `用此程序打开MD.bat` / `open-with.ps1` / `assets/`**，按《使用说明.md》操作的用户找不到启动器 → 新增 `tools/pack-portable.py`，内置 7 个必需文件清单，缺任一项直接拒绝打包
 
 ### 验证
 
@@ -110,6 +112,7 @@
 - 构建可复现：干净副本内 `build.py` 产出与已提交 `dist/MDReader.html` **字节一致**
 - Windows 静默安装实测：桌面快捷方式生成、`.md` 默认 ProgId 指向 `"…\MD Reader.exe" "%1"`、`OpenWithProgids` 含 MD Reader、`SupportedTypes` 覆盖 4 种扩展名
 - zip 解压后中文文件名正常；最近打开用「投毒缓存 + 真实路径 + 独立 profile」证明读的是磁盘新内容
+- 发版产物一致性：4 个包内嵌 HTML 的旧文案计数均为 0、便携版 7 个必需文件齐全、`dist` 与 `desktop/app` 同为 `37fb8d25…`（3,963,623 B）
 
 ---
 
