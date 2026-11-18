@@ -29,9 +29,12 @@ jobs:
           node --check MDReader/desktop/main.js
           node --check MDReader/desktop/preload.js
 
-      - name: 构建单文件 HTML
+      - name: 构建单文件 HTML（中英文两版）
         shell: bash
-        run: python MDReader/src/build.py
+        run: |
+          python MDReader/src/gen-demo.py
+          python MDReader/src/build.py
+          python MDReader/src/build.py --edition global --out MDReader/dist-intl/MDReader.html
 
       - name: 同步进桌面壳
         shell: bash
@@ -42,8 +45,14 @@ jobs:
       - name: 生成物漂移检查
         shell: bash
         run: |
-          if ! git diff --exit-code -- MDReader/dist; then
-            echo "::error::MDReader/dist 与源码不一致。请在本地执行 python MDReader/src/build.py 后提交产物。"
+          if ! git diff --exit-code -- MDReader/dist MDReader/dist-intl MDReader/src/app.js; then
+            echo "::error::dist / dist-intl 与源码不一致。请在本地执行 gen-demo.py + build.py 后提交产物。"
+            exit 1
+          fi
+          # 国际版必须只差默认语言一行，多一行都说明两条构建链分叉了
+          n=$(git diff --no-index --numstat -- MDReader/dist/MDReader.html MDReader/dist-intl/MDReader.html | awk '{print $1+$2}')
+          if [ "$n" -gt 2 ]; then
+            echo "::error::dist 与 dist-intl 差异 $n 行（预期 2 行，仅默认语言）。"
             exit 1
           fi
           cmp MDReader/dist/MDReader.html MDReader/desktop/app/MDReader.html
@@ -60,7 +69,7 @@ jobs:
           assert 'marked.js v15' in h, 'marked 未内嵌'
           assert 'highlight.js v11' in h, 'hljs 未内嵌'
           assert 'mermaid v10' in h, 'mermaid 未内嵌'
-          assert 'MD Reader v1.3' in h, '版本号缺失'
+          assert 'MD Reader v1.7' in h, '版本号缺失'
           assert 'id="btnRecent"' in h, '最近打开控件缺失'
           assert '__MD_DESKTOP__' in h, '桌面桥缺失'
           print('单文件校验通过: %.2f MB' % (len(h.encode()) / 1024 / 1024))
@@ -104,7 +113,7 @@ jobs:
           from pathlib import Path
           h = Path('MDReader/ios/site/index.html').read_text(encoding='utf-8')
           assert 'rel="manifest"' in h and 'apple-touch-icon' in h, 'PWA 标签缺失'
-          assert 'MD Reader v1.3' in h, '阅读器版本缺失'
+          assert 'MD Reader v1.7' in h, '阅读器版本缺失'
           print('PWA 校验通过')
           PY
       - uses: actions/upload-artifact@v4

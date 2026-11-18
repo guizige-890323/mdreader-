@@ -70,7 +70,7 @@ electron-builder 的 NSIS 安装器会写入 `HKCU\Software\Classes\.md` 等项�
 ```bash
 cd MDReader/desktop
 npm install
-npm run build:mac     # → release/MD Reader-1.3.0.dmg
+npm run build:mac     # → release/MD Reader-1.7.0.dmg
 ```
 
 `electron-builder` 会根据 `fileAssociations` 自动生成 `Info.plist` 的 `CFBundleDocumentTypes` 与 `CFBundleTypeExtensions`，`.md` 图标由 `build/icon.png` 生成 `.icns`。
@@ -81,7 +81,7 @@ npm run build:mac     # → release/MD Reader-1.3.0.dmg
 
 ## 五、iOS 能做到什么、做不到什么
 
-**本仓库已交付的最可行方案：PWA 主屏幕包** `MDReader-iOS-PWA-v1.3.0.zip`（由 `MDReader/ios/build-pwa.py` 生成）。它把同一份 `MDReader.html` 加上 manifest / apple-touch-icon / Service Worker，局域网起一个静态服务后，用 Safari「添加到主屏幕」即可得到全屏、无地址栏的图标。HTTPS 托管时 `sw.js` 会把整站缓存下来，断网也能打开。
+**本仓库已交付的最可行方案：PWA 主屏幕包** `MDReader-iOS-PWA-v1.7.0.zip`（由 `MDReader/ios/build-pwa.py` 生成）。它把同一份 `MDReader.html` 加上 manifest / apple-touch-icon / Service Worker，局域网起一个静态服务后，用 Safari「添加到主屏幕」即可得到全屏、无地址栏的图标。HTTPS 托管时 `sw.js` 会把整站缓存下来，断网也能打开。
 
 ```bash
 cd MDReader-iOS-PWA

@@ -1,3 +1,6 @@
+/* 发布前基线校准 2026-11-15：对齐示例文档 v1.4「使用指南与功能导览」、
+   MDFlow 事件委托、顶栏柔光开关、role=switch 开关语义与欢迎屏海报图。
+   断言强度保持不变，仅更新过期的期望值/选择器/事件模型。 */
 /* 浏览器端验证：表格四套风格（黑白极简 / 蓝色科技 / 红色政商 / 粉色卡通）
    含默认风格、纯色表头、切换、偏好记忆、排序与图表联动、三全局皮肤 × 两排版、响应式 */
 import { spawn } from 'node:child_process';
@@ -33,10 +36,14 @@ function ok(name, cond, extra) {
 }
 
 const PROBE = `(()=>{
-  const tw=document.querySelector('.tw'); if(!tw) return JSON.stringify({none:true});
+  const all=[...document.querySelectorAll('.tw')];
+  const tw=all[0]; if(!tw) return JSON.stringify({none:true});
+  /* 基线校准 2026-11-15：示例文档 v1.4 首张表是「常用快捷键」（纯文本），
+     数字列在后面的「季度经营数据」表里；风格断言取首表，数字字体取含 td.num 的表。 */
+  const numTw=all.find(x=>x.querySelector('td.num'))||tw;
   const cs=getComputedStyle, th=tw.querySelector('thead th'), first=tw.querySelector('thead th:first-child'),
     odd=tw.querySelector('tbody tr:nth-child(odd)'), even=tw.querySelector('tbody tr:nth-child(even)'),
-    bar=tw.querySelector('.tw-bar'), num=tw.querySelector('td.num'), cell=tw.querySelector('tbody td');
+    bar=tw.querySelector('.tw-bar'), num=numTw.querySelector('td.num'), cell=tw.querySelector('tbody td');
   return JSON.stringify({
     attr:document.documentElement.dataset.tableTheme,
     tws:document.querySelectorAll('.tw').length,
@@ -153,7 +160,9 @@ async function setLayout(l) {
 
   console.log('\n[5] 排序与图表仍可用，且图表跟随换色');
   const sort = JSON.parse(await ev(`(()=>{
-    const tw=document.querySelector('.tw'), ths=tw.querySelectorAll('thead th'), body=tw.querySelector('tbody');
+    /* 数值排序取第一张含 td.num 的经营数据表（第二列为数字列） */
+    const tw=[...document.querySelectorAll('.tw')].find(x=>x.querySelector('td.num'))||document.querySelector('.tw');
+    const ths=tw.querySelectorAll('thead th'), body=tw.querySelector('tbody');
     const before=[...body.rows].map(r=>r.cells[1].textContent.trim());
     ths[1].click(); const asc=[...body.rows].map(r=>r.cells[1].textContent.trim());
     ths[1].click(); const desc=[...body.rows].map(r=>r.cells[1].textContent.trim());

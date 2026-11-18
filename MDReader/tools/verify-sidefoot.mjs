@@ -1,3 +1,6 @@
+/* 发布前基线校准 2026-11-15：对齐示例文档 v1.4「使用指南与功能导览」、
+   MDFlow 事件委托、顶栏柔光开关、role=switch 开关语义与欢迎屏海报图。
+   断言强度保持不变，仅更新过期的期望值/选择器/事件模型。 */
 /* 浏览器端验证：侧栏左下角「个人介绍」文案顺序、二维码与三主题排版 */
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -115,7 +118,7 @@ async function setTheme(t) {
     { left: a.left, bottom: a.bottom, vh: a.vh });
   const parts = ['MD Reader', '免费开源', '让 Markdown 阅读成为一种享受',
     'AI builder：桂子哥', 'Bug 与建议', '527400412@qq.com',
-    '扫码关注同名公众号', '回复「MDReader」', '第一时间获取更新、源码与技术分享'];
+    '扫码关注公众号「晨曦AI研习」', '回复「MDReader」', '第一时间获取更新、源码与技术分享'];
   const pos = parts.map(p => a.text.indexOf(p));
   ok('新文案 9 个要点齐全', pos.every(i => i >= 0), { missing: parts.filter((p, i) => pos[i] < 0) });
   ok('文案顺序与给定一致', pos.every((v, i) => i === 0 || v > pos[i - 1]), pos);

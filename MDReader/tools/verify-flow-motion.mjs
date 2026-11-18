@@ -1,3 +1,6 @@
+/* 发布前基线校准 2026-11-15：对齐示例文档 v1.4「使用指南与功能导览」、
+   MDFlow 事件委托、顶栏柔光开关、role=switch 开关语义与欢迎屏海报图。
+   断言强度保持不变，仅更新过期的期望值/选择器/事件模型。 */
 /* 浏览器端验证：MD FLOW 连线流水动效（动画在跑、层级配色、主题、hover、导出、减弱动效、打印）
    并连续抓帧输出 _flow-frames/*.png，供 gen_flow_gif.py 合成预览 GIF */
 import { spawn } from 'node:child_process';
@@ -119,7 +122,8 @@ const CLOCK = `(()=>{const f=document.querySelector('.mf-flow');const a=f.getAni
   ok('stroke-dashoffset 逐帧变化', t1.off !== t2.off, { t1, t2 });
 
   console.log('\n[3] 悬停高亮与流水协同');
-  await ev(`document.querySelectorAll('.mf-node')[1].dispatchEvent(new MouseEvent('mouseenter'))`);
+  /* 同上：bind() 为 svg 根节点 mouseover 委托，mouseenter 不冒泡。 */
+  await ev(`document.querySelectorAll('.mf-node')[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))`);
   await sleep(260);
   const hov = JSON.parse(await ev(`(()=>{
     const hi=document.querySelector('.mf-edge.is-hi .mf-flow');
@@ -129,7 +133,7 @@ const CLOCK = `(()=>{const f=document.querySelector('.mf-flow');const a=f.getAni
   })()`));
   ok('关联边流水加亮加粗', hov.hiOp === '1' && parseFloat(hov.hiW) > 2.5, hov);
   ok('非关联边整体淡出', parseFloat(hov.loOp) < 0.2, hov);
-  await ev(`document.querySelectorAll('.mf-node')[1].dispatchEvent(new MouseEvent('mouseleave'))`);
+  await ev(`document.querySelector('.mf-svg').dispatchEvent(new MouseEvent('mouseleave'))`);
 
   console.log('\n[4] 三主题配色');
   const themeColors = { light: a.colors };

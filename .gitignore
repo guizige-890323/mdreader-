@@ -33,6 +33,9 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
+# ---- 测试 / 截图脚本的临时输出 ----
+MDReader/_shots/
+
 # ---- 本地验证脚本产生的副本 ----
 *_verify*.html
 *_test.html

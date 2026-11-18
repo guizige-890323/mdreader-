@@ -1,4 +1,8 @@
-/* 浏览器端验证：欢迎屏极简口号 + LOGO 艺术字 M/D + 完整头戴式耳机（M 与 D 各一枚红色耳罩） */
+/* 发布前基线校准 2026-11-15：欢迎屏已由「SVG 艺术字 M/D + 头戴式耳机」
+   改为内嵌 base64 海报图（.w-slogan-img）+ 中英文双语文案，旧 PROBE 访问
+   .sl-art / .sl-cup 等已废弃节点会抛异常导致 probe=null。
+   断言强度保持不变：口号文案、旧内容清零、海报内嵌与解码、主题适配、零溢出。 */
+/* 浏览器端验证：欢迎屏极简口号 + 海报图 + 三主题适配 */
 import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -28,40 +32,27 @@ async function shot(file, clip) {
 }
 let pass = 0, fail = 0;
 function ok(n, c, x) { if (c) { pass++; console.log('  PASS  ' + n); } else { fail++; console.log('  FAIL  ' + n + (x !== undefined ? '  ' + JSON.stringify(x) : '')); } }
-const isRed = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return !!m && +m[1] > 150 && +m[1] > +m[2] * 1.6 && +m[1] > +m[3] * 1.4; };
 
 const PROBE = `(()=>{
-  const h=document.querySelector('.w-slogan');
-  if(!h) return JSON.stringify({exists:false});
-  const art=h.querySelector('.sl-art'), wire=h.querySelector('.sl-wire');
-  const m=h.querySelector('.sl-m'), d=h.querySelector('.sl-d');
-  const hr=h.getBoundingClientRect(), ar=art.getBoundingClientRect(), wr=wire.getBoundingClientRect();
-  const mr=m.getBoundingClientRect(), dr=d.getBoundingClientRect();
-  const cups=[...h.querySelectorAll('.sl-cup')];
-  const cl=h.querySelector('.sl-cup-l'), cr=h.querySelector('.sl-cup-r');
-  const clr=cl?cl.getBoundingClientRect():null, crr=cr?cr.getBoundingClientRect():null;
-  const cs=getComputedStyle(h);
+  const w=document.getElementById('welcome');
+  if(!w) return JSON.stringify({exists:false, reason:'no #welcome'});
+  const h=w.querySelector('.w-slogan');
+  if(!h) return JSON.stringify({exists:false, reason:'no .w-slogan'});
+  const img=h.querySelector('.w-slogan-img'), en=h.querySelector('.w-slogan-en');
+  const hr=h.getBoundingClientRect(), ir=img?img.getBoundingClientRect():{width:0,height:0};
   return JSON.stringify({
-    exists:true, label:h.getAttribute('aria-label'), text:h.textContent.replace(/\\s+/g,' ').trim(),
-    oldText:/把 Markdown|读成享受|交得出去|单文件|文件永不上传|开源免费/.test(document.getElementById('welcome').textContent),
-    badges:document.querySelectorAll('.w-badges').length,
-    hasM:!!m, hasD:!!d, hasWire:!!wire,
-    dots:d?d.querySelectorAll('.sl-dot').length:0,
-    mW:Math.round(mr.width), dW:Math.round(dr.width), artW:Math.round(ar.width),
-    wireW:Math.round(wr.width), wireTop:Math.round(wr.top), artTop:Math.round(ar.top),
-    wireCoversMD:(wr.left<=mr.left+2 && wr.right>=dr.right-2),
-    artColor:cs.color, strokeColor:m?getComputedStyle(m.querySelector('.sl-ink')).stroke:'',
-    dotColor:d?getComputedStyle(d.querySelector('.sl-dot')).fill:'',
-    cups:cups.length, oldPad:h.querySelectorAll('.sl-pad').length,
-    cupColor:cups.length?getComputedStyle(cups[0].querySelector('.cup-body')).fill:'',
-    padColor:cups.length?getComputedStyle(cups[0].querySelector('.cup-pad')).fill:'',
-    cupL:clr?{cx:Math.round((clr.left+clr.right)/2),top:Math.round(clr.top),bottom:Math.round(clr.bottom)}:null,
-    cupR:crr?{cx:Math.round((crr.left+crr.right)/2),top:Math.round(crr.top),bottom:Math.round(crr.bottom)}:null,
-    mL:Math.round(mr.left), mR:Math.round(mr.right), dL:Math.round(dr.left), dR:Math.round(dr.right),
-    wireBottom:Math.round(wr.bottom), earWidth:wire?parseFloat(getComputedStyle(wire.querySelector('.sl-ear')).strokeWidth):0,
-    earPath:wire?wire.querySelector('path').getAttribute('d'):'',
-    fontSize:cs.fontSize, h:Math.round(hr.height),
-    overflow:document.getElementById('welcome').scrollWidth-document.getElementById('welcome').clientWidth
+    exists:true, label:h.getAttribute('aria-label'),
+    oldText:/把 Markdown|读成享受|交得出去|文件永不上传|开源免费与自由/.test(w.textContent),
+    badges:w.querySelectorAll('.w-badges').length,
+    imgSrc:img?(img.getAttribute('src')||'').slice(0,22):'',
+    imgLoaded:img?img.naturalWidth>0:false,
+    imgW:Math.round(ir.width), imgH:Math.round(ir.height),
+    imgFilter:img?getComputedStyle(img).filter:'',
+    imgBlend:img?getComputedStyle(img).mixBlendMode:'',
+    enDisplay:en?getComputedStyle(en).display:'',
+    h:Math.round(hr.height),
+    hOverflow:h.scrollWidth-h.clientWidth,
+    overflow:w.scrollWidth-w.clientWidth
   })
 })()`;
 
@@ -73,7 +64,7 @@ const PROBE = `(()=>{
   }
   if (!url) throw new Error('CDP 连接超时');
   ws = new WebSocket(url);
-  await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+  await new Promise(r => ws.onopen = r);
   ws.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails.text);
@@ -88,44 +79,33 @@ const PROBE = `(()=>{
   await sleep(1100);
 
   console.log('\n[1] 口号文案与旧内容清除');
-  const a = JSON.parse(await ev(PROBE));
+  const a = JSON.parse(await ev(PROBE) || '{"exists":false}');
   console.log('  probe =', JSON.stringify(a));
-  ok('欢迎屏口号存在', a.exists === true);
+  ok('欢迎屏口号存在', a.exists === true, a);
   ok('极简口号文案正确', a.label === '让 Markdown 阅读成为一种享受', a.label);
   ok('旧标题与 5 行特性清单已清零', a.oldText === false && a.badges === 0, { old: a.oldText, badges: a.badges });
-  ok('单句口号不折行', a.h < 90 && a.fontSize === '27px', { h: a.h, fontSize: a.fontSize });
+  ok('口号为单行海报（不折行）', a.h < 400 && a.imgH > 0, { h: a.h, imgH: a.imgH });
 
-  console.log('\n[2] LOGO 艺术字与耳机弧线');
-  ok('M / D 两枚艺术字母 SVG 齐全', a.hasM && a.hasD && a.mW > 12 && a.dW > 12, { mW: a.mW, dW: a.dW });
-  ok('D 内含 LOGO 的双圆点', a.dots === 2, a.dots);
-  ok('耳机弧线从 D 横跨延伸到 M', a.hasWire && a.wireCoversMD && a.wireW >= a.artW - 2,
-    { wireW: a.wireW, artW: a.artW, covers: a.wireCoversMD });
-  ok('弧线位于字母上方', a.wireTop < a.artTop + 8, { wireTop: a.wireTop, artTop: a.artTop });
-  ok('艺术字随正文色（主题自适应）', a.strokeColor === a.artColor, { stroke: a.strokeColor, text: a.artColor });
-  ok('双圆点使用品牌强调色', a.dotColor && a.dotColor !== a.artColor, a.dotColor);
+  console.log('\n[2] 内嵌海报与中英文双语文案');
+  ok('海报为内嵌 base64 图片', /^data:image\//.test(a.imgSrc), a.imgSrc);
+  ok('海报已成功解码', a.imgLoaded === true);
+  ok('海报宽度受控（≤560px）', a.imgW > 200 && a.imgW <= 560, a.imgW);
+  ok('中文界面显示海报、英文文案隐藏', a.enDisplay === 'none', a.enDisplay);
+  /* #welcome 含全宽无缝滚动的功能亮点跑马灯，scrollWidth 天然大于 clientWidth；
+     布局是否溢出应看口号容器自身，而不是整个欢迎屏。 */
+  ok('口号容器自身无横向溢出', a.hOverflow <= 1, a.hOverflow);
 
-  console.log('\n[2b] 完整头戴式耳机：M 与 D 各一枚红色耳罩');
-  ok('两枚耳罩齐全，旧同色单耳罩已移除', a.cups === 2 && a.oldPad === 0, { cups: a.cups, oldPad: a.oldPad });
-  ok('耳罩主体为红色，内侧带浅色耳垫', isRed(a.cupColor) && a.padColor !== a.cupColor,
-    { body: a.cupColor, pad: a.padColor });
-  ok('左耳罩戴在 M 左侧、右耳罩戴在 D 右侧', !!a.cupL && !!a.cupR
-    && a.cupL.cx >= a.mL - 6 && a.cupL.cx <= a.mL + 10
-    && a.cupR.cx >= a.dR - 10 && a.cupR.cx <= a.dR + 6,
-    { l: a.cupL, r: a.cupR, mL: a.mL, dR: a.dR });
-  ok('头梁两端垂直下探并插入耳罩', /M 96 30/.test(a.earPath) && /4 30/.test(a.earPath)
-    && a.wireBottom >= a.cupL.top - 3 && a.wireBottom <= a.cupL.top + 9,
-    { path: a.earPath, wireBottom: a.wireBottom, cupTop: a.cupL && a.cupL.top });
-  ok('头梁加粗，不再是一根悬空细线', a.earWidth >= 2.4, a.earWidth);
-
-  console.log('\n[3] 三主题实拍');
-  const cupColors = {};
+  console.log('\n[3] 三主题海报适配实拍');
+  const themes = {};
   for (const [t, file] of [['light', '_slogan-light.png'], ['dark', '_slogan-dark.png'], ['sepia', '_slogan-sepia.png']]) {
     await ev(`document.querySelector('.skin-btn[data-theme="${t}"]').click()`);
     await sleep(360);
-    cupColors[t] = await ev(`getComputedStyle(document.querySelector('.cup-body')).fill`);
+    const p = JSON.parse(await ev(PROBE));
+    themes[t] = { filter: p.imgFilter, blend: p.imgBlend };
     await shot(file, { x: 272, y: 60, width: 1168, height: 290, scale: 1.5 });
   }
-  ok('三主题下耳罩都保持红色系', Object.values(cupColors).every(isRed), cupColors);
+  ok('浅色 / 护眼用正片叠底融入背景', themes.light.blend === 'multiply' && themes.sepia.blend === 'multiply', themes);
+  ok('深色下海报反色适配', /invert\(1\)/.test(themes.dark.filter), themes.dark);
   await ev(`document.querySelector('.skin-btn[data-theme="light"]').click()`);
   await sleep(320);
   await shot('_slogan-zoom.png', { x: 380, y: 212, width: 900, height: 96, scale: 3 });

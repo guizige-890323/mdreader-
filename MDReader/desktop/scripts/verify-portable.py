@@ -23,6 +23,13 @@ PROFILE = Path(tempfile.mkdtemp(prefix="mdreader-verify-portable-"))
 
 MD = (DIST / "示例文档.md").read_text(encoding="utf-8")
 
+# 期望值不写死：版本号跟 package.json 走，卡片数跟示例文档的二级标题数走。
+# 否则每次改版本或改示例文档，这三条断言都会假失败（v1.7 收口时踩过）。
+VERSION = json.loads((ROOT / "desktop" / "package.json").read_text(encoding="utf-8"))["version"]
+SHORT_VERSION = ".".join(VERSION.split(".")[:2])   # 状态栏只显示到次版本号
+# 卡片数 = 二级标题节数 + 首节导语卡（第一个 ## 之前的内容也单独成卡）
+EXPECT_CARDS = sum(1 for line in MD.splitlines() if line.startswith("## ")) + 1
+
 PROBE = r"""
 <script>
 window.__MD_AUTOLOAD__ = {name:"示例文档.md", dir:"C:/tmp", path:"C:/tmp/demo.md", text:%MD%};
@@ -126,9 +133,9 @@ def main():
     checks = [
         ("便携版未注入桌面 API", R["env"]["has_desktop_api"] is False),
         ("无 data-desktop 标记", R["env"]["data_desktop"] == "(none)"),
-        ("版本与环境标签", R["env"]["stBuild"] == "MD Reader v1.3 · 本地窗口"),
+        ("版本与环境标签", R["env"]["stBuild"] == "MD Reader v%s · 本地窗口" % SHORT_VERSION),
         ("默认卡片皮肤", R["env"]["layout"] == "card"),
-        ("分节 8 张卡片", R["env"]["cards"] == 8),
+        ("分节 %d 张卡片" % EXPECT_CARDS, R["env"]["cards"] == EXPECT_CARDS),
         ("大纲项数 %s ≥ 10（示例文档含新增章节）" % R["env"]["outline"], R["env"]["outline"] >= 10),
         ("表格与 Mermaid 正常", R["env"]["tables"] >= 1 and R["env"]["mermaid"] >= 1),
         ("卡片画布 #fafafa", R["env"]["canvas"] == "rgb(250, 250, 250)"),
@@ -138,7 +145,7 @@ def main():
         ("纸张衬线标题", "Iowan" in R["paper"]["head_font"] or "Palatino" in R["paper"]["head_font"]),
         ("纸张正文比卡片 +0.5px", abs(px(R["paper"]["font"]) - (base + 0.5)) < 0.01),
         ("A+ 在纸张皮肤生效 (+1px)", abs(px(R["font_up"]["paper"]) - (base + 1.5)) < 0.01),
-        ("切回卡片不叠加", R["back"]["nested_cards"] == 0 and R["back"]["cards"] == 8),
+        ("切回卡片不叠加", R["back"]["nested_cards"] == 0 and R["back"]["cards"] == EXPECT_CARDS),
         ("字号跟随切回卡片 (+1px)", abs(px(R["back"]["font"]) - (base + 1)) < 0.01),
         ("最近打开面板可用", R["recent"]["open"] and R["recent"]["items"] >= 1),
     ]

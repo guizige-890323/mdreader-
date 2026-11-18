@@ -2,59 +2,60 @@
 
 [English](README.en.md) · **简体中文**
 
-> **双击 `.md` 就能看的本地阅读器：不装 IDE、不开浏览器标签、不把内网文档传到任何在线编辑器。**
+> **双击 `.md` 就能看的本地阅读器。一个 4.6 MB 的 HTML 文件，零安装、零联网、零账号。**
 
-[![Release](https://img.shields.io/github/v/release/guizige-890323/mdreader?label=release)](https://github.com/guizige-890323/mdreader/releases)
-[![Downloads](https://img.shields.io/github/downloads/guizige-890323/mdreader/total?label=downloads)](https://github.com/guizige-890323/mdreader/releases)
-[![Stars](https://img.shields.io/github/stars/guizige-890323/mdreader?style=flat)](https://github.com/guizige-890323/mdreader/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20iOS%20PWA-2f6feb.svg)](https://github.com/guizige-890323/mdreader/releases)
+[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20iOS%20PWA-2f6feb.svg)](docs/PLATFORM.md)
 [![Offline](https://img.shields.io/badge/network-0%20requests-2e7d32.svg)](#隐私与安全)
-
-**一个 HTML 文件就是完整程序**：marked、highlight.js、mermaid 全部内嵌，运行时不发起任何网络请求。
+[![Size](https://img.shields.io/badge/single%20file-4.6%20MB-6b7280.svg)](#为什么这么小)
 
 <p align="center">
-  <img src="docs/screenshots/01-card-light.png" alt="MD Reader 卡片皮肤：按二级标题把 2000 行手册切成带编号的面板" width="880">
+  <img src="docs/screenshots/01-card-light.png" alt="MD Reader 卡片皮肤：按二级标题把长手册切成带编号的面板" width="880">
 </p>
 
-<!-- 待补：录一段 20 秒操作演示（双击打开 → 切皮肤 → 表格排序出图 → 切深色），
-     存为 docs/screenshots/demo.gif 后替换下面这段注释。GIF 必须在第一屏，放太靠下等于没放。
-<p align="center">
-  <img src="docs/screenshots/demo.gif" alt="演示：双击 .md 秒开 → 切换卡片/纸张皮肤 → 表格排序与柱状图" width="880">
-</p>
--->
-
-**目录**：[解决的痛点](#解决的痛点) · [三种发行形态](#三种发行形态) · [特性](#-特性) · [界面预览](#界面预览) · [安装](#-安装) · [平台支持矩阵](#平台支持矩阵) · [对比同类工具](#和同类工具比) · [常见问题](#常见问题) · [从源码构建](#从源码构建) · [目录结构](#目录结构) · [隐私与安全](#隐私与安全) · [版本与路线图](#版本与路线图) · [贡献与协议](#贡献与协议)
+**目录**：[为什么是它](#为什么是它) · [五种交付形态](#五种交付形态) · [特性](#-特性) · [界面](#界面) · [现在怎么用](#现在怎么用) · [平台支持](#平台支持) · [和同类工具比](#和同类工具比) · [常见问题](#常见问题) · [从源码构建](#从源码构建) · [目录结构](#目录结构) · [隐私与安全](#隐私与安全) · [版本与路线图](#版本与路线图) · [贡献与协议](#贡献与协议)
 
 ---
 
-## 解决的痛点
+## 为什么是它
+
+市面上的 Markdown 工具都在往「更全能」走：加账号、加云同步、加 AI 摘要、加插件市场。**MD Reader 反着做——只做「看」这一件事，并且把它做到顺手。**
+
+| | 它是什么 | 它不是什么 |
+| --- | --- | --- |
+| **小而美** | 一个 4.6 MB 的 HTML 就是完整程序，依赖全部内嵌 | 不是 100 MB 起的 Electron 全家桶（安装版除外，那是另一条路） |
+| **有态度** | 明确不做账号、不做云同步、不做遥测、不内置 AI | 不假装全能，做不到的写在 [平台支持](#平台支持) 里 |
+| **有审美** | 两套排版皮肤 × 三套主题 × 四套文档风格，均为整体重绘 | 不是换个边框就号称「主题」 |
+| **有温度** | 护眼配色过 WCAG 对比度、无广告、无弹窗、无追踪 | 不拿你的文档换任何东西 |
+
+它解决的是一类被忽略的小事：
 
 | 场景 | 常见做法 | 问题 | MD Reader |
 | --- | --- | --- | --- |
 | 只想看一份 `.md` | 开 VS Code / Obsidian | 启动慢、要建库、要装插件 | 双击即开，独立窗口 |
-| 运维手册 / 排查指南 | 丢进在线 Markdown 编辑器 | 内网资料出网，合规风险 | 全程本机解析 |
-| 文档里表格很宽 | 普通预览器只给静态表 | 没法排序、看趋势 | 表头排序 + 一键柱状图 |
+| 运维手册 / 排查指南 | 丢进在线 Markdown 编辑器 | 内网资料出网，合规风险 | 全程本机解析，0 请求 |
+| 文档里表格很宽 | 普通预览器只给静态表 | 没法排序、看趋势 | 表头排序 + 六种图表 |
 | 1100+ 篇 Obsidian 笔记 | 得先导入整个知识库 | 重、慢 | 拖文件夹即建树，懒加载 |
 | 排查手册分很多节 | 长页滚到底 | 找不着 | 卡片皮肤按 `##` 分节编号 |
-| 上次看的那份文档 | 重新翻文件夹 | 打断思路 | 最近打开，按路径重读磁盘 |
+| 架构图画在代码块里 | 只能看字符画 | 不能编辑、不能导出 | 纯算法识别成可拖拽矢量图 |
 
 ---
 
-## 三种发行形态
+## 五种交付形态
 
-| | 便携版 | 桌面安装版 | iOS / iPadOS 主屏幕版 |
-| --- | --- | --- | --- |
-| 交付物 | `MDReader-便携版-v1.3.0.zip`（约 1.3 MB） | `MD Reader Setup 1.3.0.exe`（约 118 MB，NSIS） | `MDReader-iOS-PWA-v1.3.0.zip`（约 2 MB） |
-| 安装 | 不用装，解压即用 | 双击安装，可选择目录 | 局域网托管后「添加到主屏幕」 |
-| 桌面入口 | 手动建快捷方式 | **自动创建桌面 + 开始菜单快捷方式** | ✅ 主屏幕图标、全屏启动 |
-| `.md` 关联 | 手动「打开方式」 | **安装时注册 4 种扩展名，可直接设为默认** | ❌ iOS 系统不允许注册默认关联 |
-| 双击打开 | 靠 bat 启动器 | 原生单实例，直接传给已开窗口 | ❌ 需在应用内手动选文件 |
-| 体积 | 极小 | 较大（Electron 运行时） | 小（同份 HTML + 图标 + manifest） |
-| 适合 | U 盘、临时机器、内网离线 | 日常主力机器 | 在 iPhone / iPad 上看 md |
+| | 便携版 | Windows 安装版 | Win 免安装 | iOS / iPadOS | 国际版 |
+| --- | --- | --- | --- | --- | --- |
+| 交付物 | `MDReader-便携版-v1.7.0.zip` | `MD Reader Setup 1.7.0.exe` | `MDReader-Win免安装-v1.7.0.zip` | `MDReader-iOS-PWA-v1.7.0.zip` | `MDReader-International-v1.7.0.zip` |
+| 体积 | ≈1.7 MB | ≈115 MB | ≈155 MB | ≈2.4 MB | ≈3.7 MB |
+| 安装 | 解压即用 | 双击安装 | 解压即用 | 局域网托管后「添加到主屏幕」 | 解压即用 |
+| 桌面入口 | 手动建快捷方式 | 自动桌面 + 开始菜单 | 手动 | 主屏幕图标、全屏 | 手动 |
+| `.md` 关联 | 手动「打开方式」 | 注册 4 种扩展名，可设默认 | 手动 | ❌ 系统不允许 | 手动 |
+| 默认语言 | 简体中文 | 简体中文 | 简体中文 | 简体中文 | English |
+| 适合 | U 盘、临时机器、内网 | 日常主力机 | 不想装、又要原生窗口 | 手机 / 平板看 md | 英文环境、海外分发 |
 
-> 三种形态共用同一份 `MDReader.html`，渲染功能完全一致，不存在"精简版"。
-> iOS 没有「PC 版」，也不允许第三方注册全局扩展名默认程序——桌面系统对应的是 **macOS**，构建脚本已备好。能力边界见 [`docs/PLATFORM.md`](docs/PLATFORM.md)。
+> **五个形态共用同一份 `MDReader.html`**，渲染功能完全一致，不存在「精简版」。
+> 国内版与国际版**只差一行**（`BUILD_DEFAULT_LANG`），其余逐字节相同——这是构建脚本保证的，不是承诺。
+> 能力边界见 [`docs/PLATFORM.md`](docs/PLATFORM.md)。
 
 ---
 
@@ -65,14 +66,27 @@
 | 类别 | 支持 |
 | --- | --- |
 | 基础语法 | GFM 表格、标题、列表、任务列表、引用、分割线、粗斜体、删除线、行内代码、链接、图片 |
-| 表格可视化 | 斑马纹 / 悬停高亮 / 表头固定、**点击表头排序**、数值列自动右对齐、**一键生成柱状图**、复制为 CSV / TSV |
+| 表格 | 斑马纹 / 悬停高亮 / 表头固定、点击表头排序、数值列自动右对齐、复制为 CSV / TSV |
+| **图表（6 种）** | 自动 / 柱状 / 折线 / 趋势面积 / 环形饼图 / 玫瑰图；饼图严格按 `value/total×360°` 分角，不是等分 |
 | 代码 | 40+ 语言语法高亮、语言标签、一键复制 |
-| 图表 | ` ```mermaid ` 流程图 / 时序图 / 甘特图，跟随明暗主题 |
+| Mermaid | 流程图 / 时序图 / 甘特图，跟随明暗主题 |
+| **Unicode 架构图** | 代码块里的 `┌─┐│└┘` 架构图由纯算法识别成**可拖拽、可编辑、可导出**的矢量流程图（零 AI、零网络） |
+| **文本流程图** | `A → B → C` 这类箭头文本自动转成图形，同样可编辑 |
 | Obsidian | `[[双链]]`、`![[图片]]` 嵌入、`[!note]` Callout、YAML frontmatter 属性表、`#标签` 高亮 |
 
-### 两套排版皮肤
+### 流程图：结构 × 风格 × 编辑，三个正交维度
 
-不只是换个边框，**配色、字体、圆角、投影、表格与代码块样式整体切换**。
+| 维度 | 选项 | 说明 |
+| --- | --- | --- |
+| **结构** | 自动 / 流水线 / 思维导图 / 组织图 / 时间轴 | 决定「怎么排」，**每张图可在右上角单独覆盖**，与全局默认解耦 |
+| **风格** | 经典 / 极简 / 商务 / 活力 / 暗夜 | 只换配色与描边，绝不重排 |
+| **编辑** | 拖拽 / 改文字 / 换颜色 / 增删节点 / 连线 / 撤销 | 落点直接改当前 SVG DOM |
+
+5 结构 × 5 风格 = **25 种观感**。所有导出（下载 SVG / 复制 Mermaid 源码 / 导出 HTML / 导出 Word / 打印 PDF）都以**最后编辑状态**为准——导出不重绘，所以不会「导完变回自动布局」。
+
+### 排版：两套皮肤 × 三套主题 × 四套文档风格
+
+两套皮肤不是换个边框，**配色、字体、圆角、投影、表格与代码块样式整体切换**。
 
 | | ▥ 卡片 | ▭ 纸张 |
 | --- | --- | --- |
@@ -80,27 +94,33 @@
 | 纸面 | 纯白、12px 圆角、双层柔投影 | 象牙白 `#fdfbf6`、2px 圆角、无投影 |
 | 标题 | 系统无衬线 | 衬线（Iowan / Georgia / 宋体） |
 | 强调色 | 蓝 `#2563eb` | 暗红 `#8c2f1e` |
-| 结构 | 按 `##` 分节，每节一卡，深色编号 `01`/`02` + 字数 | 连续长文 + 页边装订竖线 |
-| 适合 | 手册 / 排查指南 / 分条目文档 | 长文阅读、正式报告、打印预览 |
+| 结构 | 按 `##` 分节，每节一卡，编号 `01`/`02` + 字数 | 连续长文 + 页边装订竖线 |
 
-两套皮肤都支持 **浅色 / 深色 / 护眼** 三套独立主题，主题与皮肤正交：切换主题会整体替换画布、纸面、文字、边框、强调色、代码块与表格配色。**护眼**是低蓝光的暖米黄（卡片纸面 `#faf3e0` / 纸张纸面 `#fdf3d8` + 琥珀褐强调），与浅色的纯白 / 象牙白一眼可辨；深色在两套皮肤下也各自成套。卡片模式下大纲与锚点跳转照常可用（标题 `id` 原样保留）。
+三套主题（**浅色 / 深色 / 护眼**）与皮肤正交：切换主题整体替换画布、纸面、文字、边框、强调色、代码块与表格。护眼是低蓝光暖米黄，与纯白一眼可辨。
+
+四套**文档风格**（素雅 / 科技 / 政务 / 可爱）统一驱动分段背景、卡片徽章、图表色板、流程图强调色与代码关键字高亮，并按明暗派生可读变体——整篇文档是一种气质，不是一个色块。
+
+### 双语与国际化
+
+界面支持 **简体中文 / English / 跟随系统**，偏好持久化。**你自己打开的 `.md` 永远不会被翻译。** 国际版只是把默认语言设为 English。
 
 ### 阅读与文件
 
-- **最近打开**：最多 30 条，点历史记录时按绝对路径**重读磁盘原文**（不是旧快照）；文件被移走自动退回正文缓存
-- 文件树（文件夹递归）、文档大纲、文档内查找（计数 + 前后跳转）、字号调节
-- 拖拽单文件 / 整文件夹，UTF-8 / GB18030 编码自动识别，1000+ 文件整库浏览（懒加载）
-- 导出**独立 HTML**（样式与图片内嵌）、打印 / 另存为 PDF
+- **最近打开**：最多 30 条，按绝对路径**重读磁盘原文**（不是旧快照）；文件被移走自动退回缓存
+- 文件树（文件夹递归）、大纲、文档内查找（计数 + 前后跳转）、字号调节、阅读宽度
+- 拖拽单文件 / 整文件夹，UTF-8 / GB18030 自动识别，1000+ 文件整库浏览（懒加载）
+- **新建 MD**：空白文档，或一键粘贴 AI 对话里的 Markdown；`Ctrl+S` 存成真实 `.md`
+- 导出**独立 HTML**（样式与图片内嵌，离线可看）、Word、打印 / 另存为 PDF
 
 ---
 
-## 界面预览
+## 界面
 
-| 卡片皮肤（浅色） | 纸张皮肤（浅色） |
+| 卡片 · 浅色 | 纸张 · 浅色 |
 | --- | --- |
 | ![卡片皮肤](docs/screenshots/01-card-light.png) | ![纸张皮肤](docs/screenshots/02-paper-light.png) |
 
-| 卡片皮肤（深色） | 纸张皮肤（深色） |
+| 卡片 · 深色 | 纸张 · 深色 |
 | --- | --- |
 | ![卡片深色](docs/screenshots/03-card-dark.png) | ![纸张深色](docs/screenshots/04-paper-dark.png) |
 
@@ -110,75 +130,56 @@
 
 ---
 
-## 📦 安装
+## 现在怎么用
 
-### Windows 桌面版（推荐）
+**这个仓库当前只开源代码与构建脚本，预编译包暂未开放下载。**（在你确认后才会开启 Release 附件。）
 
-1. 到 [Releases](https://github.com/guizige-890323/mdreader/releases) 下载 `MD Reader Setup 1.3.0.exe`
-2. 双击安装（默认当前用户，无需管理员权限）
-3. 安装完成自动在**桌面**与**开始菜单**生成「MD Reader」入口
-4. 双击任意 `.md` 即可打开；已开着程序时会复用现有窗口
+三条即时可用的路径，都不需要等：
 
-> 安装时注册 `.md` / `.markdown` / `.mdown` / `.mkd` 四种扩展名，写入 `OpenWithProgids` 与 `Applications\MD Reader.exe\SupportedTypes`（保证「选择其他应用」列表里真的能看到它），并在资源管理器里显示专用文档图标。
+```bash
+# ① 现在就能用：浏览器直接打开已构建好的单文件
+#    仓库里就带着成品，双击即可
+MDReader/dist/MDReader.html
 
-### 设置为 `.md` 默认打开程序
+# ② 要便携版 zip（解压即用 + 启动器 + 示例文档）
+cd MDReader && python tools/pack-portable.py
 
-**Windows 11**
+# ③ 要 Windows 安装包（需 Node 18+）
+cd MDReader/desktop && npm install && npm run build:win
+```
 
-1. 右键任意 `.md` → **打开方式** → **选择其他应用**
-2. 选 **MD Reader** → 勾选 **始终使用此应用打开 .md 文件** → 确定
-3. 或走：设置 → 应用 → 默认应用 → 按文件类型选 `.md` → MD Reader
-
-**macOS**
-
-访达里选中 `.md` → `⌘I` 显示简介 → **打开方式** 选 MD Reader → **全部更改…**
-
-### 便携版（免安装）
-
-下载 `MDReader-便携版-v1.3.0.zip` → 解压到任意目录（含 U 盘）→ 双击 `启动 MDReader.bat`。
-
-也可以把 `.md` 拖到 `用此程序打开MD.bat` 上，或在右键「打开方式」里关联这两个 bat。
-
-> 需要 Windows 11 自带的 Microsoft Edge（用于无地址栏的应用窗口模式）。纯 HTML 文件双击也能用，只是会带地址栏。
-
-### iOS / iPadOS 主屏幕版（PWA，可行范围）
-
-下载 `MDReader-iOS-PWA-v1.3.0.zip` → 解压 → 在该目录执行 `python -m http.server 8000 --bind 0.0.0.0` → iPhone/iPad 用 Safari 打开 `http://<电脑局域网IP>:8000/` → **分享 → 添加到主屏幕**。主屏幕会出现「MD Reader」图标，全屏启动、无地址栏。看文档时在应用内点「打开文件」，从「文件」App 里选 `.md`。
-
-> 这是 iOS 上最接近"桌面图标"的形态，**不能**注册 `.md` 默认关联，也不能双击自动打开。详见包内 `README.md` 与 [平台能力说明](docs/PLATFORM.md)。
-
-### macOS
-
-源码与构建配置在 `MDReader/desktop/`。`.dmg` **必须在 macOS 上编译**（Apple 代码签名与 `iconutil` 限制），详见 [桌面版构建说明](MDReader/desktop/README.md)。
+> 想第一时间拿到预编译包：点右上角 **⭐ Star**，Release 开放时会在动态里看到。也可以在公众号回复 `MDReader` 取下载指引。
 
 ---
 
-## 平台支持矩阵
+## 平台支持
 
 | 能力 | Windows 11 | macOS 11+ | iOS / iPadOS |
 | --- | --- | --- | --- |
-| 安装后桌面图标 | ✅ | ✅（Dock / 应用程序） | ✅ 主屏幕图标（PWA，无"桌面"概念） |
+| 安装后桌面图标 | ✅ | ✅（Dock / 应用程序） | ✅ 主屏幕图标（PWA，无「桌面」概念） |
 | 注册为 `.md` 默认打开程序 | ✅ | ✅ | ❌ 系统不允许第三方注册全局扩展名默认程序 |
 | 接收外部 `.md` 文件 | ✅ 双击 / 命令行 | ✅ 双击 / 拖到 Dock | ⚠️ 应用内手动选取；「共享表单」需原生 App |
 | 离线、无网络请求 | ✅ | ✅ | ✅（HTTPS 托管时由 Service Worker 缓存） |
 | 本项目是否原生支持 | ✅ 已交付安装包 | ✅ 同源代码 + 构建脚本 | ⚠️ 已交付 PWA 包，非原生 App（Electron 不支持 iOS） |
 
-**关于 iOS**：iOS/iPadOS 是移动系统，没有"桌面快捷方式"和"系统级默认打开程序"机制。系统只提供 `CFBundleDocumentTypes` 文档类型注册，让 App 出现在「共享 / 打开方式」列表里，且**必须由用户每次手动选择**。此外 Electron 不支持 iOS，要做原生版必须另起 SwiftUI + WKWebView 工程，并受 App Store 沙箱限制。本仓库交付的是能力范围内的 PWA 包，不假装支持默认关联。详见 [平台能力说明](docs/PLATFORM.md)。
+**关于 iOS**：iOS/iPadOS 没有「桌面快捷方式」和「系统级默认打开程序」机制。系统只提供 `CFBundleDocumentTypes` 文档类型注册，让 App 出现在「共享 / 打开方式」列表里，且**必须由用户每次手动选择**。本仓库交付的是能力范围内的 PWA 包，不假装支持默认关联。详见 [平台能力说明](docs/PLATFORM.md)。
 
 ---
 
 ## 和同类工具比
 
-如果你的需求是每天写长文，它不是主力工具——**编辑只做到"够改一行"**（按块编辑 + `Ctrl+S` 写回原文件，没有语法高亮编辑、没有插件）。它主要解决"**看**一份已经存在的本地文档"。
+如果你的需求是每天写长文，它不是主力工具——**编辑只做到「够改一行」**（按块编辑 + `Ctrl+S` 写回原文件，没有语法高亮编辑、没有插件）。它主要解决「**看**一份已经存在的本地文档」。
 
 | 场景 | 更该用谁 | 为什么 |
 | --- | --- | --- |
 | 要写文档 | Typora | 所见即所得，写作体验是这个品类的标杆 |
-| 要管理 1000+ 篇笔记、要双链与图谱 | Obsidian | 知识库是它的核心；本项目只做了"显示"那一层 |
+| 要管理 1000+ 篇笔记、要双链与图谱 | Obsidian | 知识库是它的核心；本项目只做了「显示」那一层 |
 | 边写代码边看 README | VS Code | 你本来就在里面，多装一个工具是负担 |
 | 要多人协作 / 云同步 | 飞书文档 / 语雀 / Notion | 本项目明确不做账号与同步 |
 | 文档里有数学公式 | 换别的 | **不支持 KaTeX / MathJax，这是硬缺口** |
 | 只看本地 `.md`，不想开任何编辑器 | **MD Reader** | 双击即开、零联网、按章节切卡片、表格可排序出图 |
+
+同类项目里，MarkText（64k★）、Logseq（45k★）、SingleFile（23k★）、HedgeDoc（7.5k★）都是 **AGPL**；Zettlr / VNote 是 **GPL / LGPL**。**MD Reader 是 MIT**——可以直接被商业产品或内网工具链集成，这一条对工程团队是实打实的差别。
 
 完整的 16 维对比（含 Typora / Obsidian / MarkText / VS Code / 在线编辑器）见 **[docs/COMPARISON.md](docs/COMPARISON.md)**。
 
@@ -190,12 +191,14 @@
 | --- | --- |
 | 能不能编辑？ | 能：按块编辑 + `Ctrl+S` 写回原文件；但不是主力写作工具 |
 | 真的完全不联网？ | 是，而且可以自己 grep + 拔网线验证 |
-| 3.8 MB 打开慢吗？ | 冷启动约 0.4–0.8 秒，本地文件无网络请求 |
-| 安装包为什么 100 多 MB？ | 便携版 1.3 MB 就够用；安装版大是因为自带 Electron 运行时 |
+| 4.6 MB 打开慢吗？ | 冷启动约 0.4–1.0 秒，本地文件无网络请求 |
+| 为什么比 v1.3 大了 0.8 MB？ | 新增界面语言包、Unicode 架构图算法、导出运行时、15 张欢迎屏演示图 |
+| 安装包为什么 100 多 MB？ | 便携版 1.7 MB 就够用；安装版大是因为自带 Electron 运行时 |
 | macOS 能用吗？ | 能用，但要自己编译，作者未实测 |
+| 架构图识别要联网 / 要 AI 吗？ | 都不要，纯 JS 算法，本地按显示列宽切格子 |
 | 流程图为什么有的不跟随深色主题？ | 进阶语法交回官方 Mermaid 渲染，是有意的降级设计 |
 
-17 个问题的完整版（含编码、图片路径、iOS 限制、导出 PDF）：**[docs/FAQ.md](docs/FAQ.md)**。
+完整版（含编码、图片路径、iOS 限制、导出 PDF）见 **[docs/FAQ.md](docs/FAQ.md)**。
 
 ---
 
@@ -203,39 +206,41 @@
 
 ```bash
 git clone https://github.com/guizige-890323/mdreader.git
-cd mdreader/MDReader/desktop
+cd mdreader
 
-npm install                 # 安装 Electron 与 electron-builder
-npm run icons                # 生成应用 / 文件类型图标（可选，仓库已带）
-npm run build:win            # → desktop/release/MD Reader Setup 1.3.0.exe
-# macOS 上：npm run build:mac → .dmg
+# 单文件（不需要 Node）
+python MDReader/src/gen-demo.py                          # 示例文档 → app.js + 两份示例 md
+python MDReader/src/build.py                             # → MDReader/dist/MDReader.html（中文默认）
+python MDReader/src/build.py --edition global \
+    --out MDReader/dist-intl/MDReader.html               # → 国际版（英文默认）
+
+# 便携版 / 国际版 / iOS 包
+python MDReader/tools/pack-portable.py                   # → 发布包/MDReader-便携版-v1.7.0.zip
+python MDReader/src/pack-intl.py                         # → 发布包/MDReader-International-v1.7.0.zip
+python MDReader/ios/build-pwa.py                         # → 发布包/MDReader-iOS-PWA-v1.7.0.zip
+
+# Windows 安装版（需 Node 18+）
+cd MDReader/desktop
+npm install
+npm run build:win                                        # → desktop/release-win33/MD Reader Setup 1.7.0.exe
 ```
 
-便携版与 iOS 包不需要 Node：
+**改渲染层的正确顺序**（漏一步就会出现「网页版是新的、桌面版是旧的」）：
 
 ```bash
-python src/build.py                    # 重新生成单文件 MDReader.html
-python MDReader/tools/pack-portable.py                     # → MDReader-便携版-v1.3.0.zip
-python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA-v1.3.0.zip
+python src/gen-demo.py            # 只在改示例文档时需要
+python src/build.py               # 中文版
+python src/build.py --edition global --out dist-intl/MDReader.html
+python desktop/scripts/sync-app.py  # 桌面壳必须从 dist/ 同步，不能手放
 ```
 
-> **换图标必须重打包**：`npm run icons` 从 `brand-source/` 生成 ICO、NSIS 向导位图和应用内 logo 后，还要依次跑 `src/build.py` → `sync-app.py` → `build:win` → `pack.py` → `ios/build-pwa.py`。只改 `build/` 里的图片，已生成的安装包和便携版里仍旧是旧图。完整规格见 [平台能力说明 · 图标资源与替换清单](docs/PLATFORM.md#七图标资源与替换清单)。
+> **换图标必须重打包**：`npm run icons` 从 `brand-source/` 生成 ICO、NSIS 向导位图和应用内 logo 后，还要重跑上面整条链。只改 `build/` 里的图片，已生成的安装包和便携版里仍旧是旧图。
 
-国内网络建议设置镜像（GitHub 二进制下载常被拦）：
+国内网络建议设置镜像：
 
 ```bash
 export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 export ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
-npm install
-```
-
-**只改渲染层**（`src/template.html` / `src/app.js`）时，重新生成单文件即可，桌面版与便携版会同时更新：
-
-```bash
-python src/build.py                  # → dist/MDReader.html
-python desktop/scripts/sync-app.py    # 同步进桌面壳
-python desktop/scripts/verify-portable.py   # 便携版 17 项回归
-python MDReader/tools/pack-portable.py                   # 重新打便携版 zip
 ```
 
 ---
@@ -244,82 +249,97 @@ python MDReader/tools/pack-portable.py                   # 重新打便携版 zi
 
 ```
 mdreader/
-├── README.md                    中文版（本文件）
-├── README.en.md                 英文版
-├── LICENSE                      MIT + 第三方组件附录
-├── CHANGELOG.md                 版本变更记录（唯一事实源）
-├── CONTRIBUTING.md              贡献指南
-├── CODE_OF_CONDUCT.md           贡献者公约 2.1
-├── SECURITY.md                  安全漏洞上报流程
-├── .editorconfig                跨编辑器缩进 / 换行约定
-├── .gitattributes               换行符与二进制文件规则
-├── .gitignore
+├── README.md / README.en.md      中英文说明
+├── LICENSE                       MIT + 第三方组件附录
+├── CHANGELOG.md                  版本变更记录（唯一事实源）
+├── CONTRIBUTING.md               贡献指南
+├── CODE_OF_CONDUCT.md            贡献者公约 2.1
+├── SECURITY.md                   安全漏洞上报流程
 ├── .github/
-│   ├── ISSUE_TEMPLATE/           Bug / 需求表单 + config.yml
+│   ├── ISSUE_TEMPLATE/           Bug / 需求表单
 │   ├── PULL_REQUEST_TEMPLATE.md  PR 自查清单
-│   ├── dependabot.yml            依赖漏洞自动扫描
-│   └── workflows/ci.yml          语法检查 + 构建 + 生成物漂移检查 + 回归
+│   └── workflows/ci.yml          语法 + 构建 + 漂移检查 + 回归
 ├── docs/
-│   ├── screenshots/             6 张界面截图
+│   ├── screenshots/              界面截图
 │   ├── PLATFORM.md               三平台能力边界
-│   ├── FAQ.md                    17 个常见问题（能力边界 / 体积 / 隐私 / 编码）
-│   ├── COMPARISON.md             与 Typora / Obsidian / MarkText / VS Code 的 16 维对比
-│   ├── RELEASE.md                发版流程 / Release 文案模板 / 仓库元信息
-│   └── THIRD-PARTY-LICENSES.md   第三方依赖许可清单
+│   ├── FAQ.md                    常见问题
+│   ├── COMPARISON.md             16 维对比
+│   ├── RELEASE.md                发版流程 / Release 文案模板
+│   └── THIRD-PARTY-LICENSES.md   第三方依赖许可
 └── MDReader/
-    ├── dist/                    便携版成品（构建产物，提交进仓库）
-    │   ├── MDReader.html          主程序，3.8 MB 单文件
-    │   ├── 启动 MDReader.bat
-    │   ├── 用此程序打开MD.bat
-    │   ├── open-with.ps1
+    ├── dist/                     中文版成品（提交进仓库）
+    │   ├── MDReader.html         主程序，单文件 4.6 MB
+    │   ├── 启动 MDReader.bat / 用此程序打开MD.bat / open-with.ps1
     │   ├── 示例文档.md / assets/
     │   └── 使用说明.md
+    ├── dist-intl/                国际版成品（与中文版仅差默认语言一行）
     ├── src/                      源码
-    │   ├── template.html         界面与两套皮肤 CSS
-    │   ├── app.js                 全部逻辑
-    │   ├── mermaid-flow.js        自研 Mermaid 渲染器（MD FLOW）
-    │   ├── text-flow.js           文本流程图 → 图形
+    │   ├── template.html         界面骨架与皮肤 CSS
+    │   ├── app.js                全部逻辑
+    │   ├── i18n.js               中 / 英语言包
+    │   ├── mermaid-flow.js       自研 Mermaid 渲染器（MD FLOW）
+    │   ├── text-flow.js          箭头文本 → 图形
+    │   ├── ascii-diagram.js      Unicode 框线架构图 → 语义图
+    │   ├── export-runtime.js     导出页运行时（text/plain 内嵌，不执行）
+    │   ├── demo/                 示例文档单一数据源（zh / en）
     │   ├── vendor/               marked 15 / hljs 11 / mermaid 10（离线）
-    │   ├── build.py               内嵌依赖 → 单文件 HTML
-    │   └── pack.py                便携版打包
-    ├── tools/                    图标生成 / 截图 / 浏览器验证脚本
-    ├── desktop/                  桌面安装版
-    │   ├── main.js                单实例 / 文件关联 / 菜单 / 编码识别
-    │   ├── preload.js             安全桥接白名单
-    │   ├── app/                  ← 生成物：sync-app.py 从 dist/ 复制，不入库
-    │   ├── build/                 图标 + NSIS 片段 + 离线 rcedit
-    │   ├── scripts/               同步 / 图标 / 回归验证
-    │   └── release/              ← 构建输出（.exe / .dmg），不入库
+    │   ├── build.py              内嵌依赖 → 单文件 HTML
+    │   └── pack-intl.py          国际版打包
+    ├── tools/                    打包 / 回归 / 素材生产脚本
+    ├── desktop/                  Windows / macOS 桌面版
+    │   ├── main.js               单实例 / 文件关联 / 编码识别
+    │   ├── preload.js            安全桥接白名单
+    │   ├── app/                  ← 由 sync-app.py 从 dist/ 同步
+    │   ├── build/                图标 + NSIS 片段 + 离线 rcedit
+    │   └── scripts/              同步 / 图标 / 回归验证
     └── ios/                      iOS / iPadOS 主屏幕版（PWA）
-        ├── build-pwa.py           注入 manifest / 图标 → 站点 + zip
-        └── site/                 ← 生成物，不入库
+        ├── build-pwa.py          注入 manifest / 图标 → 站点 + zip
+        └── site/                 ← 生成物
 ```
 
-`dist/` 是**提交进仓库的构建产物**：改了 `src/` 下的源码后必须重新执行 `python MDReader/src/build.py` 并一起提交，否则 CI 的生成物漂移检查会失败。`desktop/app/`、`desktop/release/`、`ios/site/` 均由脚本生成，不提交。
+`dist/` 与 `dist-intl/` 是**提交进仓库的构建产物**：改了 `src/` 必须重建并一起提交，否则 CI 的漂移检查会失败。`desktop/app/`、`desktop/release-*/`、`ios/site/` 由脚本生成，不入库。
+
+---
+
+## 为什么这么小
+
+| 组件 | 处理方式 | 体积 |
+| --- | --- | --- |
+| marked 15 / highlight.js 11 / mermaid 10 | 构建期内嵌 | ≈1.1 MB |
+| 主逻辑 + 自研渲染器 + 语言包 | 纯 JS，无框架 | ≈1.5 MB |
+| 品牌图标 / 换肤图标 / 口号海报 | base64 内嵌 | ≈0.3 MB |
+| 欢迎屏 15 张演示图 | webp，构建期内嵌 | ≈0.3 MB |
+| 导出运行时 | text/plain 槽位，不执行 | ≈22 KB |
+
+没有打包器、没有框架、没有 polyfill。**你能在 `src/` 里读到运行时的每一行。**
 
 ---
 
 ## 隐私与安全
 
-- **零网络请求**：marked 15 / highlight.js 11 / mermaid 10 全部内嵌，代码里没有任何 `fetch` 到外部域
+- **零网络请求**：三个依赖全部内嵌，代码里没有任何 `fetch` 到外部域
 - **零上传**：文档只在本机浏览器 / Electron 渲染进程内解析
-- **零注册表污染**（便携版）：bat 启动器只写同目录的 `_autoload.js`，不改注册表，随时删目录即卸载
-- **桌面版**：仅通过 `contextBridge` 暴露白名单方法，`nodeIntegration: false` + `contextIsolation: true`；外部链接一律交给系统浏览器
-- 最近打开 / 主题偏好存在本机 `localStorage`（便携版）或 `%APPDATA%\mdreader`（桌面版），不跨设备同步
+- **零遥测**：没有埋点、没有崩溃上报、没有用户 ID
+- **零注册表污染**（便携版）：bat 启动器只写同目录的 `_autoload.js`，删目录即卸载
+- **桌面版**：`contextBridge` 白名单，`nodeIntegration: false` + `contextIsolation: true`；外部链接交给系统浏览器
+- 最近打开 / 主题偏好只存本机 `localStorage` 或 `%APPDATA%\mdreader`，不跨设备同步
 
 ---
 
 ## 版本与路线图
 
-见 [CHANGELOG.md](CHANGELOG.md)。当前 **v1.3.0**。
+当前 **v1.7.0**，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 | 计划 | 状态 |
 | --- | --- |
 | 卡片 / 纸张双皮肤 + 最近打开 | ✅ v1.3.0 |
 | Windows 安装包 + `.md` 关联 + 桌面图标 | ✅ v1.3.0 |
-| macOS `.dmg` 构建配置 | ✅ 配置就绪，需在 Mac 上编译 |
-| iOS 文档类型注册（共享表单接收 `.md`） | 🔜 规划中，需另起 SwiftUI 工程 |
-| 产品界面多语言（UI i18n） | 🔜 规划中，当前仅文档双语 |
+| 流程图 5 结构 × 5 风格 + 可视化编辑 | ✅ v1.5.0 |
+| Unicode 框线架构图 → 可编辑矢量图 | ✅ v1.6.0 |
+| 单图结构覆盖 + 统一文档风格 | ✅ v1.7.0 |
+| 界面多语言（中 / 英 / 跟随系统） | ✅ v1.7.0 |
+| macOS `.dmg` | ✅ 配置就绪，需在 Mac 上编译 |
+| iOS 文档类型注册（共享表单接收 `.md`） | 🔜 需另起 SwiftUI 工程 |
 | 全文搜索跨文档 | 💡 待评估 |
 
 ---
@@ -327,11 +347,9 @@ mdreader/
 ## 仓库信息
 
 - 仓库地址：<https://github.com/guizige-890323/mdreader>
-- 当前版本：**v1.3.0**
+- 当前版本：**v1.7.0**
 - 许可证：MIT
 - 支持平台：Windows 10 / 11 · macOS 11+（需自行编译）· iOS / iPadOS（PWA）
-
-仓库简介与 Topics 的填写建议见 [docs/RELEASE.md](docs/RELEASE.md#四仓库元信息)。
 
 ---
 
@@ -339,13 +357,13 @@ mdreader/
 
 欢迎提 Issue / PR，见 [CONTRIBUTING.md](CONTRIBUTING.md)。参与前请阅读[行为准则](CODE_OF_CONDUCT.md)，安全问题请按 [SECURITY.md](SECURITY.md) 私下上报。
 
-基于 **MIT** 协议开源，见 [LICENSE](LICENSE)。内嵌的第三方组件（marked / highlight.js / Mermaid）及其传递依赖的许可清单见 [docs/THIRD-PARTY-LICENSES.md](docs/THIRD-PARTY-LICENSES.md)，`LICENSE` 末尾另附摘要。
+基于 **MIT** 协议开源，见 [LICENSE](LICENSE)。内嵌第三方组件的许可清单见 [docs/THIRD-PARTY-LICENSES.md](docs/THIRD-PARTY-LICENSES.md)。
 
 ---
 
 ## 关注公众号
 
-产品更新、源码解析与技术分享首发在公众号 **「晨曦AI研习」**。回复 `MDReader` 可直接拿到三个版本的下载地址与 30 秒上手指引。
+产品更新、源码解析与技术分享首发在公众号 **「晨曦AI研习」**。回复 `MDReader` 可拿下载地址与 30 秒上手指引。
 
 <p align="center">
   <img src="MDReader/src/brand-qr.jpg" alt="公众号「晨曦AI研习」，回复 MDReader 获取下载地址" width="200">
@@ -353,13 +371,6 @@ mdreader/
 
 ---
 
-## Star History
+**如果这个项目对你有用，点个 ⭐ Star 是成本最低的支持方式。** 有 bug 或想要的功能，按 [Issue 模板](.github/ISSUE_TEMPLATE/bug_report.yml) 提一个。个人项目响应可能慢一两天，但都会看。
 
-<a href="https://star-history.com/#guizige-890323/mdreader&Date">
-  <img src="https://api.star-history.com/svg?repos=guizige-890323/mdreader&type=Date" alt="Star History Chart" width="620">
-</a>
-
----
-
-**如果这个项目对你有用，点个 ⭐ Star 是成本最低的支持方式** —— 也是我唯一会看的指标。有 bug 或想要的功能，按 [Issue 模板](.github/ISSUE_TEMPLATE/bug_report.yml) 提一个，或个人项目响应可能慢一两天，但都会看。
-
+<sub>MD Reader 是一个人的项目：没有公司、没有融资、没有增长指标。它只是把「看文档」这件事做顺手了一点。⚡</sub>

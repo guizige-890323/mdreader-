@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-"""从两版品牌素材生成全平台图标。
+"""从两组品牌素材生成全平台图标（极简 / 卡通）。
 
 素材语义（按用户指定）：
-  brand-source/light.png = 图片-16.png，深色圆角方块 + 白色 MD 图案
-                           → 用于「浅色 / 护眼」主题（亮界面里放深色徽标）
-  brand-source/dark.png  = 图片-7.png，白色圆角方块 + 黑色 MD 图案
-                           → 用于「深色」主题（暗界面里放白色徽标）
+  极简 minimal
+    brand-source/light.png         黑底圆角方块 + 白色 MD（浅色 / 护眼界面用）
+    brand-source/dark.png          白底圆角方块 + 黑色 MD（深色界面用）
+  卡通 cartoon（2026-11-13 新增，默认组）
+    brand-source/cartoon-light.png 黑底 + 白 MD + 红耳机 + 蓝眼睛（浅色 / 护眼）
+    brand-source/cartoon-dark.png  白底 + 黑 MD + 红耳机 + 蓝眼睛（深色）
 
 平台常规尺寸：
   Windows ICO     16 / 24 / 32 / 48 / 64 / 128 / 256（安装包、快捷方式、任务栏、文档类型）
@@ -13,7 +15,11 @@
                   installerHeader.bmp = 150×57，installerSidebar.bmp = 164×314
   macOS / Linux   1024 PNG（electron-builder 转 icns）
   iOS / PWA        120 / 152 / 167 / 180 / 192 / 512 + maskable（ios/build-pwa.py 派生）
-  软件内部 logo    128 PNG（src/build.py 内嵌成 data URI，保证单文件离线）
+  软件内部 logo    128 PNG × 4（src/build.py 内嵌成 data URI，保证单文件离线）
+
+命名规则：icon-<组>-<明/暗>.{png,ico}，例如 icon-cartoon-dark.ico。
+兼容别名 icon-light.* / icon-dark.* 与 brand-light.png / brand-dark.png 一律指向
+**默认组（卡通）**，供旧脚本 / 旧版 Electron 壳继续引用。
 """
 import shutil
 from pathlib import Path
@@ -27,12 +33,18 @@ SRC = ROOT / "src"
 BRAND = HERE / "brand-source"
 ICONS = BUILD / "icons"
 
-# 原始素材 1024×1024 白底，圆角方块约占 (110,104)–(918,912)
+# 原始极简素材 1024×1024 白底，圆角方块约占 (110,104)–(918,912)
 CROP = (110, 104, 918, 912)
 BASE = 1024
 CORNER_RATIO = 0.205
 EDGE_INSET = 0.016          # 内缩留安全边距，顺便切掉原图白底在圆角外的一圈高光
 ICO_SIZES = [16, 24, 32, 48, 64, 128, 256]
+
+SETS = {
+    "minimal": {"light": "light.png", "dark": "dark.png"},
+    "cartoon": {"light": "cartoon-light.png", "dark": "cartoon-dark.png"},
+}
+DEFAULT_SET = "cartoon"     # 用户指定：默认改为黑白红蓝卡通款
 
 
 def rounded_mask(size, ratio, inset):
@@ -59,13 +71,35 @@ def font(size, bold=False):
 
 
 def load_mark(name):
+    """极简组：裁掉原图外围白底，套圆角遮罩。"""
     src = BRAND / name
     assert src.exists(), "缺少品牌素材: %s" % src
     im = Image.open(src).convert("RGB")
     im = im.crop(CROP).resize((BASE, BASE), Image.LANCZOS).convert("RGBA")
-    # 原图白色外围不透明；套圆角遮罩后四角透明，图标在任何系统主题下都是干净的圆角方块
     im.putalpha(rounded_mask(BASE, CORNER_RATIO, EDGE_INSET))
     return im
+
+
+def load_cartoon(name):
+    """卡通组：素材本身已是带透明圆角的 APP 图标（832×824，四周透明）。
+
+    裁掉透明边后**等比**居中贴到 1024 透明画布，避免 832×824 被拉成正方形变形；
+    四周保留 2% 安全边距，便于 iOS maskable / Windows 小尺寸裁切。
+    """
+    src = BRAND / name
+    assert src.exists(), "缺少品牌素材: %s" % src
+    im = Image.open(src).convert("RGBA")
+    bbox = im.getbbox()
+    assert bbox, "空素材: %s" % src
+    im = im.crop(bbox)
+    w, h = im.size
+    side = int(BASE * 0.96)
+    scale = side / max(w, h)
+    nw, nh = max(1, int(round(w * scale))), max(1, int(round(h * scale)))
+    im = im.resize((nw, nh), Image.LANCZOS)
+    canvas = Image.new("RGBA", (BASE, BASE), (0, 0, 0, 0))
+    canvas.paste(im, ((BASE - nw) // 2, (BASE - nh) // 2), im)
+    return canvas
 
 
 def paste_mark(canvas, mark, box):
@@ -89,9 +123,7 @@ def gradient(size, top, bottom):
 
 
 def make_wizard_images(mark):
-    """NSIS assisted installer 的两张品牌位图，替换默认的 nsis3-metro.bmp。
-    统一为「深色」安装视觉：深底 + 白色 MD 徽标（与 icon-dark 一致）。"""
-    # MUI_HEADERIMAGE：150 × 57（深底 + 白字）
+    """NSIS assisted installer 的两张品牌位图 + 3 枚 ICO（统一用默认组）。"""
     header = Image.new("RGB", (150, 57), (28, 34, 46))
     paste_mark(header, mark, (7, 8, 50, 51))
     d = ImageDraw.Draw(header)
@@ -99,7 +131,6 @@ def make_wizard_images(mark):
     d.text((56, 37), "Markdown 阅读器", font=font(9), fill=(176, 184, 198))
     header.save(BUILD / "installerHeader.bmp", format="BMP")
 
-    # MUI_WELCOMEFINISHPAGE_BITMAP：164 × 314（深渐变底 + 白字 + 浅蓝点缀）
     side = gradient((164, 314), (34, 41, 56), (20, 26, 38))
     paste_mark(side, mark, (26, 42, 138, 154))
     d = ImageDraw.Draw(side)
@@ -115,8 +146,8 @@ def make_wizard_images(mark):
     shutil.copyfile(BUILD / "installerSidebar.bmp", BUILD / "uninstallerSidebar.bmp")
 
     for name in ("installerIcon.ico", "uninstallerIcon.ico", "installerHeaderIcon.ico"):
-        shutil.copyfile(BUILD / "icon-dark.ico", BUILD / name)
-    print("wizard    installerHeader.bmp 150x57 / installerSidebar.bmp 164x314 + 3 ICO (dark)")
+        shutil.copyfile(BUILD / ("icon-%s-dark.ico" % DEFAULT_SET), BUILD / name)
+    print("wizard    installerHeader.bmp 150x57 / installerSidebar.bmp 164x314 + 3 ICO (%s)" % DEFAULT_SET)
 
 
 def main():
@@ -124,36 +155,47 @@ def main():
     ICONS.mkdir(exist_ok=True)
     marks = {}
 
+    for setname, pair in SETS.items():
+        loader = load_cartoon if setname == "cartoon" else load_mark
+        for tag in ("light", "dark"):
+            im = loader(pair[tag])
+            marks[(setname, tag)] = im
+            stem = "icon-%s-%s" % (setname, tag)
+            ico = BUILD / (stem + ".ico")
+            png = BUILD / (stem + ".png")
+            im.save(ico, format="ICO", sizes=[(s, s) for s in ICO_SIZES])
+            im.save(png)
+            print("%-26s %7.1f KB  ICO sizes=%s" %
+                  (ico.name, ico.stat().st_size / 1024, ICO_SIZES))
+            print("%-26s %7.1f KB  1024px" % (png.name, png.stat().st_size / 1024))
+
+            # 运行时（Electron 主题 / LOGO 组切换）用的窗口 / 任务栏图标
+            for ext in (".ico", ".png"):
+                shutil.copyfile(BUILD / (stem + ext), ICONS / (stem + ext))
+            # 软件内部 logo（内嵌进单文件 HTML）
+            inner = SRC / ("brand-%s-%s.png" % (setname, tag))
+            im.resize((128, 128), Image.LANCZOS).save(inner)
+            print("%-26s %7.1f KB  128px (inline data URI)" %
+                  (inner.name, inner.stat().st_size / 1024))
+
+    # 兼容旧名：一律指向默认组（卡通），旧脚本 / 旧版壳无需改动也能拿到新图标
     for tag in ("light", "dark"):
-        im = load_mark(tag + ".png")
-        marks[tag] = im
-        ico = BUILD / ("icon-%s.ico" % tag)
-        png = BUILD / ("icon-%s.png" % tag)
-        im.save(ico, format="ICO", sizes=[(s, s) for s in ICO_SIZES])
-        im.save(png)
-        print("%-22s %7.1f KB  ICO sizes=%s" %
-              (ico.name, ico.stat().st_size / 1024, ICO_SIZES))
-        print("%-22s %7.1f KB  1024px" % (png.name, png.stat().st_size / 1024))
-
-        # 运行时主题切换用的窗口 / 任务栏图标（extraResources）
+        stem = "icon-%s-%s" % (DEFAULT_SET, tag)
         for ext in (".ico", ".png"):
-            shutil.copyfile(BUILD / ("icon-%s%s" % (tag, ext)),
-                            ICONS / ("icon-%s%s" % (tag, ext)))
-        # 软件内部 logo（内嵌进单文件 HTML）
-        inner = SRC / ("brand-%s.png" % tag)
-        im.resize((128, 128), Image.LANCZOS).save(inner)
-        print("%-22s %7.1f KB  128px (inline data URI)" %
-              (inner.name, inner.stat().st_size / 1024))
+            shutil.copyfile(BUILD / (stem + ext), BUILD / ("icon-%s%s" % (tag, ext)))
+            shutil.copyfile(BUILD / (stem + ext), ICONS / ("icon-%s%s" % (tag, ext)))
+        shutil.copyfile(SRC / ("brand-%s-%s.png" % (DEFAULT_SET, tag)),
+                        SRC / ("brand-%s.png" % tag))
 
-    # 安装包 / 快捷方式 / .md 文档类型主图标：统一用「深色」品牌图标（白底方块 + 黑色 MD）。
-    # 用户在深色桌面下，白底方块比原来的近黑方块更醒目；不再使用黑色底。
-    shutil.copyfile(BUILD / "icon-dark.ico", BUILD / "icon.ico")
-    shutil.copyfile(BUILD / "icon-dark.ico", BUILD / "mdfile.ico")
-    shutil.copyfile(BUILD / "icon-dark.png", BUILD / "icon.png")
-    marks["dark"].resize((256, 256), Image.LANCZOS).save(BUILD / "mdfile.png")
-    print("primary icon.ico / mdfile.ico / icon.png / mdfile.png  <- icon-dark")
+    # 安装包 / 快捷方式 / .md 文档类型主图标：默认组的「白底」版，浅色桌面上识别度最高
+    main_mark = marks[(DEFAULT_SET, "dark")]
+    shutil.copyfile(BUILD / ("icon-%s-dark.ico" % DEFAULT_SET), BUILD / "icon.ico")
+    shutil.copyfile(BUILD / ("icon-%s-dark.ico" % DEFAULT_SET), BUILD / "mdfile.ico")
+    shutil.copyfile(BUILD / ("icon-%s-dark.png" % DEFAULT_SET), BUILD / "icon.png")
+    main_mark.resize((256, 256), Image.LANCZOS).save(BUILD / "mdfile.png")
+    print("primary icon.ico / mdfile.ico / icon.png / mdfile.png  <- %s-dark" % DEFAULT_SET)
 
-    make_wizard_images(marks["dark"])
+    make_wizard_images(main_mark)
 
 
 if __name__ == "__main__":

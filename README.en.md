@@ -2,162 +2,151 @@
 
 **English** · [简体中文](README.md)
 
-> **A local Markdown reader that opens the moment you double-click a `.md` file — no IDE, no browser tab, and no uploading internal documents to an online editor.**
+> **A local Markdown reader that opens on double-click. One 4.6 MB HTML file. No install, no network, no account.**
 
-[![Release](https://img.shields.io/github/v/release/guizige-890323/mdreader?label=release)](https://github.com/guizige-890323/mdreader/releases)
-[![Downloads](https://img.shields.io/github/downloads/guizige-890323/mdreader/total?label=downloads)](https://github.com/guizige-890323/mdreader/releases)
-[![Stars](https://img.shields.io/github/stars/guizige-890323/mdreader?style=flat)](https://github.com/guizige-890323/mdreader/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20macOS%2011%2B-2f6feb.svg)](https://github.com/guizige-890323/mdreader/releases)
+[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20iOS%20PWA-2f6feb.svg)](docs/PLATFORM.md)
 [![Offline](https://img.shields.io/badge/network-0%20requests-2e7d32.svg)](#privacy--security)
-
-**One HTML file is the whole application.** marked, highlight.js and Mermaid are inlined at build time, and the running program makes zero network requests.
+[![Size](https://img.shields.io/badge/single%20file-4.6%20MB-6b7280.svg)](#why-is-it-so-small)
 
 <p align="center">
-  <img src="docs/screenshots/01-card-light.png" alt="MD Reader card skin: a 2,000-line runbook split into numbered panels by heading" width="880">
+  <img src="docs/screenshots/01-card-light.png" alt="Card skin: a long runbook split into numbered panels by H2" width="880">
 </p>
 
-<!-- TODO(demo): record a 20-second walkthrough (open → switch skins → sort a table → chart → dark theme),
-     save as docs/screenshots/demo.gif, then replace this comment. The GIF must sit above the fold. -->
-
-**Contents:** [Why this exists](#why-this-exists) · [Three ways to run it](#three-ways-to-run-it) · [What makes it different](#what-makes-it-different) · [Features](#features) · [Screenshots](#screenshots) · [Install](#install) · [Platform support](#platform-support) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Build from source](#build-from-source) · [Repository layout](#repository-layout) · [Privacy & security](#privacy--security) · [Version & roadmap](#version--roadmap) · [Contributing](#contributing) · [License](#license)
+**Contents**: [Why](#why-it-exists) · [Five builds](#five-builds) · [Features](#-features) · [Screens](#screens) · [How to run it now](#how-to-run-it-now) · [Platforms](#platform-support) · [Vs. alternatives](#how-it-compares) · [FAQ](#faq) · [Build from source](#build-from-source) · [Layout](#repository-layout) · [Privacy](#privacy--security) · [Roadmap](#version--roadmap) · [License](#contributing--license)
 
 ---
 
-## Why this exists
+## Why it exists
 
-| Situation | What people usually do | The problem | MD Reader |
+Every Markdown tool is racing to become everything: accounts, cloud sync, AI summaries, plugin markets. **MD Reader goes the other way — it only does *reading*, and it does it well.**
+
+| | What it is | What it isn't |
+| --- | --- | --- |
+| **Small** | One 4.6 MB HTML file, dependencies inlined | Not a 100 MB Electron bundle (the installer is a separate option) |
+| **Opinionated** | No accounts, no sync, no telemetry, no built-in AI | Doesn't pretend to be universal; gaps are listed under [Platforms](#platform-support) |
+| **Designed** | 2 layouts × 3 themes × 4 document styles, each fully redrawn | Not a border swap marketed as a "theme" |
+| **Considerate** | Comfortable contrast, no ads, no popups, no tracking | Never trades your documents for anything |
+
+The problems it actually solves:
+
+| Situation | Usual approach | The catch | MD Reader |
 | --- | --- | --- | --- |
-| Just read one `.md` file | Open VS Code / Obsidian | Slow startup, needs a vault, needs plugins | Double-click, standalone window |
-| Ops runbooks, incident guides | Drop them into an online Markdown editor | Internal documents leave the network — a compliance risk | Parsed entirely on your machine |
-| Documents with wide tables | Plain preview pane gives you a static table | No sorting, no way to see the shape of the data | Click-to-sort headers + one-click bar chart |
-| 1,100+ Obsidian notes | Import the whole vault first | Heavy, slow | Drag a folder in, lazy tree, instant open |
-| Long runbooks with many sections | Scroll to the bottom | Lose your place | Card skin numbers every `##` section |
-| The doc you had open yesterday | Dig through folders again | Breaks your flow | Recents list re-reads from disk |
+| Just read one `.md` | Open VS Code / Obsidian | Slow start, vault setup, plugins | Double-click, own window |
+| Runbooks / incident guides | Paste into an online editor | Internal docs leave the network | Parsed locally, 0 requests |
+| Wide tables | Static preview | No sorting, no trends | Sort by column, six chart types |
+| 1,100+ Obsidian notes | Import the whole vault | Heavy, slow | Drop a folder, lazy-loaded tree |
+| Long manuals with many sections | Scroll forever | Can't find anything | Card layout numbers each `##` |
+| Architecture diagrams in code blocks | Read the ASCII art | Can't edit or export | Detected into editable vector diagrams |
 
 ---
 
-## Three ways to run it
+## Five builds
 
-| | Portable | Desktop installer | iOS / iPadOS (PWA) |
-| --- | --- | --- | --- |
-| Artifact | `MDReader-便携版-v1.3.0.zip` (~1.3 MB) | `MD Reader Setup 1.3.0.exe` (NSIS, ~118 MB) | `MDReader-iOS-PWA-v1.3.0.zip` (~2 MB) |
-| Install | None — unzip and run | Double-click, choose a directory | Serve over LAN, then "Add to Home Screen" |
-| Desktop entry | Manual shortcut | **Desktop + Start Menu, created automatically** | ✅ Home screen icon, full-screen launch |
-| `.md` association | Manual "Open with" | **Registers 4 extensions, can be set as default** | ❌ iOS forbids third-party default handlers |
-| Double-click to open | Via a launcher `.bat` | Native single instance, hands the path to the running window | ❌ Pick the file inside the app |
-| Size | Tiny | Large (bundles the Electron runtime) | Small (same HTML + icons + manifest) |
-| Best for | USB sticks, temp machines, air-gapped networks | Your everyday machine | Reading `.md` on iPhone / iPad |
+| | Portable | Windows installer | Win unpacked | iOS / iPadOS | International |
+| --- | --- | --- | --- | --- | --- |
+| Artifact | `MDReader-便携版-v1.7.0.zip` | `MD Reader Setup 1.7.0.exe` | `MDReader-Win免安装-v1.7.0.zip` | `MDReader-iOS-PWA-v1.7.0.zip` | `MDReader-International-v1.7.0.zip` |
+| Size | ≈1.7 MB | ≈115 MB | ≈155 MB | ≈2.4 MB | ≈3.7 MB |
+| Install | Unzip | Double-click | Unzip | Serve locally, "Add to Home Screen" | Unzip |
+| Desktop entry | Create manually | Automatic (desktop + Start menu) | Manual | Home screen icon, full screen | Manual |
+| `.md` association | "Open with" manually | Registers 4 extensions, can be default | Manual | ❌ not allowed by iOS | Manual |
+| Default language | 简体中文 | 简体中文 | 简体中文 | 简体中文 | English |
+| Best for | USB sticks, air-gapped machines | Daily driver | No install, native window | Phone / tablet | English environments |
 
-> All three share the same `MDReader.html` — the rendering behaviour is identical, there is no "lite" build.
-> iOS has no "desktop" concept and does not let third-party apps register global file handlers. On desktop the counterpart is **macOS**, and the build configuration is already in the repo. See [`docs/PLATFORM.md`](docs/PLATFORM.md) for the full capability matrix.
-
----
-
-## What makes it different
-
-Most Markdown viewers stop at "render the syntax". Three pieces here go further:
-
-**A custom Mermaid renderer (MD FLOW).** Instead of accepting Mermaid's default purple theme, `src/mermaid-flow.js` parses `flowchart` source itself and re-lays it out: longest-path ranking, six passes of barycenter crossing reduction, port fan-out, cubic Bézier edges, back-edge U-channels, numbered badges, and a colour accent per rank. A dashed "flow" layer animates along every edge at a constant pixel speed. Unsupported syntax falls back to stock Mermaid automatically — no blank diagrams, ever.
-
-**Plain text in, diagram out.** Write a flow with arrows and symbols (`→`, `⇒`, `①②③`, `[box]`, `{decision}`) inside a ```` ```flow ```` fence and one click turns the whole document's flows into diagrams — and one more click puts the text back.
-
-**A table theme system.** Four visual themes (mono / tech / gov / cute) applied consistently to headers, zebra rows, numerics, and the generated charts, each adapting to all three colour themes.
+> **All five share exactly one `MDReader.html`.** There is no "lite edition".
+> The Chinese and International builds differ by **one line** (`BUILD_DEFAULT_LANG`) — byte-identical otherwise, enforced by the build script.
+> Capability boundaries: [`docs/PLATFORM.md`](docs/PLATFORM.md).
 
 ---
 
-## Features
+## ✨ Features
 
 ### Rendering & visualization
 
 | Area | Support |
 | --- | --- |
-| Base syntax | GFM tables, headings, lists, task lists, blockquotes, rules, bold/italic, strikethrough, inline code, links, images |
-| Tables | Zebra striping, hover highlight, sticky header, **click-to-sort**, numeric columns auto right-aligned, **one-click bar chart**, copy as CSV / TSV |
-| Code | Syntax highlighting for 40+ languages, language label, copy button |
-| Diagrams | ```` ```mermaid ```` flowcharts / sequence / gantt, themed to match the app |
-| Obsidian | `[[wikilinks]]`, `![[image embeds]]`, `[!note]` callouts, YAML frontmatter property tables, `#tag` highlighting |
+| Basics | GFM tables, headings, lists, task lists, quotes, rules, bold/italic, strikethrough, inline code, links, images |
+| Tables | Zebra rows, hover highlight, sticky header, click-to-sort, right-aligned numerics, copy as CSV / TSV |
+| **Charts (6)** | Auto / bar / line / trend area / donut pie / rose. Pie slices are exactly `value/total×360°`, never equal-split |
+| Code | 40+ languages, language labels, one-click copy |
+| Mermaid | Flowcharts, sequence diagrams, Gantt — follows the light/dark theme |
+| **Unicode diagrams** | `┌─┐│└┘` architecture diagrams inside code blocks become **draggable, editable, exportable** vector flowcharts (pure algorithm, no AI, no network) |
+| **Text flowcharts** | `A → B → C` arrow text becomes a real diagram, also editable |
+| Obsidian | `[[wikilinks]]`, `![[embeds]]`, `[!note]` callouts, YAML frontmatter tables, `#tags` highlighted |
 
-### Two layout skins
+### Flowcharts: structure × style × editing, three independent axes
 
-Not just a border swap — colours, type, radii, shadows, tables and code blocks all change together.
+| Axis | Options | What it changes |
+| --- | --- | --- |
+| **Structure** | Auto / Pipeline / Mind map / Org chart / Timeline | How nodes are laid out — **overridable per diagram** from its own toolbar |
+| **Style** | Classic / Minimal / Business / Vivid / Neon | Colour and strokes only, never the layout |
+| **Editing** | Drag / rename / recolour / add / delete / connect / undo | Edits land directly on the live SVG DOM |
+
+5 structures × 5 styles = **25 looks**. Every export (SVG, regenerated Mermaid source, HTML, Word, print-to-PDF) uses the **last edited state** — exports clone the DOM instead of re-rendering, so nothing reverts.
+
+### Typography: 2 layouts × 3 themes × 4 document styles
 
 | | ▥ Card | ▭ Paper |
 | --- | --- | --- |
-| Canvas | Light grey `#fafafa` | Warm cream `#f5f2ea` |
-| Surface | Pure white, 12 px radius, layered soft shadow | Ivory `#fdfbf6`, 2 px radius, no shadow |
-| Headings | System sans-serif | Serif (Iowan / Georgia) |
+| Canvas | Light grey `#fafafa` | Warm beige `#f5f2ea` |
+| Sheet | White, 12 px radius, soft double shadow | Ivory `#fdfbf6`, 2 px radius, flat |
+| Headings | System sans | Serif (Iowan / Georgia / Song) |
 | Accent | Blue `#2563eb` | Deep red `#8c2f1e` |
-| Structure | One card per `##` section, numbered `01` / `02` with word count | Continuous prose with a bound margin rule |
-| Best for | Runbooks, checklists, reference docs | Long-form reading, reports, print preview |
+| Structure | One card per `##` section, numbered `01`/`02` + word count | Continuous text with a letterpress margin rule |
 
-Both skins support **light / dark / sepia** independently of the skin, so you get 2 × 3 combinations. Sepia is a genuinely low-blue-light warm tone (card `#faf3e0`, paper `#fdf3d8`), visibly different from the plain light theme. Outline and anchor jumps keep working in card mode — heading `id`s are preserved.
+Three themes (light / dark / **eye-care**) are orthogonal to layout. Eye-care is a low-blue warm beige — visibly different from plain white.
+
+Four **document styles** (mono / tech / gov / cute) drive section backgrounds, card badges, the chart palette, flowchart accents and code syntax colours together, with readable variants derived per theme. The whole document has one mood instead of one coloured block.
+
+### Languages
+
+Simplified Chinese / English / follow-system, persisted. **Your own `.md` files are never translated.** The International build simply defaults to English.
 
 ### Reading & files
 
-- **Recents** — up to 30 entries; opening one **re-reads the file from disk** rather than showing a stale snapshot, and falls back to the cached copy if the file has moved
-- Folder tree (recursive), document outline, in-document search with match count and next/prev, font size control
-- Drag a file or an entire folder; UTF-8 / GB18030 encoding detection; 1,000+ file vaults via lazy loading
-- Export a **standalone HTML** (styles and images inlined), print, or save as PDF
+- **Recent files**: up to 30, re-read from the absolute path on disk (not a stale snapshot)
+- Folder tree, outline, in-document search with match count, font size, reading width
+- Drop a file or a whole folder; UTF-8 / GB18030 auto-detected; 1,000+ files lazy-loaded
+- **New MD**: blank document, or paste Markdown copied from an AI chat; `Ctrl+S` saves a real `.md`
+- Export standalone **HTML** (styles and images inlined, works offline), Word, print / save as PDF
 
 ---
 
-## Screenshots
+## Screens
 
-| Card skin (light) | Paper skin (light) |
+| Card · light | Paper · light |
 | --- | --- |
-| ![Card, light](docs/screenshots/01-card-light.png) | ![Paper, light](docs/screenshots/02-paper-light.png) |
+| ![Card](docs/screenshots/01-card-light.png) | ![Paper](docs/screenshots/02-paper-light.png) |
 
-| Card skin (dark) | Paper skin (dark) |
+| Card · dark | Paper · dark |
 | --- | --- |
-| ![Card, dark](docs/screenshots/03-card-dark.png) | ![Paper, dark](docs/screenshots/04-paper-dark.png) |
+| ![Card dark](docs/screenshots/03-card-dark.png) | ![Paper dark](docs/screenshots/04-paper-dark.png) |
 
-| Recents | Welcome screen |
+| Recent files | Welcome screen |
 | --- | --- |
-| ![Recents](docs/screenshots/05-recent-files.png) | ![Welcome](docs/screenshots/06-welcome.png) |
+| ![Recent](docs/screenshots/05-recent-files.png) | ![Welcome](docs/screenshots/06-welcome.png) |
 
 ---
 
-## Install
+## How to run it now
 
-### Windows desktop (recommended)
+**This repository currently ships source and build scripts only. Prebuilt packages are not open for download yet.**
 
-1. Download `MD Reader Setup 1.3.0.exe` from [Releases](https://github.com/guizige-890323/mdreader/releases)
-2. Run it — installs for the current user, no admin rights required
-3. It creates a **Desktop** shortcut and a **Start Menu** entry automatically
-4. Double-click any `.md`; if the app is already running, the file opens in the existing window
+Three ways to use it today, none of which require waiting:
 
-> The installer registers `.md` / `.markdown` / `.mdown` / `.mkd`, writes both `OpenWithProgids` and `Applications\MD Reader.exe\SupportedTypes` (so the app actually shows up under "Choose another app"), and gives the extensions a dedicated document icon in Explorer.
+```bash
+# 1. Fastest: open the prebuilt single file in a browser
+#    The built artifact is committed, so this works right after clone
+MDReader/dist/MDReader.html
 
-### Make it the default `.md` handler
+# 2. Portable zip (launchers + sample documents)
+cd MDReader && python tools/pack-portable.py
 
-**Windows 11**
+# 3. Windows installer (needs Node 18+)
+cd MDReader/desktop && npm install && npm run build:win
+```
 
-1. Right-click any `.md` → **Open with** → **Choose another app**
-2. Pick **MD Reader** → tick **Always use this app** → OK
-3. Or: Settings → Apps → Default apps → choose by file type → `.md` → MD Reader
-
-**macOS**
-
-Select a `.md` in Finder → `⌘I` → **Open with** → MD Reader → **Change All…**
-
-### Portable (no install)
-
-Unzip `MDReader-便携版-v1.3.0.zip` anywhere (USB stick included) and run `启动 MDReader.bat`.
-
-You can also drag a `.md` onto `用此程序打开MD.bat`, or associate either `.bat` through "Open with".
-
-> Requires Microsoft Edge, which ships with Windows 11, for the chrome-less app window. Opening the raw HTML in a browser works too — you just get an address bar.
-
-### iOS / iPadOS (PWA — what iOS actually allows)
-
-Unzip `MDReader-iOS-PWA-v1.3.0.zip`, then in that folder run `python -m http.server 8000 --bind 0.0.0.0`. On your iPhone/iPad, open `http://<your-lan-ip>:8000/` in Safari → **Share** → **Add to Home Screen**. You get a full-screen, chrome-less "MD Reader" icon; pick files with **Open file** from the Files app.
-
-> This is the closest thing to a home-screen app that iOS permits. It **cannot** register a `.md` default handler or open files on double-click. Details in `docs/PLATFORM.md`.
-
-### macOS
-
-Source and build configuration live in `MDReader/desktop/`. The `.dmg` **must be built on macOS** (Apple code signing and `iconutil`), see [`MDReader/desktop/README.md`](MDReader/desktop/README.md).
+> Want the prebuilt packages the moment they open? **Star the repo** — release activity shows up in your feed.
 
 ---
 
@@ -165,30 +154,32 @@ Source and build configuration live in `MDReader/desktop/`. The `.dmg` **must be
 
 | Capability | Windows 11 | macOS 11+ | iOS / iPadOS |
 | --- | --- | --- | --- |
-| Desktop icon after install | ✅ | ✅ (Dock / Applications) | ✅ Home screen (PWA — iOS has no desktop) |
-| Registered as default `.md` handler | ✅ | ✅ | ❌ Not permitted for third-party apps |
-| Receives external `.md` files | ✅ double-click / CLI | ✅ double-click / drop on Dock | ⚠️ In-app picker; Share Sheet needs a native app |
-| Offline, zero network requests | ✅ | ✅ | ✅ (Service Worker cache when served over HTTPS) |
-| Status in this repo | ✅ Installer shipped | ✅ Same source + build scripts | ⚠️ PWA shipped, not a native app (Electron has no iOS target) |
+| Desktop icon after install | ✅ | ✅ (Dock / Applications) | ✅ Home screen icon (PWA) |
+| Register as default `.md` handler | ✅ | ✅ | ❌ iOS forbids third-party global handlers |
+| Receive external `.md` | ✅ double-click / CLI | ✅ double-click / drag to Dock | ⚠️ pick inside the app; share sheet needs a native app |
+| Offline, zero requests | ✅ | ✅ | ✅ (Service Worker cache when served over HTTPS) |
+| Shipped by this repo | ✅ installer | ✅ same source + build script | ⚠️ PWA bundle, not a native app |
 
-**On iOS:** the system only offers `CFBundleDocumentTypes`, which makes an app appear in "Open with" — and the user must pick it every time. Electron does not target iOS at all; a native build would mean a separate SwiftUI + WKWebView project. This repo ships the PWA, and does not pretend otherwise. See [`docs/PLATFORM.md`](docs/PLATFORM.md).
+**About iOS**: there is no "desktop shortcut" or system-wide default-handler mechanism. This repo ships the most honest thing possible — a PWA with a home-screen icon. See [`docs/PLATFORM.md`](docs/PLATFORM.md).
 
 ---
 
 ## How it compares
 
-If you write long-form Markdown every day, this is not your main tool — **editing only goes as far as "fix a line or two"** (block editing plus `Ctrl+S` writing back to the original file; no syntax-highlighted editor, no plugins). It mainly solves **reading a local document that already exists.**
+If you write long documents every day, this is not your main tool — **editing goes as far as "fix one line"** (block editing + `Ctrl+S` writes back). It exists for **reading** documents that already exist.
 
-| Your situation | Use instead | Why |
+| Need | Better choice | Why |
 | --- | --- | --- |
-| You need to write Markdown | Typora | WYSIWYG writing is the benchmark of this category |
-| 1,000+ notes, backlinks and a graph | Obsidian | The knowledge base is its core; MD Reader only renders that layer |
-| Reading README files while coding | VS Code | You are already in it |
-| Real-time collaboration or cloud sync | Notion / Google Docs | MD Reader deliberately has no accounts and no sync |
-| Documents containing math | Something else | **No KaTeX / MathJax support — a real gap** |
-| Just reading a local `.md` without opening an editor | **MD Reader** | Double-click, zero network, section cards, sortable tables |
+| Write documents | Typora | Best-in-class WYSIWYG |
+| 1,000+ notes, backlinks, graph | Obsidian | The vault is the product |
+| Read README while coding | VS Code | You're already there |
+| Collaboration / cloud sync | Feishu / Notion | MD Reader deliberately has no accounts |
+| Math formulas | Something else | **No KaTeX / MathJax — a real gap** |
+| Read local `.md` without an editor | **MD Reader** | Double-click, offline, sectioned cards, sortable tables with charts |
 
-Full 16-dimension comparison (Typora / Obsidian / MarkText / VS Code / online editors): **[docs/COMPARISON.md](docs/COMPARISON.md)**.
+Among comparable projects, MarkText (64k★), Logseq (45k★), SingleFile (23k★) and HedgeDoc (7.5k★) are **AGPL**; Zettlr and VNote are **GPL / LGPL**. **MD Reader is MIT** — it can be embedded in commercial or internal tooling without a licensing conversation.
+
+Full 16-dimension comparison: **[docs/COMPARISON.md](docs/COMPARISON.md)**.
 
 ---
 
@@ -196,14 +187,15 @@ Full 16-dimension comparison (Typora / Obsidian / MarkText / VS Code / online ed
 
 | Question | Answer |
 | --- | --- |
-| Can it edit? | Yes — block editing plus `Ctrl+S` writes back to the original file; but it is not a primary writing tool |
-| Is it really fully offline? | Yes, and you can verify it yourself with grep plus an unplugged cable |
-| Does a 3.8 MB HTML file open slowly? | Cold start is roughly 0.4–0.8 s; it is a local file with no network round-trip |
-| Why is the Windows installer over 100 MB? | The portable build (1.3 MB) is usually enough; the installer bundles the Electron runtime |
-| Does it run on macOS? | It does, but you must compile it — the maintainer has not tested it on a Mac |
-| Why do some diagrams ignore the dark theme? | Advanced syntax is handed back to stock Mermaid on purpose — a deliberate fallback |
+| Can I edit? | Yes — block editing + `Ctrl+S`, but it's not a writing tool |
+| Really zero network? | Yes. grep the source, then pull the network cable |
+| 4.6 MB — slow to open? | Cold start ≈ 0.4–1.0 s; it's a local file |
+| Why 0.8 MB bigger than v1.3? | Added an i18n bundle, the Unicode diagram engine, an export runtime and 15 welcome-screen images |
+| Why is the installer 100+ MB? | Electron ships a Chromium runtime. The portable build is 1.7 MB |
+| macOS? | Yes, but you must build it yourself |
+| Does diagram detection need AI or network? | Neither. Pure JS, display-column grid |
 
-All 17 questions (encoding, image paths, iOS limits, PDF export): **[docs/FAQ.md](docs/FAQ.md)**.
+More: **[docs/FAQ.md](docs/FAQ.md)**.
 
 ---
 
@@ -211,39 +203,39 @@ All 17 questions (encoding, image paths, iOS limits, PDF export): **[docs/FAQ.md
 
 ```bash
 git clone https://github.com/guizige-890323/mdreader.git
-cd mdreader/MDReader/desktop
+cd mdreader
 
-npm install                 # Electron + electron-builder
-npm run icons               # generate app/file icons (optional, already committed)
-npm run build:win           # → desktop/release/MD Reader Setup 1.3.0.exe
-# on macOS: npm run build:mac → .dmg
+# Single file (no Node required)
+python MDReader/src/gen-demo.py                          # sample docs → app.js + two .md files
+python MDReader/src/build.py                             # → MDReader/dist/MDReader.html (Chinese default)
+python MDReader/src/build.py --edition global \
+    --out MDReader/dist-intl/MDReader.html               # → International (English default)
+
+# Portable / international / iOS bundles
+python MDReader/tools/pack-portable.py
+python MDReader/src/pack-intl.py
+python MDReader/ios/build-pwa.py
+
+# Windows installer (Node 18+)
+cd MDReader/desktop
+npm install
+npm run build:win                                        # → desktop/release-win33/
 ```
 
-The portable and iOS bundles need no Node at all:
+**Correct order when touching the renderer** (skipping a step is how "web is new, desktop is old" happens):
 
 ```bash
-python src/build.py                    # regenerate the single-file MDReader.html
-python MDReader/tools/pack-portable.py                     # → MDReader-便携版-v1.3.0.zip
-python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA-v1.3.0.zip
+python src/gen-demo.py              # only if sample docs changed
+python src/build.py
+python src/build.py --edition global --out dist-intl/MDReader.html
+python desktop/scripts/sync-app.py  # desktop shell must copy from dist/
 ```
 
-> **Changing the icon means re-packaging everything.** `npm run icons` regenerates the ICO, NSIS wizard bitmaps and in-app logo from `brand-source/`; after that you must run `src/build.py` → `sync-app.py` → `build:win` → `pack.py` → `ios/build-pwa.py` in order. Editing the images in `build/` alone leaves the shipped installer and portable zip with the old icon. Full checklist: [`docs/PLATFORM.md`](docs/PLATFORM.md).
-
-Behind a slow connection to GitHub, use mirrors for the Electron binaries:
+Mainland China mirrors:
 
 ```bash
 export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 export ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
-npm install
-```
-
-**Rendering-layer changes only** (`src/template.html`, `src/app.js`) rebuild like this, and update the desktop and portable builds together:
-
-```bash
-python src/build.py                          # → dist/MDReader.html
-python desktop/scripts/sync-app.py           # sync into the Electron shell
-python desktop/scripts/verify-portable.py    # 17-check regression
-python MDReader/tools/pack-portable.py                           # re-pack the portable zip
 ```
 
 ---
@@ -252,114 +244,94 @@ python MDReader/tools/pack-portable.py                           # re-pack the p
 
 ```
 mdreader/
-├── README.md                    Chinese README
-├── README.en.md                 ← this file
-├── LICENSE                      MIT + third-party appendix
-├── CHANGELOG.md                 release history (single source of truth)
-├── CONTRIBUTING.md              contribution guide
-├── CODE_OF_CONDUCT.md           Contributor Covenant 2.1
-├── SECURITY.md                  vulnerability disclosure
-├── .editorconfig                indentation / newline conventions
-├── .gitattributes               line endings and binary rules
-├── .gitignore
-├── .github/
-│   ├── ISSUE_TEMPLATE/          bug / feature forms + config.yml
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── dependabot.yml           dependency scanning
-│   └── workflows/ci.yml         syntax check, build, drift check, regression
-├── docs/
-│   ├── screenshots/             6 UI screenshots
-│   ├── PLATFORM.md              capability matrix across three platforms
-│   ├── FAQ.md                   17 answers (limits / size / privacy / encoding)
-│   ├── COMPARISON.md            16-dimension comparison with Typora / Obsidian / MarkText / VS Code
-│   ├── RELEASE.md               release process, release-note template, repo metadata
-│   └── THIRD-PARTY-LICENSES.md  bundled dependency licenses
+├── README.md / README.en.md
+├── LICENSE                       MIT + third-party appendix
+├── CHANGELOG.md                  single source of truth for versions
+├── docs/                         PLATFORM / FAQ / COMPARISON / RELEASE / licenses
+├── .github/workflows/ci.yml      syntax + build + drift check + regression
 └── MDReader/
-    ├── dist/                    portable build (committed artifact)
-    │   ├── MDReader.html        the whole app, 3.8 MB single file
-    │   ├── 启动 MDReader.bat
-    │   ├── 用此程序打开MD.bat
-    │   ├── open-with.ps1
-    │   ├── 示例文档.md / assets/
-    │   └── 使用说明.md
-    ├── src/                     source
-    │   ├── template.html        UI + both skins' CSS
-    │   ├── app.js               all application logic
-    │   ├── mermaid-flow.js      custom Mermaid renderer (MD FLOW)
-    │   ├── text-flow.js         plain-text → diagram
-    │   ├── vendor/              marked / hljs / mermaid, offline
-    │   ├── build.py             inline dependencies → single HTML
-    │   └── pack.py              portable packaging
-    ├── tools/                   icon generation / screenshots / browser checks
-    ├── desktop/                 Electron installer
-    │   ├── main.js              single instance / associations / menu / encoding
-    │   ├── preload.js           contextBridge allow-list
-    │   ├── app/                 ← generated by sync-app.py from dist/, not committed
-    │   ├── build/               icons + NSIS fragments + offline rcedit
-    │   ├── scripts/             sync / icons / regression checks
-    │   └── release/             ← build output (.exe / .dmg), not committed
-    └── ios/                     iOS / iPadOS PWA
-        ├── build-pwa.py         inject manifest / icons → site + zip
-        └── site/                ← generated, not committed
+    ├── dist/                     Chinese build (committed)
+    ├── dist-intl/                International build (one line different)
+    ├── src/
+    │   ├── template.html         shell + skin CSS
+    │   ├── app.js                all logic
+    │   ├── i18n.js               zh / en bundles
+    │   ├── mermaid-flow.js       in-house Mermaid renderer (MD FLOW)
+    │   ├── text-flow.js          arrow text → diagram
+    │   ├── ascii-diagram.js      box-drawing → semantic graph
+    │   ├── export-runtime.js     export-page runtime (text/plain slot)
+    │   ├── demo/                 sample document source (zh / en)
+    │   ├── vendor/               marked / hljs / mermaid (offline)
+    │   ├── build.py              inline everything → one HTML
+    │   └── pack-intl.py
+    ├── tools/                    packaging / regression / asset scripts
+    ├── desktop/                  Electron shell (main, preload, build resources)
+    └── ios/                      PWA bundler + site
 ```
 
-`dist/` **is** committed: after editing anything under `src/`, run `python MDReader/src/build.py` and commit the regenerated artifact, or CI's drift check will fail. `desktop/app/`, `desktop/release/` and `ios/site/` are produced by scripts and never committed.
+`dist/` and `dist-intl/` are **committed artifacts**: rebuild and commit them with any `src/` change, or CI's drift check fails.
+
+---
+
+## Why is it so small
+
+| Component | Handling | Size |
+| --- | --- | --- |
+| marked / highlight.js / mermaid | Inlined at build time | ≈3.34 MB |
+| App logic + three renderers + i18n + export runtime | Plain JS, no framework | ≈0.46 MB |
+| Brand / skin icons, slogan poster | base64 | ≈0.13 MB |
+| 15 welcome-screen images | webp, inlined | ≈0.29 MB |
+
+No bundler, no framework, no polyfills. **You can read every line the runtime executes.**
 
 ---
 
 ## Privacy & security
 
-- **Zero network requests.** marked 15, highlight.js 11 and Mermaid 10 are inlined; there is no `fetch` to any external origin in the source.
-- **Nothing is uploaded.** Documents are parsed inside your local browser / Electron renderer process.
-- **No registry pollution** (portable): the `.bat` launcher writes only a local `_autoload.js`. Delete the folder to uninstall.
-- **Desktop hardening:** `nodeIntegration: false`, `contextIsolation: true`, and a `contextBridge` allow-list. External links are handed to your default browser.
-- Recents and theme preferences stay in `localStorage` (portable) or `%APPDATA%\mdreader` (desktop). Nothing syncs across devices.
-
-Found a security issue? Please read [`SECURITY.md`](SECURITY.md) before opening a public issue.
+- **Zero network requests** — no `fetch` to any external domain
+- **Zero uploads** — documents are parsed in the local browser / Electron renderer
+- **Zero telemetry** — no analytics, no crash reporting, no user IDs
+- **Zero registry pollution** (portable) — the launcher only writes `_autoload.js` next to itself
+- **Desktop** — `contextBridge` allowlist, `nodeIntegration: false`, `contextIsolation: true`
+- Preferences live in local `localStorage` or `%APPDATA%\mdreader`; never synced
 
 ---
 
 ## Version & roadmap
 
-See [CHANGELOG.md](CHANGELOG.md). Current release: **v1.3.0**.
+Current: **v1.7.0**. Full history in [CHANGELOG.md](CHANGELOG.md).
 
-| Planned | Status |
+| Item | Status |
 | --- | --- |
-| Card / Paper skins + recents | ✅ v1.3.0 |
-| Windows installer + `.md` association + desktop icon | ✅ v1.3.0 |
-| macOS `.dmg` build configuration | ✅ Config ready, must be compiled on a Mac |
-| Cross-document full-text search | 💡 Under evaluation |
-| Product UI localisation (i18n for the interface itself) | 🔜 Planned |
-| iOS document-type registration (Share Sheet) | 🔜 Needs a native SwiftUI project |
+| Card / Paper layouts + recent files | ✅ v1.3.0 |
+| Windows installer + `.md` association | ✅ v1.3.0 |
+| Flowchart 5 structures × 5 styles + visual editing | ✅ v1.5.0 |
+| Box-drawing diagrams → editable vector | ✅ v1.6.0 |
+| Per-diagram structure + unified document styles | ✅ v1.7.0 |
+| UI languages (zh / en / system) | ✅ v1.7.0 |
+| macOS `.dmg` | ✅ config ready, must build on a Mac |
+| iOS document-type registration | 🔜 needs a SwiftUI app |
+| Cross-document full-text search | 💡 evaluating |
 
 ---
 
-## Contributing
+## Repository info
 
-Issues and pull requests are welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) first.
-
-## License
-
-[MIT](LICENSE). Third-party dependency licenses: [`docs/THIRD-PARTY-LICENSES.md`](docs/THIRD-PARTY-LICENSES.md).
-
----
-
-## Follow along (Chinese)
-
-Release notes, source walkthroughs and technical write-ups are published first on the WeChat account **「晨曦AI研习」**. Reply `MDReader` to get download links for all three builds plus a 30-second quick start.
-
-<p align="center">
-  <img src="MDReader/src/brand-qr.jpg" alt="WeChat: 晨曦AI研习 — reply MDReader for downloads" width="200">
-</p>
+- Repo: <https://github.com/guizige-890323/mdreader>
+- Version: **v1.7.0**
+- License: MIT
+- Platforms: Windows 10 / 11 · macOS 11+ (self-built) · iOS / iPadOS (PWA)
 
 ---
 
-## Star History
+## Contributing & license
 
-<a href="https://star-history.com/#guizige-890323/mdreader&Date">
-  <img src="https://api.star-history.com/svg?repos=guizige-890323/mdreader&type=Date" alt="Star History Chart" width="620">
-</a>
+Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Security reports: [SECURITY.md](SECURITY.md).
+
+Licensed under **MIT** ([LICENSE](LICENSE)). Third-party notices: [docs/THIRD-PARTY-LICENSES.md](docs/THIRD-PARTY-LICENSES.md).
 
 ---
 
-**If this saved you a few IDE launches, a ⭐ Star is the cheapest way to say thanks** — and it is the only metric I watch. Found a bug? Use the [issue template](.github/ISSUE_TEMPLATE/bug_report.yml). Solo project, so replies may take a day or two, but every issue gets read.
+**If this is useful, a ⭐ Star is the cheapest way to say so.** Bugs and feature requests: use the [issue templates](.github/ISSUE_TEMPLATE/bug_report.yml). It's a one-person project — replies may take a day or two, but everything gets read.
+
+<sub>MD Reader is one person's project: no company, no funding, no growth metrics. It just makes reading documents a little nicer. ⚡</sub>

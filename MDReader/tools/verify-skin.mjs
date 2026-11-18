@@ -53,7 +53,7 @@ const PROBE = `(()=>{
   const sr=sel.getBoundingClientRect();
   return JSON.stringify({
     theme:document.documentElement.dataset.theme,
-    seq:[ix('#btnRecent'),ix('#btnExport'),ix('#btnPrint'),ix('#btnWord')],
+    seq:[ix('#btnRecent'),ix('.exp-wrap'),ix('#btnPrint'),ix('#btnWord')],
     lastChild:cs[cs.length-1].id,
     skinCount:skins.length,
     skinIds:skins.map(b=>b.id),
@@ -105,15 +105,20 @@ const PROBE = `(()=>{
   await ev(`document.getElementById('wDemo').click()`);
   await sleep(1300);
 
-  console.log('\n[1] 顶栏分组与最右换肤控件');
+  console.log('\n[1] 顶栏分组与换肤控件');
   const a = JSON.parse(await ev(PROBE));
-  ok('导出/打印/Word 紧接最近打开',
-    a.seq[1] - a.seq[0] === 1 && a.seq[2] - a.seq[1] === 1 && a.seq[3] - a.seq[2] === 1, a.seq);
-  ok('换肤控件是顶栏最后一个元素', a.lastChild === 'skinSwitch', a.lastChild);
+  /* 导出下拉里已包含 Word / 打印，不再有独立的 btnPrint / btnWord；
+     这里只校验「导出」在「最近打开」右侧（seq 里 -1 表示元素不存在）。 */
+  ok('导出位于最近打开右侧',
+    a.seq[0] >= 0 && a.seq[1] > a.seq[0], a.seq);
+  /* 换肤三色卡现在是顶栏倒数第二个（最后一个是窄窗口的「更多」入口） */
+  ok('换肤控件在顶栏右端（其后仅「更多」入口）',
+    a.lastChild === 'skinSwitch' || a.lastChild === 'tbMoreWrap', a.lastChild);
   ok('三枚皮肤按钮齐全且顺序为浅/深/护眼',
     a.skinCount === 3 && a.skinThemes.join(',') === 'light,dark,sepia', a.skinThemes);
-  ok('换肤控件贴在最右侧', Math.abs(a.switchRect.right - a.toolbarRight) <= 14,
-    { right: a.switchRect.right, bar: a.toolbarRight });
+  /* 换肤控件贴右端：允许「更多」入口占位（窄窗口下它是最后一项） */
+  ok('换肤控件贴近右端', a.toolbarRight - a.switchRect.right <= 60,
+    { gap: Math.round(a.toolbarRight - a.switchRect.right), bar: a.toolbarRight });
   ok('顶栏无横向溢出', a.overflow <= 0, a.overflow);
   ok('隐藏兼容 select 仍可被调用',
     a.compat.exists && a.compat.opacity === '0' && a.compat.position === 'absolute' && a.compat.w <= 1, a.compat);
