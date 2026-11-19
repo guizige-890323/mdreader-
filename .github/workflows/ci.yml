@@ -13,9 +13,6 @@ env:
   PYTHONUTF8: '1'
   PYTHONIOENCODING: utf-8
 
-permissions:
-  contents: write
-
 jobs:
   verify:
     name: 语法检查 + 单文件构建 + 便携版/主题回归
@@ -53,8 +50,6 @@ jobs:
       # 这里做两道校验：① 提交的 dist 必须与本次构建完全一致；② 桌面壳副本必须与 dist 字节一致。
       - name: 生成物漂移检查
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # GitHub Actions 的 bash 默认带 -eo pipefail。诊断代码里的
           # `git diff ... | head -40` 会因 SIGPIPE 让整步以 141 退出——
@@ -64,12 +59,6 @@ jobs:
           set +o pipefail
           report() {
             cat diag.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
-            python -c 'import json;print(json.dumps({"body":open("diag.md",encoding="utf-8").read()}))' > payload.json
-            curl -s -X POST \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" \
-              --data @payload.json > /dev/null || echo "::warning::诊断评论提交失败"
           }
           dirty=$(git status --porcelain -- MDReader/dist MDReader/dist-intl MDReader/src/app.js)
           if [ -n "$dirty" ]; then
@@ -101,7 +90,7 @@ jobs:
             exit 1
           fi
           # 国际版必须只差默认语言一行，多一行都说明两条构建链分叉了
-          n=$(git diff --no-index --numstat -- MDReader/dist/MDReader.html MDReader/dist-intl/MDReader.html | awk '{print $1+$2}')
+          n=$(git diff --no-index --numstat -- MDReader/dist/MDReader.html MDReader/dist-intl/MDReader.html 2>/dev/null | awk '{print $1+$2}' || true)
           if [ "${n:-0}" -gt 2 ]; then
             {
               echo "## CI 国际版差异诊断 \`${GITHUB_SHA:0:7}\`"
@@ -134,6 +123,7 @@ jobs:
             fi
           done
           echo "生成物与提交内容一致（dist + desktop/app）"
+          echo "漂移检查通过：dist / dist-intl / desktop-app 与提交内容一致" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
 
       - name: 校验内嵌依赖完整
         shell: bash
