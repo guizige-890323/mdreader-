@@ -1,13 +1,27 @@
 version: 2
+
+# 首发期策略：不追新。
+# 6 个单开 PR（electron / electron-builder / 4 个 actions）对单人维护是纯噪音，
+# 而且 electron 一动就要重出安装包。改成「按月 + 按生态分组」，一次最多 2 个 PR。
 updates:
   - package-ecosystem: "npm"
     directory: "/MDReader/desktop"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
       time: "09:00"
       timezone: "Asia/Shanghai"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      electron-stack:
+        patterns:
+          - "electron"
+          - "electron-builder"
+          - "electron-updater"
+    ignore:
+      # 大版本升级必然要求重打包 + 回归，等专门排期，不自动提。
+      - dependency-name: "electron"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
     commit-message:
@@ -17,5 +31,12 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns:
+          - "*"
     labels:
       - "dependencies"
+    commit-message:
+      prefix: "ci(deps)"

@@ -57,6 +57,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           report() {
+            cat diag.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
             python -c 'import json;print(json.dumps({"body":open("diag.md",encoding="utf-8").read()}))' > payload.json
             curl -s -X POST \
               -H "Authorization: Bearer ${GH_TOKEN}" \
