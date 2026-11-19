@@ -205,7 +205,7 @@ cd MDReader/desktop && npm install && npm run build:win
 ## 从源码构建
 
 ```bash
-git clone https://github.com/guizige-890323/mdreader.git
+git clone https://github.com/guizige-890323/mdreader-.git
 cd mdreader
 
 # 单文件（不需要 Node）
@@ -346,7 +346,7 @@ mdreader/
 
 ## 仓库信息
 
-- 仓库地址：<https://github.com/guizige-890323/mdreader>
+- 仓库地址：<https://github.com/guizige-890323/mdreader->
 - 当前版本：**v1.7.0**
 - 许可证：MIT
 - 支持平台：Windows 10 / 11 · macOS 11+（需自行编译）· iOS / iPadOS（PWA）

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 使用问题 / 怎么用
-    url: https://github.com/guizige-890323/mdreader/blob/main/docs/PLATFORM.md
+    url: https://github.com/guizige-890323/mdreader-/blob/main/docs/PLATFORM.md
     about: 三平台能力边界、安装方式、常见差异先看这里
   - name: 安全漏洞
-    url: https://github.com/guizige-890323/mdreader/security/policy
+    url: https://github.com/guizige-890323/mdreader-/security/policy
     about: 请不要公开提 Issue，按 SECURITY.md 私下上报
   - name: 讨论与想法
-    url: https://github.com/guizige-890323/mdreader/discussions
+    url: https://github.com/guizige-890323/mdreader-/discussions
     about: 不确定是不是 bug、想聊聊用法，来 Discussions

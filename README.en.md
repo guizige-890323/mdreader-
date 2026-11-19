@@ -202,7 +202,7 @@ More: **[docs/FAQ.md](docs/FAQ.md)**.
 ## Build from source
 
 ```bash
-git clone https://github.com/guizige-890323/mdreader.git
+git clone https://github.com/guizige-890323/mdreader-.git
 cd mdreader
 
 # Single file (no Node required)
@@ -317,7 +317,7 @@ Current: **v1.7.0**. Full history in [CHANGELOG.md](CHANGELOG.md).
 
 ## Repository info
 
-- Repo: <https://github.com/guizige-890323/mdreader>
+- Repo: <https://github.com/guizige-890323/mdreader->
 - Version: **v1.7.0**
 - License: MIT
 - Platforms: Windows 10 / 11 · macOS 11+ (self-built) · iOS / iPadOS (PWA)
