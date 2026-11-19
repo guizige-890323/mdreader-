@@ -21,13 +21,13 @@ jobs:
     name: 语法检查 + 单文件构建 + 便携版/主题回归
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
 
@@ -156,7 +156,7 @@ jobs:
         shell: bash
         run: python MDReader/desktop/scripts/verify-themes.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MDReader-portable
           path: 发布包/MDReader-便携版-v*.zip
@@ -165,8 +165,8 @@ jobs:
     name: 构建 iOS 主屏幕 PWA 包
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: 安装 Pillow 并生成 PWA
@@ -185,7 +185,7 @@ jobs:
           assert 'MD Reader v1.7' in h, '阅读器版本缺失'
           print('PWA 校验通过')
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MDReader-iOS-PWA
           path: 发布包/MDReader-iOS-PWA-v*.zip
@@ -195,11 +195,11 @@ jobs:
     runs-on: macos-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: 安装依赖并构建
@@ -208,7 +208,7 @@ jobs:
           npm install --no-audit --no-fund
           npm run sync
           npm run build:mac
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MDReader-mac-dmg
           path: MDReader/desktop/release/*.dmg

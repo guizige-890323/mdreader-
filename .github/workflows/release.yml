@@ -17,7 +17,7 @@ jobs:
     name: 创建 Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 查找说明文件
         id: notes
@@ -34,14 +34,14 @@ jobs:
 
       - name: 创建 Release（带说明文件）
         if: steps.notes.outputs.path != ''
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body_path: ${{ steps.notes.outputs.path }}
           name: MD Reader ${{ github.ref_name }}
 
       - name: 创建 Release（自动生成说明）
         if: steps.notes.outputs.path == ''
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           name: MD Reader ${{ github.ref_name }}
