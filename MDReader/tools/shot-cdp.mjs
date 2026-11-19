@@ -48,14 +48,46 @@ async function evaluate(expr) {
 const SCENES = [
   { name: '01-welcome', h: 900, steps: [] },
   { name: '02-read', h: 800, steps: [{ act: `document.getElementById('wDemo').click()`, wait: 1600 }] },
+  // 坑一：前几张表是 frontmatter / 快捷键，没有数值列，点图表只会弹错误。
+  // 坑二：图表默认是展开的，盲点「图表」按钮反而是收起。所以先查 show 状态，
+  //       只有收起时才点开，再滚到图表本身（不是滚到表格）。
   { name: '03-chart', h: 800, steps: [
       { act: `document.getElementById('wDemo').click()`, wait: 1600 },
-      { act: `document.querySelector('[data-act="chart"]').click()`, wait: 900 },
-      { act: `document.querySelector('.tw').scrollIntoView({block:'center'})`, wait: 500 },
+      { act: `(()=>{
+        var boxes=[].slice.call(document.querySelectorAll('.chart-box'));
+        for(var i=0;i<boxes.length;i++){
+          var box=boxes[i], tw=box.closest('.tw');
+          var rows=tw?[].slice.call(tw.querySelectorAll('tr')):[];
+          if(rows.length<3) continue;
+          var cells=rows.slice(1).map(function(r){
+            return [].slice.call(r.children).map(function(c){return (c.innerText||'').trim();});
+          });
+          var ok=false;
+          for(var c=0;c<(cells[0]||[]).length;c++){
+            var vals=cells.map(function(r){return r[c]||'';}).filter(Boolean);
+            // 模板字符串里 \d 会被吞掉反斜杠，所以用 [0-9]。
+            var nums=vals.filter(function(v){return /^[+-]?[0-9][0-9,]*([.][0-9]+)?%?$/.test(v);});
+            if(vals.length>=2 && nums.length>=vals.length*0.6){ok=true;break;}
+          }
+          if(!ok) continue;
+          if(!box.classList.contains('show')){
+            var b=tw.querySelector('button[data-act="chart"]'); if(b) b.click();
+          }
+          box.scrollIntoView({block:'center'});
+          return 'chart idx='+i+' show='+box.classList.contains('show');
+        }
+        return 'no numeric chart; boxes='+boxes.length;
+      })()`, wait: 1200 },
   ]},
+  // #btnEdit 在新版是「按块编辑」（整篇源码编辑），不是流程图可视化编辑。
+  // 真正的入口是每张图工具条里的 .mf-tools button[data-act="edit"]。
   { name: '04-blockedit', h: 800, steps: [
       { act: `document.getElementById('wDemo').click()`, wait: 1600 },
-      { act: `document.getElementById('btnEdit').click()`, wait: 900 },
+      { act: `(()=>{
+        var b=document.querySelector('.mf-tools button[data-act="edit"]');
+        if(!b) return 'no mf edit button';
+        b.scrollIntoView({block:'center'}); b.click(); return 'mf edit clicked';
+      })()`, wait: 1400 },
   ]},
   { name: '05-paper', h: 800, steps: [
       { act: `document.getElementById('wDemo').click()`, wait: 1600 },
@@ -91,8 +123,9 @@ try {
     await send('Page.reload', { ignoreCache: true });
     await sleep(900);                       // 等单文件 HTML 解析 + app.js boot()
     for (const st of sc.steps) {
-      console.log(`  ${sc.name}: ${st.act.slice(0, 60)}`);
-      await evaluate(st.act);
+      console.log(`  ${sc.name}: ${st.act.slice(0, 60).replace(/\s+/g, ' ')}`);
+      const r = await evaluate(st.act);
+      if (r !== undefined && r !== null) console.log('    ->', String(r).replace(/\s+/g, ' ').slice(0, 160));
       await sleep(st.wait);
     }
     const state = await evaluate(`JSON.stringify({welcome:document.getElementById('welcome').className,content:document.getElementById('content').className,len:document.getElementById('content').innerHTML.length,theme:document.documentElement.dataset.theme})`);
