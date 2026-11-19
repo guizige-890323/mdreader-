@@ -56,6 +56,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # GitHub Actions 的 bash 默认带 -eo pipefail。诊断代码里的
+          # `git diff ... | head -40` 会因 SIGPIPE 让整步以 141 退出——
+          # 结果是连诊断都没发出来，只剩一句 "Process completed with exit code 1"。
+          # 这一段是排障代码，不需要严格模式。
+          set +e
+          set +o pipefail
           report() {
             cat diag.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
             python -c 'import json;print(json.dumps({"body":open("diag.md",encoding="utf-8").read()}))' > payload.json
