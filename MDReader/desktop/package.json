@@ -15,8 +15,8 @@
     "build:all": "npm run sync && electron-builder --win --mac"
   },
   "devDependencies": {
-    "electron": "45.3.0",
-    "electron-builder": "26.0.12"
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0"
   },
   "build": {
     "appId": "cn.mdreader.app",
