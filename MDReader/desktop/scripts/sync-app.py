@@ -4,6 +4,20 @@
 import shutil
 from pathlib import Path
 
+
+def _utf8_stdout():
+    """Windows CI 的 stdout 是 cp1252，打印中文路径（如 dist/示例文档.md）会
+    UnicodeEncodeError 直接让构建挂掉。脚本入口统一把输出流切到 UTF-8。"""
+    import sys
+    for s in (sys.stdout, sys.stderr):
+        try:
+            s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
+_utf8_stdout()
+
 HERE = Path(__file__).resolve().parent.parent          # desktop/
 ROOT = HERE.parent                                     # MDReader/
 DIST = ROOT / "dist"

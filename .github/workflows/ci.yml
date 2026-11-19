@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Windows runner 的 Python stdout 默认是 cp1252，构建脚本打印中文路径
+# （dist/示例文档.md）会 UnicodeEncodeError 直接让构建挂掉。
+env:
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
+
 jobs:
   verify:
     name: 语法检查 + 单文件构建 + 便携版/主题回归
