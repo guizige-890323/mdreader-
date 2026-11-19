@@ -3,7 +3,7 @@
 # MD Reader · macOS 构建脚本
 # 必须在 macOS 上执行：.icns / hdiutil / 签名都依赖 Apple 工具链。
 # 用法： cd MDReader/desktop && bash scripts/build-mac.sh
-# 产物： release/MD Reader-1.3.0.dmg
+# 产物： release/MD Reader-<package.json 的 version>.dmg
 # ============================================================
 set -euo pipefail
 

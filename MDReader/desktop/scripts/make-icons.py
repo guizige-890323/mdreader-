@@ -21,6 +21,7 @@
 兼容别名 icon-light.* / icon-dark.* 与 brand-light.png / brand-dark.png 一律指向
 **默认组（卡通）**，供旧脚本 / 旧版 Electron 壳继续引用。
 """
+import json
 import shutil
 from pathlib import Path
 
@@ -32,6 +33,9 @@ BUILD = HERE / "build"
 SRC = ROOT / "src"
 BRAND = HERE / "brand-source"
 ICONS = BUILD / "icons"
+
+# 安装向导侧边栏上印的版本号也跟 package.json 走，避免"界面 v1.7 / 图上 v1.3"
+VERSION = json.loads((HERE / "package.json").read_text(encoding="utf-8"))["version"]
 
 # 原始极简素材 1024×1024 白底，圆角方块约占 (110,104)–(918,912)
 CROP = (110, 104, 918, 912)
@@ -141,7 +145,7 @@ def make_wizard_images(mark):
     d.rounded_rectangle((54, 232, 110, 234), radius=1, fill=(96, 165, 250))
     d.text((82, 252), "离线 · 双皮肤 · 可编辑", font=font(10),
            fill=(160, 170, 186), anchor="mm")
-    d.text((82, 294), "v1.3.0", font=font(9), fill=(140, 150, 165), anchor="mm")
+    d.text((82, 294), "v" + VERSION, font=font(9), fill=(140, 150, 165), anchor="mm")
     side.save(BUILD / "installerSidebar.bmp", format="BMP")
     shutil.copyfile(BUILD / "installerSidebar.bmp", BUILD / "uninstallerSidebar.bmp")
 

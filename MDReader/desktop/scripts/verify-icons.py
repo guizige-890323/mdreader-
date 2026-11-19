@@ -77,8 +77,10 @@ check("src/brand-light/dark.png = 128px 内嵌 logo",
           (SRC / "brand-light.png", SRC / "brand-dark.png")))
 
 print("\n[2] Windows 安装包")
-setup = DESKTOP / "release" / "MD Reader Setup 1.3.0.exe"
-check("MD Reader Setup 1.3.0.exe 存在", setup.exists(),
+VERSION = json.loads((DESKTOP / "package.json").read_text(encoding="utf-8"))["version"]
+setup_name = "MD Reader Setup %s.exe" % VERSION
+setup = DESKTOP / "release" / setup_name
+check(setup_name + " 存在", setup.exists(),
       "%.1f MB" % (setup.stat().st_size / 1024 / 1024) if setup.exists() else "缺失")
 candidates = [p for p in DESKTOP.glob("release*/win-unpacked")
               if (p / "MD Reader.exe").exists()]

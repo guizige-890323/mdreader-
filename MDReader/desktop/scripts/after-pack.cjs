@@ -13,6 +13,10 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+// 版本只能有一个来源。以前这里硬编码 1.3.0，导致 exe 属性停在旧版，
+// 而 app.asar 内其实是新版代码 —— 用户看到的版本与真实功能对不上。
+const pkg = require('../package.json');
+
 module.exports = async function afterPack(context) {
   if (context.electronPlatformName !== 'win32') return;
 
@@ -34,8 +38,8 @@ module.exports = async function afterPack(context) {
     '--set-version-string', 'FileDescription', 'MD Reader',
     '--set-version-string', 'ProductName', 'MD Reader',
     '--set-version-string', 'LegalCopyright', 'Copyright © 2026 MDReader Contributors',
-    '--set-file-version', '1.3.0',
-    '--set-product-version', '1.3.0',
+    '--set-file-version', pkg.version,
+    '--set-product-version', pkg.version,
   ];
 
   console.log('[afterPack] 用 rcedit 写入图标 / 版本 ->', exePath);
