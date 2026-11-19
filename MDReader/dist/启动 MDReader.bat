@@ -10,6 +10,6 @@ if not defined EDGE (
   start "" "%HERE%MDReader.html"
   exit /b
 )
-set "URL=file:///%HERE:\=/%MDReader.html?v=1.3"
+set "URL=file:///%HERE:\=/%MDReader.html?v=1.7"
 start "" "%EDGE%" --app="%URL%" --window-size=1440,920 --allow-file-access-from-files --disable-features=msEdgeSplitScreen
 exit /b

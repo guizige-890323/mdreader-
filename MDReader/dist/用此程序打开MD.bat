@@ -27,7 +27,7 @@ set "EDGE="
 if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" set "EDGE=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
 if not defined EDGE if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" set "EDGE=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
 if "%AUTO%"=="0" set "EDGE="
-set "URL=file:///%HERE:\=/%MDReader.html?auto=1&v=1.2"
+set "URL=file:///%HERE:\=/%MDReader.html?auto=1&v=1.7"
 
 if defined EDGE (
   start "" "%EDGE%" --app="%URL%" --window-size=1440,920 --allow-file-access-from-files --disable-features=msEdgeSplitScreen

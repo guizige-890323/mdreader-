@@ -224,7 +224,7 @@ function showAbout() {
   dialog.showMessageBox(win, {
     type: 'info',
     title: L('关于 MD Reader', 'About MD Reader'),
-    message: L('MD Reader v1.3.0 · 桌面版', 'MD Reader v1.3.0 · Desktop Edition'),
+    message: L('MD Reader v1.7.0 · 桌面版', 'MD Reader v1.7.0 · Desktop Edition'),
     detail: UI_LANG === 'en'
       ? 'A local Markdown reader with zero install, zero network calls and zero uploads.\n\n'
         + 'Card / Paper layouts, table charts, Mermaid, Obsidian syntax and recent files.\n'
