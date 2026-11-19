@@ -18,7 +18,7 @@ jobs:
     name: 语法检查 + 单文件构建 + 便携版/主题回归
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -102,7 +102,7 @@ jobs:
     name: 构建 iOS 主屏幕 PWA 包
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -132,7 +132,7 @@ jobs:
     runs-on: macos-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
