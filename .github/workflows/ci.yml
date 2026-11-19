@@ -13,6 +13,9 @@ env:
   PYTHONUTF8: '1'
   PYTHONIOENCODING: utf-8
 
+permissions:
+  contents: write
+
 jobs:
   verify:
     name: 语法检查 + 单文件构建 + 便携版/主题回归
@@ -50,12 +53,30 @@ jobs:
       # 这里做两道校验：① 提交的 dist 必须与本次构建完全一致；② 桌面壳副本必须与 dist 字节一致。
       - name: 生成物漂移检查
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dirty=$(git status --porcelain -- MDReader/dist MDReader/dist-intl MDReader/src/app.js)
           if [ -n "$dirty" ]; then
-            echo "::error::提交的产物与重建结果不一致：$(echo "$dirty" | tr '\n' ' ' | cut -c1-300)"
-            echo "--- numstat ---"
-            git diff --numstat -- MDReader/dist MDReader/dist-intl MDReader/src/app.js
+            {
+              echo "## CI 漂移诊断 \`${GITHUB_SHA:0:7}\`"
+              echo
+              echo "### git status"
+              echo '```'
+              echo "$dirty" | head -20
+              echo '```'
+              echo "### numstat"
+              echo '```'
+              git diff --numstat -- MDReader/dist MDReader/dist-intl MDReader/src/app.js | head -20
+              echo '```'
+              echo "### 差异首部（src/app.js）"
+              echo '```diff'
+              git diff --unified=0 -- MDReader/src/app.js | head -60
+              echo '```'
+            } > diag.md
+            gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/comments" -F body=@diag.md > /dev/null 2>&1 \
+              || echo "::warning::诊断评论提交失败"
+            echo "::error::提交的产物与重建结果不一致：$(echo "$dirty" | tr '\n' ' ' | cut -c1-200)"
             exit 1
           fi
           # 国际版必须只差默认语言一行，多一行都说明两条构建链分叉了
