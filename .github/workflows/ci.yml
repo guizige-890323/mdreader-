@@ -57,8 +57,13 @@ jobs:
           # 这一段是排障代码，不需要严格模式。
           set +e
           set +o pipefail
+          # Windows runner 的 $GITHUB_STEP_SUMMARY 是 D://a//... 形式，bash 的
+          # `>>` 重定向会失败，必须交给 Python 按原生路径写。
+          summary() {
+            python -c "import os,sys; p=os.environ.get('GITHUB_STEP_SUMMARY'); p and open(p,'a',encoding='utf-8').write(sys.argv[1])" "$1" 2>/dev/null || true
+          }
           report() {
-            cat diag.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+            summary "$(cat diag.md 2>/dev/null)"
           }
           dirty=$(git status --porcelain -- MDReader/dist MDReader/dist-intl MDReader/src/app.js)
           if [ -n "$dirty" ]; then
@@ -123,7 +128,7 @@ jobs:
             fi
           done
           echo "生成物与提交内容一致（dist + desktop/app）"
-          echo "漂移检查通过：dist / dist-intl / desktop-app 与提交内容一致" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          summary "- 漂移检查通过：dist / dist-intl / desktop/app 均与提交内容一致"
 
       - name: 校验内嵌依赖完整
         shell: bash
