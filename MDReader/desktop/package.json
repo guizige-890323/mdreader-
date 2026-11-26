@@ -15,7 +15,7 @@
     "build:all": "npm run sync && electron-builder --win --mac"
   },
   "devDependencies": {
-    "electron": "45.3.0",
+    "electron": "45.4.1",
     "electron-builder": "26.0.12"
   },
   "build": {
