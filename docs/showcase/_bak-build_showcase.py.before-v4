@@ -1,0 +1,664 @@
+# -*- coding: utf-8 -*-
+"""生成 MD Reader 功能展示页（单文件 HTML，截图 base64 内嵌）。
+
+运行：python docs/showcase/build_showcase.py
+输出：docs/showcase/MDReader-功能展示.html
+
+页面结构对标 GitHub 高星项目（excalidraw / marktext / starship）的 README 范式：
+  Hero（logo + 价值主张 + 徽章 + CTA）
+  → Showcase（3D Cover Flow 轮播，动效保持原样）
+  → Features（能力网格，点格直达对应轮播卡）
+  → Compare（能力对比表）
+  → QuickStart（三形态下载）
+  → Footer
+
+截图素材口径（CR-2026-11-18-02）：
+  · 弃用 mono 黑白极简（缩略图下辨识度太低），统一 tech 蓝 / cute 粉；
+  · 统一 card 卡片布局；
+  · 全部按 DOM 实测矩形 clip 成 16:10，contain 下无裁切无大片留白。
+"""
+import base64
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+SHOTS = ROOT / 'MDReader' / '_shots'
+ASSETS = ROOT / 'docs' / 'assets'
+OUT = Path(__file__).resolve().parent / 'MDReader-功能展示.html'
+
+VERSION = 'v1.7.0'
+GITHUB = 'https://github.com/guizige-890323/mdreader'
+RELEASES = GITHUB + '/releases'
+
+# 轮播卡：按「差异化强度 × 用户价值」排 P0 → P1 → P2
+CARDS = [
+    dict(
+        prio='P0 · 核心差异化', cls='p0', img='showcase-ai-render.png',
+        title='AI 输出，一键成页',
+        en='AI OUTPUT → READABLE PAGE',
+        desc='Agent 产出的 Markdown，经 MDLens 一秒变成精致页面。表格、代码、流程图自带排版，不用人工搬运。',
+        them='聊天窗口里读源码',
+        us='CLI · HTTP · MCP 三接入，Agent 自己就能渲染',
+        tags=['MDLens v0.2.0', 'MCP 原生', '离线渲染'],
+    ),
+    dict(
+        prio='P0 · 核心差异化', cls='p0', img='showcase2-chart-bar.png',
+        title='表格，秒变图表',
+        en='TABLE → CHART',
+        desc='选中两列自动组队，柱状 / 折线 / 趋势 / 环形 / 玫瑰 6 型智能选型；图表配色随文档换装，还能导出 CSV。',
+        them='Typora / VS Code 只给一张静态表',
+        us='表格即数据视图，点表头就能看趋势',
+        tags=['6 型图表', '智能选型', 'CSV / TSV'],
+    ),
+    dict(
+        prio='P0 · 核心差异化', cls='p0', img='showcase2-flow-tech.png',
+        title='文本，即图形',
+        en='TEXT → DIAGRAM',
+        desc='纯算法把 ASCII 框线图、文本流程图变成可编辑图形；Mermaid 五种排布、五套配色自动布局。',
+        them='AI 画图工具要联网、要订阅',
+        us='本地算法，零调用、零等待、可拖拽编辑',
+        tags=['ASCII 识别', 'MDFlow 五风格', '导出即编辑态'],
+    ),
+    dict(
+        prio='P0 · 核心差异化', cls='p0', img='showcase2-doc-top.png',
+        title='零联网，零上传',
+        en='PRIVATE BY DESIGN',
+        desc='整个应用就是一个 HTML 文件。断网可用、免安装、不上传、不遥测——敏感文档永远不离开这台机器。',
+        them='在线转换站把文档传到服务器',
+        us='零网络请求，文件只在你自己的磁盘上',
+        tags=['单文件', '完全离线', 'MIT 开源'],
+    ),
+    dict(
+        prio='P1 · 体验领先', cls='p1', img='showcase2-table-style.png',
+        title='四套配色，一键换装',
+        en='FOUR VISUAL SYSTEMS',
+        desc='黑白极简 / 蓝色科技 / 红色政商 / 粉色卡通——同一份文档、同一张图表，风格随场景切换且全局一致。',
+        them='一套主题走天下',
+        us='文档风格与单图结构两轴独立联动',
+        tags=['4 套配色', '全局联动', '出版质感'],
+    ),
+    dict(
+        prio='P1 · 体验领先', cls='p1', img='showcase2-chart-cute.png',
+        title='配色即语义',
+        en='PALETTE AS MEANING',
+        desc='一份数据，蓝色科技讲技术汇报、粉色卡通给孩子做功课——切换只改色板，图表结构与数据一个字不动。',
+        them='换色要重做一遍图',
+        us='配色是独立一层，随时整体换装',
+        tags=['正交配色', '零重绘', '即时生效'],
+    ),
+    dict(
+        prio='P1 · 体验领先', cls='p1', img='showcase2-pm-dark.png',
+        title='云晰柔光，全天舒适',
+        en='SOFT LIGHT',
+        desc='不只是正文变色——顶栏、侧栏、标签栏、边框、弹层同步暖化，色阶连续，深夜长时间阅读不刺眼。',
+        them='夜间模式就是简单反色',
+        us='全应用统一暖色板，色阶连续无断层',
+        tags=['全链路柔化', '色阶连续', '一键切换'],
+    ),
+    dict(
+        prio='P1 · 体验领先', cls='p1', img='showcase2-callout.png',
+        title='Obsidian 语法，原生兼容',
+        en='OBSIDIAN READY',
+        desc='frontmatter 属性表、Callout 提示块、Wiki 链接、MOC 大纲——上千文件的知识库，打开就是读得懂的页面。',
+        them='社区插件装半天还不一定生效',
+        us='开箱即渲染，零配置',
+        tags=['frontmatter', 'Callout', 'Wiki Link'],
+    ),
+    dict(
+        prio='P2 · 交付完备', cls='p2', img='showcase2-chart-donut.png',
+        title='环形图，角度即百分比',
+        en='HONEST GEOMETRY',
+        desc='扇区角度按分项百分比精确累计划分（33.0% → 118.8°，0.3% → 1.08°），不做等角均分，图例与扇区一一对应。',
+        them='等角均分，看着像真的',
+        us='角度可验算，数据经得起追问',
+        tags=['精确累计划分', '图例对齐', '可验算'],
+    ),
+    dict(
+        prio='P2 · 交付完备', cls='p2', img='showcase2-export.png',
+        title='导出，仍是活页面',
+        en='EXPORT THAT LIVES',
+        desc='HTML 导出保留交互（图表可切型、CSV 可复制），Word / PDF 保真排版，SVG 与源码一键带走。',
+        them='导出就是一张死图',
+        us='导出后照样能点、能切、能复制',
+        tags=['HTML', 'Word', 'PDF / SVG'],
+    ),
+]
+
+# 对比表：行 = 能力，列 = 工具
+COMPARE_HEAD = ['能力', 'MD Reader', 'Typora', 'Obsidian', 'VS Code', '在线转换站']
+COMPARE = [
+    ['离线可读、零上传', '单 HTML，0 请求', '桌面应用', '桌面应用', '桌面应用', '❌ 需上传'],
+    ['表格 → 图表', '内置 6 型', '❌', '插件', '插件', '部分'],
+    ['文本 / ASCII → 图形', '内置纯算法', '❌', '插件', '❌', 'AI 云端'],
+    ['导出保留交互', 'HTML 仍可点', 'PDF/HTML', 'PDF', '❌', '❌'],
+    ['安装成本', '解压即用', '安装包', '安装 + 建库', '安装 + 扩展', '打开网页'],
+    ['文件是否出网', '从不', '从不', '从不', '从不', '必然'],
+]
+
+QUICK = [
+    ('Windows 安装版', 'MD Reader Setup 1.3.0.exe', '双击安装，注册 4 种扩展名，可设为默认打开方式', '推荐'),
+    ('Windows 便携版', 'MDReader-Windows11便携版.zip', '解压即用，约 2 MB，适合 U 盘与内网机器', ''),
+    ('iOS / iPadOS', 'MDReader-iOS-PWA.zip', '局域网托管后「添加到主屏幕」，全屏启动', ''),
+]
+
+TPL = r'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MD Reader · 让 Markdown 阅读成为一种享受</title>
+<style>
+:root{
+  --bg:#f4f6f9; --bg-rgb:244,246,249; --bg2:#e9eef5; --ink:#142034; --ink2:#546376; --ink3:#8b97a7;
+  --line:#dfe6ef; --card:#ffffff; --accent:#2f6df6; --accent2:#e8f0ff;
+  --p0:#2f6df6; --p1:#0ea5a4; --p2:#8b97a7;
+  --cw:760px; --ch:512px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; overflow-x:hidden}
+body{
+  margin:0; color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(1100px 620px at 12% 0%,rgba(47,109,246,.10),transparent 62%),
+    radial-gradient(900px 560px at 92% 30%,rgba(14,165,164,.08),transparent 60%),
+    linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.45; z-index:0;
+  background-image:radial-gradient(circle,#c9d3e1 1px,transparent 1px);
+  background-size:26px 26px; mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 82%,transparent);
+}
+.wrap{position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 28px}
+
+/* ---------- Header ---------- */
+header{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  padding:22px 0 0; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:center; gap:12px}
+.logo{
+  width:40px; height:40px; border-radius:11px; background:#111b2b; color:#fff;
+  display:grid; place-items:center; font-weight:800; font-size:16px; letter-spacing:-.5px;
+  box-shadow:0 6px 18px rgba(17,27,43,.22);
+}
+.brand b{display:block; font-size:14px; letter-spacing:.14em; font-weight:800}
+.brand small{display:block; font-size:11px; color:var(--ink3); margin-top:2px}
+.hdr-right{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+.pill{font-size:11px; padding:6px 11px; border-radius:999px; border:1px solid var(--line);
+  background:rgba(255,255,255,.72); color:var(--ink2); white-space:nowrap}
+.pill.solid{background:#111b2b; color:#fff; border-color:#111b2b; font-weight:700}
+.legend{display:flex; gap:10px; font-size:11px; color:var(--ink3)}
+.legend i{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px}
+
+/* ---------- Hero ---------- */
+.hero{text-align:center; padding:34px 16px 22px}
+.eyebrow{font-size:10px; letter-spacing:.28em; color:var(--accent); font-weight:800}
+.hero h1{margin:12px 0 10px; font-size:clamp(28px,3.4vw,46px); line-height:1.16; letter-spacing:-.022em}
+.hero h1 span{background:linear-gradient(100deg,#2f6df6,#0ea5a4); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero .sub{margin:0 auto; max-width:760px; font-size:14px; line-height:1.75; color:var(--ink2)}
+.badges{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:20px 0 0}
+.badge{display:inline-flex; align-items:center; height:26px; border-radius:5px; overflow:hidden;
+  font-size:11px; font-weight:700; letter-spacing:.02em; box-shadow:0 1px 2px rgba(20,32,52,.08)}
+.badge .l{background:#3d4a5c; color:#fff; padding:0 9px; height:100%; display:flex; align-items:center}
+.badge .r{padding:0 10px; height:100%; display:flex; align-items:center; color:#fff}
+.badge.blue .r{background:#2f6df6} .badge.green .r{background:#2e7d32}
+.badge.teal .r{background:#0ea5a4} .badge.gray .r{background:#64748b}
+.badge.orange .r{background:#d97706}
+.cta{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:22px 0 0}
+/* Hero 动图：高星项目首屏大图位。上沿贴近 CTA，下沿与轮播区留白呼应 */
+.hero-demo{margin:26px auto 0; max-width:1000px; padding:0}
+/* 阴影必须收窄：0 18px 48px 的暗影会向下铺满 caption 所在行（实测暗 21 级），
+   浅灰小字落进阴影带就糊成一条，看着像被遮住。改为 0 10px 26px 并把行距拉开 */
+.hero-demo img{display:block; width:100%; height:auto; border-radius:16px;
+  border:1px solid var(--line); background:#eef2f7;
+  box-shadow:0 10px 26px rgba(24,42,72,.13), 0 1px 3px rgba(24,42,72,.06)}
+.hero-demo figcaption{margin:16px 0 0; font-size:12px; line-height:1.5;
+  color:var(--ink2); letter-spacing:.02em; text-align:center}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; height:42px; padding:0 22px; border-radius:10px;
+  font-size:13.5px; font-weight:700; text-decoration:none; border:1px solid transparent;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:#111b2b; color:#fff; box-shadow:0 8px 22px rgba(17,27,43,.22)}
+.btn.primary:hover{box-shadow:0 12px 28px rgba(17,27,43,.28)}
+.btn.ghost{background:rgba(255,255,255,.86); color:var(--ink); border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent); color:var(--accent)}
+.btn small{font-weight:500; opacity:.72; font-size:11px}
+
+/* ---------- Section 公共 ---------- */
+section{scroll-margin-top:18px}
+.sec-head{text-align:center; margin:54px 0 22px}
+.sec-head .k{font-size:10px; letter-spacing:.26em; color:var(--accent); font-weight:800}
+.sec-head h2{margin:9px 0 8px; font-size:clamp(20px,2.2vw,28px); letter-spacing:-.015em}
+.sec-head p{margin:0 auto; max-width:640px; font-size:12.8px; line-height:1.72; color:var(--ink2)}
+
+/* ---------- Showcase 轮播 ---------- */
+/* 舞台必须突破 .wrap 的 1240 容器：3D 两侧卡片各需 ~690px 半宽，
+   1184 宽的舞台会把它们硬切成两半（看起来像「被遮挡」）。
+   用 100vw 铺满视口还原上一版的全幅沉浸感，再由 html 的 overflow-x:hidden 兜住滚动条那几像素。 */
+.stage{position:relative; height:600px; perspective:1500px; perspective-origin:50% 46%; overflow:hidden;
+  width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); margin-top:8px}
+/* 两侧柔光渐隐：最外圈卡片按设计会淡出，加一层同色渐变把「刀切」变成自然消失。
+   用 color-mix 由 --bg 派生透明端，将来若加深色主题也能自动跟随，不会露白边。 */
+.stage::before,.stage::after{content:""; position:absolute; top:0; bottom:0; width:clamp(60px,9vw,150px);
+  z-index:150; pointer-events:none}
+.stage::before{left:0; background:linear-gradient(90deg,var(--bg) 8%,rgba(var(--bg-rgb),0) 100%)}
+.stage::after{right:0; background:linear-gradient(270deg,var(--bg) 8%,rgba(var(--bg-rgb),0) 100%)}
+.deck{position:absolute; left:50%; top:50%; width:0; height:0; transform:translate(-50%,-50%); transform-style:preserve-3d}
+.card{
+  position:absolute; left:calc(var(--cw) / -2); top:calc(var(--ch) / -2);
+  width:var(--cw); height:var(--ch);
+  transform-style:preserve-3d; will-change:transform,opacity;
+  transition:transform .9s cubic-bezier(.22,.61,.36,1),opacity .62s ease,filter .62s ease,box-shadow .62s ease;
+  background:var(--card); border:1px solid var(--line); border-radius:20px; overflow:hidden;
+  box-shadow:0 26px 60px rgba(24,42,72,.16),0 3px 10px rgba(24,42,72,.06);
+  cursor:pointer; user-select:none;
+}
+.card.active{cursor:default; box-shadow:0 34px 76px rgba(24,42,72,.22),0 4px 14px rgba(24,42,72,.08)}
+.card-media{height:56%; background:#eef2f7; overflow:hidden; position:relative;
+  border-bottom:1px solid var(--line)}
+/* 绝对定位 + 显式宽高，contain 才可靠；grid/flex 的百分比高度会被轨道/内容撑破后裁掉 */
+.card-media img{display:block; position:absolute; left:12px; top:9px;
+  width:calc(100% - 24px); height:calc(100% - 18px);
+  object-fit:contain; object-position:center; border-radius:6px;
+  filter:drop-shadow(0 2px 7px rgba(24,42,72,.14))}
+.card-info{height:44%; padding:14px 24px; display:flex; flex-direction:column; gap:5px}
+.card-top{display:flex; align-items:center; justify-content:space-between}
+.prio{font-size:10px; font-weight:800; letter-spacing:.06em; padding:3px 9px; border-radius:999px}
+.p0 .prio{color:var(--p0); background:#eaf1ff}
+.p1 .prio{color:#087f7e; background:#e2f6f5}
+.p2 .prio{color:#667587; background:#eef1f5}
+.num{font-size:10px; color:var(--ink3); font-variant-numeric:tabular-nums; letter-spacing:.1em}
+.card h2{margin:0; font-size:24px; letter-spacing:-.01em; line-height:1.15}
+.card .en{font-size:9px; letter-spacing:.2em; color:var(--accent); font-weight:800; margin-top:-3px}
+.card .desc{margin:0; font-size:12.5px; line-height:1.55; color:var(--ink2)}
+.vs{display:flex; align-items:flex-start; gap:8px; font-size:11.5px; line-height:1.5;
+  padding:7px 10px; border-radius:9px; background:#f7f9fc; border:1px solid #edf1f6}
+.vs b{flex:0 0 auto; font-weight:800; color:var(--ink3); font-size:10px; padding-top:1px}
+.vs .us b{color:var(--accent)}
+.vs .them{color:var(--ink3); text-decoration:line-through; text-decoration-color:#c3ccd8}
+.vs .us{color:var(--ink); font-weight:650}
+.tags{display:flex; gap:6px; margin-top:auto; flex-wrap:wrap}
+.tags i{font-style:normal; font-size:10px; color:var(--ink2); padding:3px 8px;
+  border:1px solid var(--line); border-radius:6px; background:#fff}
+
+.edge{position:absolute; top:0; bottom:0; width:15%; border:0; background:transparent;
+  color:var(--accent); font-size:44px; font-weight:200; cursor:pointer; z-index:200;
+  display:grid; place-items:center; opacity:0; transition:opacity .25s ease; -webkit-tap-highlight-color:transparent}
+.edge.left{left:0} .edge.right{right:0}
+.edge:hover,.edge:focus-visible{opacity:1; outline:none}
+.edge span{width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(255,255,255,.92); border:1px solid var(--line);
+  box-shadow:0 8px 24px rgba(24,42,72,.14); line-height:1; padding-bottom:4px}
+.controls{display:flex; flex-direction:column; align-items:center; gap:10px; padding:10px 0 6px}
+.dots{display:flex; gap:7px; align-items:center}
+.dot{width:7px; height:7px; border-radius:99px; border:0; padding:0; cursor:pointer;
+  background:#c6d0de; transition:width .3s ease,background .3s ease}
+.dot.on{width:24px; background:var(--accent)}
+.hint{font-size:11px; color:var(--ink3); letter-spacing:.03em}
+.hint b{color:var(--accent); font-weight:700}
+.hint.paused b{color:#e07a1f}
+
+/* ---------- Features 网格（已移除：与轮播重复，用户判定效果差） ---------- */
+
+/* ---------- Compare 表 ---------- */
+.ctable{width:100%; border-collapse:separate; border-spacing:0; font-size:12.4px;
+  background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  box-shadow:0 10px 30px rgba(24,42,72,.07)}
+.ctable th,.ctable td{padding:12px 14px; text-align:left; border-bottom:1px solid #eef2f7}
+.ctable thead th{background:#f7f9fc; font-size:11.5px; color:var(--ink2); font-weight:800; letter-spacing:.02em}
+.ctable thead th:nth-child(2){background:#eaf1ff; color:var(--accent)}
+.ctable tbody tr:last-child td{border-bottom:0}
+.ctable tbody tr:hover td{background:#fbfcfe}
+.ctable td:first-child{font-weight:650; color:var(--ink)}
+.ctable td:nth-child(2){background:#f8fbff; color:var(--accent); font-weight:750}
+.ctable td{color:var(--ink2)}
+
+/* ---------- QuickStart ---------- */
+.qgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+.qcard{border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.9); padding:18px; position:relative}
+.qcard.hot{border-color:var(--accent); box-shadow:0 12px 30px rgba(47,109,246,.12)}
+.qcard .tag{position:absolute; top:-9px; left:16px; font-size:9.5px; font-weight:800; letter-spacing:.06em;
+  color:#fff; background:var(--accent); padding:3px 9px; border-radius:999px}
+.qcard h3{margin:2px 0 8px; font-size:14px}
+.qcard .file{display:block; font-family:ui-monospace,Consolas,monospace; font-size:11px;
+  color:var(--ink2); background:#f5f7fa; border:1px solid #eaeff5; border-radius:7px;
+  padding:8px 10px; word-break:break-all; margin-bottom:9px}
+.qcard p{margin:0; font-size:11.6px; line-height:1.6; color:var(--ink2)}
+
+/* ---------- Footer ---------- */
+footer{margin:56px 0 0; padding:26px 0 40px; border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  font-size:11.5px; color:var(--ink3)}
+footer a{color:var(--ink2); text-decoration:none; border-bottom:1px dotted #c6d0de}
+footer a:hover{color:var(--accent)}
+footer .links{display:flex; gap:14px; flex-wrap:wrap}
+
+@media(max-width:1100px){
+  /* 73vw 保证两侧邻卡始终露出可辨识的边，轮播层次不塌；上限 640 维持大屏观感 */
+  :root{--cw:min(73vw,640px);--ch:470px}
+  .stage{height:540px}
+  .card-info{padding:12px 18px; gap:4px}
+  .card h2{font-size:20px}
+  .card .desc{font-size:11px; line-height:1.45}
+  .vs{font-size:10px; line-height:1.4; padding:5px 8px}
+  .tags i{font-size:9.5px; padding:2px 7px}
+  .qgrid{grid-template-columns:1fr}
+  .ctable{font-size:11px}
+  .ctable th,.ctable td{padding:9px 8px}
+}
+@media(max-width:760px){
+  :root{--cw:min(76vw,460px);--ch:430px}
+  .wrap{padding:0 16px}
+  .stage{height:470px}
+  .legend{display:none}
+  .hero{padding:22px 4px 14px}
+  .hero .sub{font-size:12px}
+  .card-media{height:48%} .card-info{height:52%; padding:10px 13px; gap:3px}
+  .card h2{font-size:17px}
+  .card .desc{font-size:10.5px; line-height:1.4}
+  .vs{font-size:9.5px; line-height:1.35; padding:4px 6px}
+  .tags i{font-size:9px; padding:2px 6px}
+  .edge{width:13%}
+  .ctable{display:block; overflow-x:auto; white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){
+  .card,.btn{transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">MD</div>
+      <div><b>MD READER</b><small>让 Markdown 阅读成为一种享受</small></div>
+    </div>
+    <div class="hdr-right">
+      <span class="pill solid">__VERSION__</span>
+      <span class="pill">离线单文件 · 免费开源</span>
+      <span class="legend">
+        <span><i style="background:var(--p0)"></i>P0 核心差异</span>
+        <span><i style="background:var(--p1)"></i>P1 体验领先</span>
+        <span><i style="background:var(--p2)"></i>P2 交付完备</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ============ Hero ============ -->
+  <div class="hero">
+    <div class="eyebrow">PRODUCT HIGHLIGHTS · 2026</div>
+    <h1>把 AI 的输出，读成<span>作品</span></h1>
+    <p class="sub">
+      一个 HTML 文件就是完整程序。断网可用、零上传、免安装——
+      对标 Typora / Obsidian / VS Code，我们只做一件事：<b>让每一份 Markdown，打开就是好页面。</b>
+    </p>
+    <div class="badges">
+      <span class="badge blue"><span class="l">release</span><span class="r">__VERSION__</span></span>
+      <span class="badge green"><span class="l">network</span><span class="r">0 requests</span></span>
+      <span class="badge teal"><span class="l">license</span><span class="r">MIT</span></span>
+      <span class="badge gray"><span class="l">platform</span><span class="r">Windows 11 / macOS / iOS</span></span>
+      <span class="badge orange"><span class="l">size</span><span class="r">~2 MB 便携版</span></span>
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="__RELEASES__" target="_blank" rel="noopener">下载安装 <small>Windows · macOS</small></a>
+      <a class="btn ghost" href="__GITHUB__" target="_blank" rel="noopener">查看源码 <small>MIT</small></a>
+      <a class="btn ghost" href="#showcase">功能演示</a>
+    </div>
+    <!-- 动图演示：对标高星项目的 Hero 大图位。GIF 延迟挂载，避免首屏解码卡顿 -->
+    <figure class="hero-demo">
+      <img id="heroGif" alt="MD Reader 功能轮播演示：十项能力依次展出" width="1156" height="628" loading="lazy" decoding="async">
+      <figcaption>↑ 十项能力轮播 · 表格秒变图表 · 断网可用</figcaption>
+    </figure>
+  </div>
+
+  <!-- ============ Showcase ============ -->
+  <section id="showcase">
+    <div class="sec-head">
+      <div class="k">LIVE SHOWCASE</div>
+      <h2>十张卡，看完它的全部脾气</h2>
+      <p>中间最大、两侧依次缩小；点左右翻页，也可以直接点卡片跳转。停止操作后自右向左循环播放。</p>
+    </div>
+    <div class="stage" id="stage" aria-label="功能卡片轮播">
+      <div class="deck" id="deck"></div>
+      <button class="edge left" id="edgeL" aria-label="上一项"><span>‹</span></button>
+      <button class="edge right" id="edgeR" aria-label="下一项"><span>›</span></button>
+    </div>
+    <div class="controls">
+      <div class="dots" id="dots"></div>
+      <div class="hint" id="hint"><b>自动滚动中</b> · 点击左右两侧翻页 · ← → 键 · 停止操作后恢复</div>
+    </div>
+  </section>
+
+  <!-- ============ Compare ============ -->
+  <section id="compare">
+    <div class="sec-head">
+      <div class="k">HONEST COMPARISON</div>
+      <h2>跟常见做法摊开比</h2>
+      <p>不贬低别人，只把「同一件事各要花多少代价」列清楚，自己判断。</p>
+    </div>
+    <table class="ctable" id="ctable">
+      <thead><tr>__CHEAD__</tr></thead>
+      <tbody>__CBODY__</tbody>
+    </table>
+  </section>
+
+  <!-- ============ QuickStart ============ -->
+  <section id="quickstart">
+    <div class="sec-head">
+      <div class="k">GET STARTED</div>
+      <h2>三种形态，60 秒上手</h2>
+      <p>共用同一份 MDReader.html，渲染能力完全一致，不存在「精简版」。</p>
+    </div>
+    <div class="qgrid">__QUICK__</div>
+  </section>
+
+  <footer>
+    <div>MD Reader · MIT License · Built by 桂子哥 / 小W</div>
+    <div class="links">
+      <a href="__GITHUB__" target="_blank" rel="noopener">GitHub</a>
+      <a href="__RELEASES__" target="_blank" rel="noopener">Releases</a>
+      <a href="__DOCS__">设计文档</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* 卡片数据由构建脚本注入（截图为 base64 内嵌，单文件离线可开） */
+const CARDS = __CARDS__;
+const N = CARDS.length;
+const AUTOPLAY_MS = 6500;   /* 6.5s/张：4.2s 时读不完卡片的标题+描述+对比，观感偏赶 */
+const TRANS_MS = 900;       /* 与 CSS .card transition 保持一致，供计时提示使用 */
+
+const deck = document.getElementById('deck');
+const stage = document.getElementById('stage');
+const dotsBox = document.getElementById('dots');
+const hint = document.getElementById('hint');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* 构建 DOM */
+const cards = CARDS.map((d, i) => {
+  const el = document.createElement('article');
+  el.className = 'card ' + d.cls;
+  el.setAttribute('role', 'group');
+  el.setAttribute('aria-label', d.title);
+  const tags = d.tags.map(t => '<i>' + t + '</i>').join('');
+  el.innerHTML =
+    '<div class="card-media"><img src="' + d.img + '" alt="' + d.title + ' 功能演示截图"></div>' +
+    '<div class="card-info">' +
+      '<div class="card-top"><span class="prio">' + d.prio + '</span>' +
+      '<span class="num">' + String(i + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0') + '</span></div>' +
+      '<h2>' + d.title + '</h2><div class="en">' + d.en + '</div>' +
+      '<p class="desc">' + d.desc + '</p>' +
+      '<div class="vs"><b class="them">' + d.them + '</b></div>' +
+      '<div class="vs"><b class="us">→ ' + d.us + '</b></div>' +
+      '<div class="tags">' + tags + '</div>' +
+    '</div>';
+  el.addEventListener('click', () => { act(); go(i); });
+  deck.appendChild(el);
+  return el;
+});
+
+/* 进度点 */
+const dots = CARDS.map((_, i) => {
+  const b = document.createElement('button');
+  b.className = 'dot'; b.type = 'button';
+  b.setAttribute('aria-label', '第 ' + (i + 1) + ' 项');
+  b.addEventListener('click', () => { act(); go(i); });
+  dotsBox.appendChild(b);
+  return b;
+});
+
+let cur = 0;
+let lastAct = Date.now();      /* 自动播放计时基准 */
+let lastUserAct = 0;           /* 真实用户操作时间（只用于提示文案） */
+
+const norm = i => ((i % N) + N) % N;
+/* 环形位移：距离 d 决定位移/缩放/透明度/倾角 */
+/* 步进必须按舞台宽度算：固定 360 会把 a=2/a=3 的卡片挤出舞台，被 overflow:hidden 切成半张。
+   约束取「a=2 那张（scale .62）要完整落在舞台内」，a=3 由此自然更靠内。 */
+let _cwCache = 0;
+function cardBaseW() {
+  if (_cwCache) return _cwCache;
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:absolute;width:var(--cw);visibility:hidden;pointer-events:none';
+  document.body.appendChild(probe);
+  _cwCache = probe.getBoundingClientRect().width || 760;
+  probe.remove();
+  return _cwCache;
+}
+function pose(d) {
+  const a = Math.abs(d);
+  const sgn = d === 0 ? 0 : Math.sign(d);
+  const halfW = stage.clientWidth / 2;
+  const cw = cardBaseW();
+  // a=2 卡片的半宽 = cw * .62 / 2，留 10px 呼吸位
+  const fit = (halfW - cw * .31 - 10) / 1.62;
+  const stepBase = Math.max(120, Math.min(360, fit));
+  return {
+    x: sgn * (a === 1 ? stepBase : stepBase * 1.62 + (a - 2) * 46),
+    scale: a === 0 ? 1 : a === 1 ? .81 : a === 2 ? .62 : .45,
+    op: a === 0 ? 1 : a === 1 ? .9 : a === 2 ? .62 : 0,
+    ry: a === 0 ? 0 : -sgn * (a === 1 ? 24 : 30),
+    z: 100 - a,
+    vis: a > 3 ? 'hidden' : 'visible'
+  };
+}
+function render() {
+  cards.forEach((el, i) => {
+    const d = norm(i - cur);
+    const dd = d > N / 2 ? d - N : d;      /* 转成 [-N/2, N/2] 便于取最短方向 */
+    const p = pose(dd);
+    el.style.transform =
+      'translate3d(' + p.x + 'px,0,' + (p.scale * 120 - 120) + 'px) ' +
+      'rotateY(' + p.ry + 'deg) scale(' + p.scale + ')';
+    el.style.opacity = p.op;
+    el.style.zIndex = p.z;
+    el.style.visibility = p.vis;
+    el.classList.toggle('active', dd === 0);
+    el.setAttribute('aria-hidden', dd === 0 ? 'false' : 'true');
+  });
+  dots.forEach((b, i) => b.classList.toggle('on', i === cur));
+}
+function go(i) { cur = norm(i); lastAct = Date.now(); render(); }
+function act() { lastUserAct = Date.now(); lastAct = Date.now(); }
+
+document.getElementById('edgeL').addEventListener('click', () => { act(); go(cur - 1); });
+document.getElementById('edgeR').addEventListener('click', () => { act(); go(cur + 1); });
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { act(); go(cur - 1); }
+  else if (e.key === 'ArrowRight') { act(); go(cur + 1); }
+});
+/* 滑动手势 */
+let tx = 0;
+stage.addEventListener('touchstart', e => { tx = e.touches[0].clientX; act(); }, { passive: true });
+stage.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 44) go(cur + (dx < 0 ? 1 : -1));
+}, { passive: true });
+addEventListener('resize', () => { _cwCache = 0; render(); });
+
+/* 自动播放：自右向左（cur + 1 表示内容向左推进） */
+setInterval(() => {
+  if (Date.now() - lastAct >= AUTOPLAY_MS) { cur = norm(cur + 1); lastAct = Date.now(); render(); }
+  /* 只有「用户主动操作」才显示已暂停；自动滚动重置 lastAct 不算暂停 */
+  const paused = Date.now() - lastUserAct < AUTOPLAY_MS;
+  hint.classList.toggle('paused', paused);
+  if (paused) {
+    const s = Math.max(0, Math.ceil((lastAct + AUTOPLAY_MS - Date.now()) / 1000));
+    hint.innerHTML = '<b>已暂停</b> · ' + s + 's 后自动继续 · 点击左右两侧翻页';
+  } else {
+    hint.innerHTML = '<b>自动滚动中</b> · 点击左右两侧翻页 · ← → 键';
+  }
+}, 250);
+
+render();
+
+/* Hero 动图延迟挂载：先渲染文字与轮播，等首屏稳定后再解码 GIF，
+   避免 3MB base64 卡住首帧绘制 */
+(function () {
+  var g = document.getElementById('heroGif');
+  if (!g) return;
+  var src = '__GIF__';
+  var put = function () { g.src = src; };
+  if ('requestIdleCallback' in window) requestIdleCallback(put, { timeout: 1200 });
+  else setTimeout(put, 400);
+})();
+</script>
+</body>
+</html>
+'''
+
+
+def main():
+    cards = []
+    for i, d in enumerate(CARDS):
+        p = SHOTS / d['img']
+        if not p.exists():
+            raise SystemExit('缺少截图: ' + str(p))
+        b64 = base64.b64encode(p.read_bytes()).decode('ascii')
+        cards.append(dict(d, img='data:image/png;base64,' + b64))
+        print('[%02d] %-28s %8d B  %s' % (i + 1, d['img'], p.stat().st_size, d['title']))
+
+    chead = ''.join('<th>%s</th>' % h for h in COMPARE_HEAD)
+    cbody = ''
+    for row in COMPARE:
+        tds = ''.join('<td>%s</td>' % c for c in row)
+        cbody += '<tr>%s</tr>' % tds
+
+    quick = ''
+    for name, fname, desc, tag in QUICK:
+        cls = 'qcard hot' if tag else 'qcard'
+        tag_html = '<span class="tag">%s</span>' % tag if tag else ''
+        quick += ('<div class="%s">%s<h3>%s</h3><code class="file">%s</code><p>%s</p></div>'
+                  % (cls, tag_html, name, fname, desc))
+
+    # Hero 动图：base64 内嵌，保证展示页单文件可离线分发
+    gif_path = ASSETS / 'demo-carousel.gif'
+    if not gif_path.exists():
+        raise SystemExit('缺少演示动图: ' + str(gif_path))
+    gif_b64 = 'data:image/gif;base64,' + base64.b64encode(gif_path.read_bytes()).decode('ascii')
+    print('[GIF] %-28s %8d B' % (gif_path.name, gif_path.stat().st_size))
+
+    html = (TPL
+            .replace('__CARDS__', json.dumps(cards, ensure_ascii=False, separators=(',', ':')))
+            .replace('__CHEAD__', chead)
+            .replace('__CBODY__', cbody)
+            .replace('__QUICK__', quick)
+            .replace('__VERSION__', VERSION)
+            .replace('__RELEASES__', RELEASES)
+            .replace('__GITHUB__', GITHUB)
+            .replace('__DOCS__', '../../MDReader/docs/design/README.md')
+            # GIF 的 base64 放最后：它最长，且字符集不含下划线，不会误伤其它占位符
+            .replace('__GIF__', gif_b64))
+    OUT.write_text(html, encoding='utf-8')
+    print('\n已生成: %s  (%.2f MB)' % (OUT, OUT.stat().st_size / 1048576))
+
+
+if __name__ == '__main__':
+    main()

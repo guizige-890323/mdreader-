@@ -1,0 +1,137 @@
+[
+ {
+  "key": "clip",
+  "name": "Markdown 复制即创建",
+  "en": "CLIPBOARD → DOC",
+  "n": 1,
+  "file": "group-clip.webp",
+  "welcome": "w15-clip.webp",
+  "bytes": 28642
+ },
+ {
+  "key": "chart",
+  "name": "多样图表",
+  "en": "SIX CHART TYPES",
+  "n": 4,
+  "file": "group-chart.webp",
+  "welcome": "w15-chart.webp",
+  "bytes": 38166
+ },
+ {
+  "key": "flow",
+  "name": "双引擎流程图",
+  "en": "DUAL-ENGINE FLOW",
+  "n": 4,
+  "file": "group-flow.webp",
+  "welcome": "w15-flow.webp",
+  "bytes": 34492
+ },
+ {
+  "key": "theme",
+  "name": "多色主题，风格统一",
+  "en": "ONE PALETTE, EVERYWHERE",
+  "n": 3,
+  "file": "group-theme.webp",
+  "welcome": "w15-theme.webp",
+  "bytes": 23424
+ },
+ {
+  "key": "wiki",
+  "name": "知识库原生双链",
+  "en": "NATIVE WIKI LINKS",
+  "n": 1,
+  "file": "group-wiki.webp",
+  "welcome": "w15-wiki.webp",
+  "bytes": 41664
+ },
+ {
+  "key": "export",
+  "name": "多样导出，支持编辑的 HTML",
+  "en": "EXPORT THAT LIVES",
+  "n": 2,
+  "file": "group-export.webp",
+  "welcome": "w15-export.webp",
+  "bytes": 34424
+ },
+ {
+  "key": "mcp",
+  "name": "MCP 连接器",
+  "en": "MCP READY",
+  "n": 1,
+  "file": "group-mcp.webp",
+  "welcome": "w15-mcp.webp",
+  "bytes": 23362
+ },
+ {
+  "key": "outline",
+  "name": "文档大纲与块编辑",
+  "en": "OUTLINE & BLOCK EDIT",
+  "n": 2,
+  "file": "group-outline.webp",
+  "welcome": "w15-outline.webp",
+  "bytes": 40364
+ },
+ {
+  "key": "typo",
+  "name": "设计师经典排版",
+  "en": "TWO TYPOGRAPHIC SKINS",
+  "n": 2,
+  "file": "group-typo.webp",
+  "welcome": "w15-typo.webp",
+  "bytes": 38614
+ },
+ {
+  "key": "recent",
+  "name": "最近极速打开",
+  "en": "RECENT, RE-READ FROM DISK",
+  "n": 1,
+  "file": "group-recent.webp",
+  "welcome": "w15-recent.webp",
+  "bytes": 32244
+ },
+ {
+  "key": "settings",
+  "name": "丰富设置",
+  "en": "GRANULAR SETTINGS",
+  "n": 1,
+  "file": "group-settings.webp",
+  "welcome": "w15-settings.webp",
+  "bytes": 23524
+ },
+ {
+  "key": "focus",
+  "name": "专注模式",
+  "en": "FOCUS MODE",
+  "n": 1,
+  "file": "group-focus.webp",
+  "welcome": "w15-focus.webp",
+  "bytes": 33406
+ },
+ {
+  "key": "softlight",
+  "name": "原创云晰柔光阅读",
+  "en": "SOFT LIGHT",
+  "n": 1,
+  "file": "group-softlight.webp",
+  "welcome": "w15-softlight.webp",
+  "bytes": 26428
+ },
+ {
+  "key": "eyecare",
+  "name": "爱护你的双眼",
+  "en": "EYE CARE",
+  "n": 1,
+  "file": "group-eyecare.webp",
+  "welcome": "w15-eyecare.webp",
+  "bytes": 45470
+ },
+ {
+  "key": "i18n",
+  "name": "国际化版本",
+  "en": "I18N",
+  "n": 1,
+  "file": "group-i18n.webp",
+  "welcome": "w15-i18n.webp",
+  "bytes": 29934
+ }
+]

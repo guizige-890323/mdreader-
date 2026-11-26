@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-pm="on" data-font="serif">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>云晰柔光 PaperMatte · 阅读效果与调参</title>
+<style>
+/*
+  ============================================================
+  三层解耦（这是整套设计的核心）
+  ------------------------------------------------------------
+  1) 主题层 data-theme  —— 决定「纸是什么颜色、墨是什么颜色」
+     只管色值，不管柔光强度。light / sepia / ink / night 四套。
+  2) 柔光层 data-pm     —— 决定「这层玻璃有多柔」
+     只管 sepia/saturate/contrast/brightness 与颗粒强度，不管色。
+     on / off 两态。**任何主题都能叠柔光**，这是「通用渲染效果」的含义。
+  3) 排印层             —— 决定「字多大、行多宽」
+     用模数化字阶（modular scale），标题跟着正文基准走，改字号时比例不塌。
+
+  早先的错误做法是把三者揉在一起：主题里塞 sepia/contrast，
+  结果「换主题」等于「换柔光强度」，两件事没法独立调。
+  ============================================================
+*/
+
+/* ---------- 主题层：色值配额 ---------- */
+:root,
+html[data-theme="light"]{
+  --pm-bg:#FDFBF4;
+  --pm-ink:#1F1F1F;
+  --pm-ink-2:#444444;
+  --pm-ink-3:#8A8578;
+  --pm-link:#5C4B3B;
+  --pm-line:rgba(92,75,59,.22);
+  --pm-card:rgba(255,255,255,.5);
+  --pm-accent:#8A6A40;
+  /* 柔光时夜间/深底才需要翻转颗粒混合模式 */
+  --pm-noise-blend:multiply;
+}
+html[data-theme="sepia"]{
+  --pm-bg:#F4ECD8;
+  --pm-ink:#3B3226;
+  --pm-ink-2:#5A4E3F;
+  --pm-ink-3:#8C7E6B;
+  --pm-link:#7A5C34;
+  --pm-line:rgba(90,78,63,.24);
+  --pm-card:rgba(255,255,255,.42);
+  --pm-accent:#8A6134;
+  --pm-noise-blend:multiply;
+}
+html[data-theme="ink"]{
+  /* 墨色纸：冷调、低饱和，适合代码与技术文档 */
+  --pm-bg:#F2F3F0;
+  --pm-ink:#20241F;
+  --pm-ink-2:#454B44;
+  --pm-ink-3:#7C847B;
+  --pm-link:#3C5A46;
+  --pm-line:rgba(60,72,60,.22);
+  --pm-card:rgba(255,255,255,.46);
+  --pm-accent:#3C5A46;
+  --pm-noise-blend:multiply;
+}
+html[data-theme="night"]{
+  --pm-bg:#181818;
+  --pm-ink:#C8C6C0;
+  --pm-ink-2:#A8A69F;
+  --pm-ink-3:#7A7872;
+  --pm-link:#B8A896;
+  --pm-line:rgba(184,168,150,.20);
+  --pm-card:rgba(255,255,255,.035);
+  --pm-accent:#C0AC91;
+  /* 深底上 multiply 会把颗粒压成脏斑，必须改 screen */
+  --pm-noise-blend:screen;
+}
+
+/* ---------- 柔光层：强度配额 ---------- */
+:root{
+  --pm-sepia:12%;
+  --pm-sat:78%;
+  --pm-con:89%;
+  --pm-bri:97%;
+  --pm-noise:.028;
+}
+
+/* ---------- 排印层：模数化字阶 ----------
+   基准 --pm-fs 是正文大小，其余全部由它推算：
+   h1 = fs × 1.95   h2 = fs × 1.42   h3 = fs × 1.14
+   这样拖「字号」时整个层级等比缩放，不会出现「三级标题比正文还小」
+   —— 旧版 h3 写死 1.02rem，正文 1.10rem，层级是断的。
+*/
+:root{
+  --pm-fs:1.05rem;
+  --pm-lh:1.8;
+  --pm-w:42rem;
+  /* 下面四个值由 JS 按字阶算出并覆写，这里只给首屏兜底值，
+     避免 JS 尚未执行时标题塌成同一号字（FOUC 式的层级断裂）。 */
+  --pm-h1:1.995rem;
+  --pm-h2:1.491rem;
+  --pm-h3:1.143rem;
+  --pm-fs-sm:.924rem;
+  --pm-fs-xs:.819rem;
+  --pm-serif:"Source Serif 4","Noto Serif SC","SimSun","宋体",Georgia,serif;
+  --pm-sans:"Microsoft YaHei UI","PingFang SC","Noto Sans SC",system-ui,sans-serif;
+  --pm-kai:"KaiTi","楷体","STKaiti",serif;
+  --pm-hei:"SimHei","黑体","Microsoft YaHei UI",sans-serif;
+}
+
+/* 字体族切换：只换字族栈，不动字号（字号由排印层统一管） */
+html[data-font="serif"]{--pm-rt:var(--pm-serif)}
+html[data-font="sans"] {--pm-rt:var(--pm-sans)}
+html[data-font="kai"]  {--pm-rt:var(--pm-kai)}
+html[data-font="hei"]  {--pm-rt:var(--pm-hei)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+/*
+  分层原则（这层想错了整个效果就废了）：
+  柔光屏的「纸基色」和「涂层效果」是两件事，必须分层。
+  - 纸基色放 html：精确值，不吃滤镜。拖 contrast/brightness 时纸不会跟着变灰。
+  - 内容放 body：吃 sepia/saturate/contrast/brightness，这才是 AG 涂层的本职。
+  早先把 filter 全加在 html 上，结果 #FDFBF4 被 contrast(89%) 拉到 rgb(234,234,225)，
+  等于纸底色从来没真正呈现过，而且越调对比度纸越脏。
+*/
+html{
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  background-color:var(--pm-bg);
+  transition:background-color .35s ease;
+}
+
+body{
+  background-color:transparent;
+  color:var(--pm-ink);
+  font-family:var(--pm-rt,var(--pm-serif));
+  line-height:var(--pm-lh);
+  position:relative;
+  transition:color .35s ease,font-family .1s linear;
+}
+
+/* 纸面容器：只包「内容」，不包调参面板。
+   面板是工具，不该被柔光滤镜压暗，也必须保持 position:fixed 的视口定位
+   （filter 会创建包含块，把后代的 fixed 变成相对该元素的定位）。
+
+   柔光开关用 html[data-pm="off"] 断言，而不是 JS 改 style：
+   关掉时滤镜归零、颗粒归零，但主题色与排印完全不动 —— 这就是「通用」的意思，
+   同一套排版可以随时切回原生观感做对照。 */
+.pm-sheet{
+  filter:sepia(var(--pm-sepia)) saturate(var(--pm-sat)) contrast(var(--pm-con)) brightness(var(--pm-bri));
+  transition:filter .35s ease;
+  min-height:100vh;
+}
+html[data-pm="off"] .pm-sheet{filter:none}
+
+/* AG 涂层颗粒：极淡，只做「若有若无」的纸面微结构。
+   挂在 html 而非 body：颗粒是屏幕表面的物理层，不该被内容的柔光滤镜二次处理，
+   也不该跟着 body 的 filter 一起被 contrast 拉重。 */
+html::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9998;
+  opacity:var(--pm-noise);
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:var(--pm-noise-blend);
+  transition:opacity .35s ease;
+}
+html[data-pm="off"]::after{opacity:0}
+
+/* ============ 顶栏 ============ */
+.pm-bar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:.7rem;
+  padding:.62rem 1.15rem;
+  background:color-mix(in srgb,var(--pm-bg) 88%,transparent);
+  backdrop-filter:blur(12px) saturate(120%);
+  border-bottom:1px solid var(--pm-line);
+  font-family:var(--pm-sans);
+  font-size:.82rem;
+}
+.pm-brand{
+  display:flex;align-items:center;gap:.5rem;
+  font-weight:600;color:var(--pm-ink);letter-spacing:.01em;
+  white-space:nowrap;
+}
+.pm-brand i{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--pm-accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--pm-accent) 18%,transparent);
+  transition:background .3s;
+}
+
+/* ---- 柔光开关：整个产品的总闸 ---- */
+.pm-switch{
+  display:flex;align-items:center;gap:.5rem;
+  margin-left:auto;
+  padding:.2rem .55rem .2rem .12rem;
+  border-radius:20px;
+  border:1px solid var(--pm-line);
+  background:var(--pm-card);
+  cursor:pointer;
+  user-select:none;
+  transition:border-color .2s,background .2s;
+}
+.pm-switch:hover{border-color:var(--pm-accent)}
+.pm-switch .track{
+  position:relative;
+  width:34px;height:19px;border-radius:10px;
+  background:var(--pm-line);
+  transition:background .25s;
+  flex:0 0 auto;
+}
+.pm-switch .knob{
+  position:absolute;top:2px;left:2px;
+  width:15px;height:15px;border-radius:50%;
+  background:var(--pm-bg);
+  box-shadow:0 1px 3px rgba(0,0,0,.28);
+  transition:transform .25s cubic-bezier(.3,.8,.4,1);
+}
+html[data-pm="on"] .pm-switch .track{background:var(--pm-accent)}
+html[data-pm="on"] .pm-switch .knob{transform:translateX(15px)}
+.pm-switch .lbl{
+  font-size:.75rem;color:var(--pm-ink-2);
+  font-family:var(--pm-sans);
+  white-space:nowrap;
+}
+html[data-pm="on"] .pm-switch .lbl{color:var(--pm-ink)}
+
+/* 柔光关闭时整条顶栏加一点提示色，避免用户以为「效果坏了」 */
+html[data-pm="off"] .pm-brand i{background:var(--pm-ink-3);box-shadow:none}
+
+/* ---- 主题切换 ---- */
+.pm-menu{position:relative}
+.pm-menu > button{
+  appearance:none;border:1px solid var(--pm-line);
+  background:var(--pm-card);color:var(--pm-ink-2);
+  font-family:var(--pm-sans);font-size:.78rem;
+  padding:.36rem .7rem;border-radius:9px;cursor:pointer;
+  display:flex;align-items:center;gap:.4rem;
+  transition:all .18s;white-space:nowrap;
+}
+.pm-menu > button:hover{color:var(--pm-ink);border-color:var(--pm-accent)}
+.pm-menu > button .dot{
+  width:11px;height:11px;border-radius:50%;
+  border:1px solid var(--pm-line);
+  background:var(--pm-bg);
+}
+.pm-drop{
+  position:absolute;right:0;top:calc(100% + 6px);
+  min-width:158px;
+  background:var(--pm-bg);
+  border:1px solid var(--pm-line);
+  border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.16);
+  padding:4px;
+  z-index:120;
+}
+.pm-drop[hidden]{display:none}
+.pm-drop button{
+  display:flex;align-items:center;gap:.55rem;width:100%;
+  appearance:none;border:0;background:transparent;
+  color:var(--pm-ink-2);font-family:var(--pm-sans);font-size:.78rem;
+  padding:.44rem .55rem;border-radius:6px;cursor:pointer;text-align:left;
+  transition:background .15s;
+}
+.pm-drop button:hover{background:var(--pm-card);color:var(--pm-ink)}
+.pm-drop button[aria-checked="true"]{color:var(--pm-ink);font-weight:600}
+.pm-drop button .sw{
+  width:13px;height:13px;border-radius:3px;
+  border:1px solid var(--pm-line);flex:0 0 auto;
+}
+.pm-drop button .ck{margin-left:auto;font-size:.8rem;opacity:0}
+.pm-drop button[aria-checked="true"] .ck{opacity:1;color:var(--pm-accent)}
+
+/* ============ 正文 ============ */
+.pm-read{
+  max-width:var(--pm-w);
+  margin:0 auto;
+  padding:3.25rem 1.6rem 6rem;
+  transition:max-width .3s ease;
+}
+.pm-kicker{
+  font-family:var(--pm-sans);
+  font-size:var(--pm-fs-xs);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--pm-ink-3);margin-bottom:.9rem;
+}
+h1{
+  font-family:var(--pm-rt,var(--pm-serif));
+  font-size:var(--pm-h1);font-weight:500;line-height:1.28;
+  letter-spacing:-.01em;margin:0 0 1rem;
+  /* 标题与正文同色，靠字号与留白区隔，不靠加粗堆砌 */
+  color:var(--pm-ink);
+}
+.pm-meta{
+  font-family:var(--pm-sans);font-size:var(--pm-fs-sm);
+  color:var(--pm-ink-3);
+  padding-bottom:1.6rem;margin-bottom:2rem;
+  border-bottom:1px solid var(--pm-line);
+}
+h2{
+  font-family:var(--pm-rt,var(--pm-serif));
+  font-size:var(--pm-h2);font-weight:500;line-height:1.42;
+  margin:2.5rem 0 .95rem;
+  color:var(--pm-ink);
+}
+h3{
+  font-family:var(--pm-rt,var(--pm-serif));
+  font-size:var(--pm-h3);font-weight:600;line-height:1.5;
+  margin:1.9rem 0 .65rem;color:var(--pm-ink);
+  /* 三级标题靠上留白 + 略深字重区分，字号只比正文大一点 */
+}
+h4{
+  font-family:var(--pm-sans);font-size:var(--pm-fs);font-weight:600;
+  margin:1.5rem 0 .5rem;color:var(--pm-ink-2);
+}
+p{font-size:var(--pm-fs);margin-bottom:1.15rem;color:var(--pm-ink)}
+strong{font-weight:600;color:var(--pm-ink)}
+em{font-style:italic;color:var(--pm-ink-2)}
+
+a{
+  color:var(--pm-link);text-decoration:none;
+  border-bottom:1px solid var(--pm-line);
+  transition:border-color .18s;
+}
+a:hover{border-bottom-color:var(--pm-link)}
+
+blockquote{
+  margin:1.6rem 0;padding:.9rem 1.2rem;
+  border-left:2px solid var(--pm-accent);
+  background:var(--pm-card);
+  border-radius:0 6px 6px 0;
+  font-size:calc(var(--pm-fs) * .97);color:var(--pm-ink-2);
+}
+blockquote p:last-child{margin-bottom:0}
+
+ul,ol{margin:0 0 1.15rem 1.4rem}
+li{font-size:var(--pm-fs);margin-bottom:.42rem}
+
+code{
+  font-family:"Cascadia Code","Consolas",monospace;
+  font-size:.88em;padding:.12em .38em;
+  background:var(--pm-card);border-radius:4px;
+  border:1px solid var(--pm-line);
+}
+pre{
+  margin:1.4rem 0;padding:1rem 1.15rem;
+  background:var(--pm-card);
+  border:1px solid var(--pm-line);
+  border-radius:8px;overflow-x:auto;
+  font-size:calc(var(--pm-fs) * .85);line-height:1.65;
+}
+pre code{background:none;border:0;padding:0;font-size:1em}
+
+/* 表格：柔光下依然要清晰，不做重色头 */
+table{
+  width:100%;border-collapse:collapse;
+  margin:1.5rem 0;font-size:calc(var(--pm-fs) * .9);
+  font-family:var(--pm-sans);
+}
+caption{
+  caption-side:top;text-align:left;
+  font-size:var(--pm-fs-xs);color:var(--pm-ink-3);
+  padding-bottom:.5rem;font-family:var(--pm-sans);
+}
+th{
+  text-align:left;font-weight:600;
+  padding:.6rem .7rem;
+  border-bottom:1.5px solid var(--pm-line);
+  color:var(--pm-ink);
+  background:var(--pm-card);
+}
+td{
+  padding:.55rem .7rem;
+  border-bottom:1px solid var(--pm-line);
+  color:var(--pm-ink-2);
+}
+tbody tr:last-child td{border-bottom:0}
+
+hr{
+  border:0;height:1px;background:var(--pm-line);
+  margin:2.6rem 0;
+}
+
+/* 图片同样柔化，避免亮图打破氛围 */
+.pm-read img{
+  max-width:100%;height:auto;border-radius:5px;
+  filter:saturate(88%) contrast(96%);
+}
+
+.pm-figure{
+  margin:1.8rem 0;
+}
+.pm-figure figcaption{
+  font-family:var(--pm-sans);font-size:var(--pm-fs-xs);
+  color:var(--pm-ink-3);margin-top:.55rem;text-align:center;
+}
+.pm-swatch{
+  display:flex;gap:10px;flex-wrap:wrap;margin:1.4rem 0;
+}
+.pm-swatch div{
+  flex:1 1 88px;min-width:88px;height:66px;border-radius:7px;
+  border:1px solid var(--pm-line);
+  display:flex;align-items:flex-end;
+  padding:6px;font-family:var(--pm-sans);
+  font-size:.66rem;color:#fff;
+}
+.pm-tag{
+  display:inline-block;font-family:var(--pm-sans);font-size:.7rem;
+  padding:.16rem .5rem;border-radius:4px;
+  background:var(--pm-card);border:1px solid var(--pm-line);
+  color:var(--pm-ink-2);margin-right:.35rem;
+}
+
+/* ============ 调参面板 ============ */
+.pm-panel{
+  position:fixed;right:18px;bottom:18px;z-index:9999;
+  width:312px;
+  /* 视口剩 36px 给上下边距；内部滚动，避免高视口下顶到屏幕边缘 */
+  max-height:calc(100vh - 36px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  background:color-mix(in srgb,var(--pm-bg) 94%,#000 6%);
+  border:1px solid var(--pm-line);
+  border-radius:13px;
+  box-shadow:0 14px 44px rgba(0,0,0,.16);
+  padding:.85rem .95rem 1rem;
+  font-family:var(--pm-sans);
+  font-size:.76rem;
+  color:var(--pm-ink-2);
+  transform:translateY(0);
+  transition:transform .28s cubic-bezier(.22,.68,.36,1),opacity .28s;
+  scrollbar-width:thin;
+}
+.pm-panel::-webkit-scrollbar{width:6px}
+.pm-panel::-webkit-scrollbar-thumb{
+  background:var(--pm-line);border-radius:3px;
+}
+.pm-panel[hidden]{display:none}
+.pm-panel h4{
+  font-size:.8rem;font-weight:600;color:var(--pm-ink);
+  margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;
+}
+.pm-panel h4 span{margin-left:auto;font-weight:400;font-size:.7rem;color:var(--pm-ink-3)}
+.pm-group{
+  font-size:.68rem;font-weight:600;color:var(--pm-ink-3);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin:.7rem 0 .3rem;
+}
+.pm-group:first-of-type{margin-top:0}
+.pm-row{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.28rem 0;
+}
+.pm-row label{
+  flex:0 0 74px;font-size:.72rem;color:var(--pm-ink-3);
+}
+.pm-row input[type=range]{
+  flex:1;height:3px;appearance:none;
+  background:var(--pm-line);border-radius:3px;outline:none;
+}
+.pm-row input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--pm-accent);cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.pm-row output{
+  flex:0 0 46px;text-align:right;
+  font-variant-numeric:tabular-nums;
+  font-size:.7rem;color:var(--pm-ink);
+}
+.pm-panel hr{border:0;height:1px;background:var(--pm-line);margin:.7rem 0}
+.pm-hint{
+  font-size:.68rem;line-height:1.65;color:var(--pm-ink-3);
+  margin-top:.55rem;
+}
+.pm-hint b{color:var(--pm-ink-2);font-weight:600}
+
+/* 字族选择 */
+.pm-fonts{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:4px;margin:.35rem 0 .2rem;
+}
+.pm-fonts button{
+  appearance:none;border:1px solid var(--pm-line);
+  background:var(--pm-card);color:var(--pm-ink-2);
+  font-size:.7rem;padding:.34rem .1rem;border-radius:6px;
+  cursor:pointer;transition:all .16s;text-align:center;
+}
+.pm-fonts button:hover{color:var(--pm-ink)}
+.pm-fonts button[aria-pressed="true"]{
+  border-color:var(--pm-accent);color:var(--pm-bg);
+  background:var(--pm-accent);font-weight:600;
+}
+.pm-fonts button[data-f="serif"]{font-family:var(--pm-serif)}
+.pm-fonts button[data-f="sans"]{font-family:var(--pm-sans)}
+.pm-fonts button[data-f="kai"]{font-family:var(--pm-kai)}
+.pm-fonts button[data-f="hei"]{font-family:var(--pm-hei)}
+
+/* 字阶预览：直观看到 h1/h2/h3/正文 的实际比例 */
+.pm-scale{
+  margin:.5rem 0 .3rem;padding:.55rem .6rem;
+  border:1px dashed var(--pm-line);border-radius:7px;
+  background:var(--pm-card);
+  font-family:var(--pm-rt,var(--pm-serif));
+  color:var(--pm-ink);
+  line-height:1.3;
+}
+.pm-scale div{display:flex;align-items:baseline;gap:.5rem}
+.pm-scale .k{
+  font-family:var(--pm-sans);font-size:.62rem;color:var(--pm-ink-3);
+  flex:0 0 22px;
+}
+.pm-scale .s1{font-size:calc(var(--pm-h1) * .62)}
+.pm-scale .s2{font-size:calc(var(--pm-h2) * .72)}
+.pm-scale .s3{font-size:calc(var(--pm-h3) * .86)}
+.pm-scale .sp{font-size:var(--pm-fs)}
+
+.pm-btn{
+  appearance:none;width:100%;border:1px solid var(--pm-line);
+  background:var(--pm-card);color:var(--pm-ink-2);
+  font-family:var(--pm-sans);font-size:.75rem;
+  padding:.44rem;border-radius:8px;cursor:pointer;
+  transition:all .16s;
+}
+.pm-btn:hover{color:var(--pm-ink);border-color:var(--pm-accent)}
+.pm-btn + .pm-btn{margin-top:.35rem}
+
+@media (max-width:760px){
+  /* 顶栏：品牌 + 柔光开关 + 主题 + 调参 在窄屏放不下。
+     让品牌和开关共占第一行，主题/调参收进第二行，避免横向溢出。 */
+  .pm-bar{
+    flex-wrap:wrap;
+    gap:.5rem .55rem;
+    padding:.55rem .9rem;
+  }
+  .pm-brand{font-size:.78rem;flex:1 1 auto;min-width:0}
+  .pm-brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pm-switch{margin-left:0;order:2}
+  .pm-menu{order:4}
+  .pm-panel{left:10px;right:10px;width:auto;bottom:10px;max-height:60vh}
+  .pm-read{padding:2rem 1.2rem 5rem}
+  /* 标题不再写死 px，跟随 --pm-fs 缩放即可，这里只收紧留白 */
+  h1{margin-bottom:.7rem}
+  h2{margin:2rem 0 .75rem}
+  h3{margin:1.5rem 0 .5rem}
+  /* 窄屏表格降字号而不是横向滚动，否则要横滑才能看全 */
+  table{font-size:calc(var(--pm-fs) * .82)}
+  th,td{padding:.5rem .55rem}
+  blockquote{padding:.8rem 1rem}
+  .pm-fonts{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  .pm-panel,.pm-bar{display:none}
+  /* 打印必须去掉柔光滤镜：纸上不需要模拟纸 */
+  .pm-sheet{filter:none!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="pm-sheet">
+
+<div class="pm-bar">
+  <div class="pm-brand"><i></i><span>云晰柔光 · PaperMatte</span></div>
+
+  <!-- 柔光总闸：点开关立即开关柔光；点右侧文字打开参数面板 -->
+  <div class="pm-switch" id="pmSwitch" role="switch" aria-checked="true" tabindex="0"
+       title="点击开关柔光，点击文字调参">
+    <span class="track"><span class="knob"></span></span>
+    <span class="lbl" id="swLabel">柔光开启</span>
+  </div>
+
+  <!-- 主题：四套纸张 -->
+  <div class="pm-menu">
+    <button id="btnTheme" aria-haspopup="listbox" aria-expanded="false">
+      <span class="dot" id="themeDot"></span>
+      <span id="themeName">米黄纸</span>
+      <span style="opacity:.55;font-size:.68rem">▾</span>
+    </button>
+    <div class="pm-drop" id="themeDrop" role="listbox" hidden>
+      <button data-theme="light" role="option" aria-checked="true">
+        <span class="sw" style="background:#FDFBF4"></span>米黄纸<span class="ck">✓</span>
+      </button>
+      <button data-theme="sepia" role="option" aria-checked="false">
+        <span class="sw" style="background:#F4ECD8"></span>旧书本<span class="ck">✓</span>
+      </button>
+      <button data-theme="ink" role="option" aria-checked="false">
+        <span class="sw" style="background:#F2F3F0"></span>墨绿纸<span class="ck">✓</span>
+      </button>
+      <button data-theme="night" role="option" aria-checked="false">
+        <span class="sw" style="background:#181818"></span>夜间<span class="ck">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="pm-btn" id="btnPanel"
+          style="width:auto;padding:.36rem .7rem;border-radius:9px">调参</button>
+</div>
+
+<main class="pm-read">
+  <div class="pm-kicker">PaperMatte Reading Simulation</div>
+  <h1>华为云晰柔光版 · 阅读效果与调参</h1>
+  <div class="pm-meta">主题 × 柔光 × 排印 三层可独立调节 · 供确认后移植至 MDReader / MDLens · 2026-11-15</div>
+
+  <p>这不是墨水屏。柔光屏仍然是自发光面板，真正的差别在<b>表面那层纳米蚀刻涂层</b>——它把原本镜面反射的光打散成漫反射，所以你看到的不是一块亮板，而是一页纸。</p>
+
+  <p>网页无法复刻涂层，但能复刻它给人的<strong>观感结果</strong>：底色不再是刺眼纯白，文字不再是硬黑，整体对比度压下来，色彩收一点，纸面浮起一层几乎看不见的颗粒。</p>
+
+  <blockquote>
+    <p>右上角的开关是<strong>柔光总闸</strong>。点开关本体立即开关，点旁边的文字打开调参。柔光关掉时主题色和排版完全不动，方便随时对照原生观感。<b>判断标准只有一条：看久了眼睛不累吗？</b></p>
+  </blockquote>
+
+  <h2>一、三层解耦：主题、柔光、排印互不干扰</h2>
+
+  <p>最初这三件事是揉在一起的——主题里塞了 <code>sepia</code> 和 <code>contrast</code>，于是"换主题"实际上等于"换柔光强度"，两件事没法独立调。想在墨绿纸上用轻度柔光？做不到。</p>
+
+  <p>现在拆成三层，任意组合：</p>
+
+  <table>
+    <caption>三层职责划分</caption>
+    <thead>
+      <tr><th>层</th><th>决定什么</th><th>可选值</th><th>载体</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>主题</b></td><td>纸与墨的颜色</td><td>米黄纸 / 旧书本 / 墨绿纸 / 夜间</td><td><code>data-theme</code></td></tr>
+      <tr><td><b>柔光</b></td><td>玻璃有多柔（滤镜 + 颗粒）</td><td>开 / 关，参数连续可调</td><td><code>data-pm</code></td></tr>
+      <tr><td><b>排印</b></td><td>字多大、行多宽、层级多陡</td><td>连续可调</td><td>CSS 变量</td></tr>
+    </tbody>
+  </table>
+
+  <p>这才是"适用于不同主题的通用渲染效果"：柔光是一层可以盖在任何纸上的玻璃，不是某套配色的一部分。</p>
+
+  <h2>二、为什么要绕开纯白与纯黑</h2>
+
+  <p>普通网页的白是 <code>#FFFFFF</code>，在自发光面板上相当于直接对着灯看。柔光屏的纸感来自两件事：底色偏暖，以及白色不再是"最亮"。米黄纸用 <code>#FDFBF4</code> —— 带一点米黄，亮度低一点点，但足够干净。</p>
+
+  <p>文字同理。<code>#000000</code> 与米色底相接时边缘对比过强，看久了发涩。改成 <code>#1F1F1F</code> 深炭灰，观感立刻松下来，清晰度几乎没有损失。</p>
+
+  <div class="pm-swatch">
+    <div style="background:#FDFBF4;color:#8A8578">#FDFBF4 米黄纸</div>
+    <div style="background:#F4ECD8;color:#8C7E6B">#F4ECD8 旧书本</div>
+    <div style="background:#F2F3F0;color:#7C847B">#F2F3F0 墨绿纸</div>
+    <div style="background:#181818;color:#C8C6C0">#181818 夜间</div>
+  </div>
+
+  <p>切主题时注意一件事：<strong>纸底色不参与柔光滤镜</strong>。这是刻意的——纸是物理层，涂层是光学层。早先把滤镜加在根元素上，结果 <code>#FDFBF4</code> 被自己的 <code>contrast(89%)</code> 拉成 <code>rgb(234,234,225)</code>，纸色从来没真正呈现过，而且对比度越低纸越脏。</p>
+
+  <h2>三、滤镜参数的分工</h2>
+
+  <p>整页套一层 <code>sepia + saturate + contrast + brightness</code>，四个参数各管一件事：</p>
+
+  <table>
+    <caption>柔光滤镜参数分工与推荐区间</caption>
+    <thead>
+      <tr><th>参数</th><th>作用</th><th>推荐区间</th><th>过头会怎样</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>sepia</code></td><td>暖化，抵消冷蓝光</td><td>8%–15%</td><td>偏黄，像旧羊皮纸</td></tr>
+      <tr><td><code>saturate</code></td><td>压低色彩鲜艳度</td><td>70%–80%</td><td>发灰，失去生气</td></tr>
+      <tr><td><code>contrast</code></td><td>柔光的核心</td><td>85%–90%</td><td>过 95% 就退回普通高清屏</td></tr>
+      <tr><td><code>brightness</code></td><td>整体亮度微调</td><td>95%–98%</td><td>拉高就变刺眼</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>绝对不要加 <code>blur()</code>。</b>柔光屏柔化的是<em>反光</em>，不是文字。一加模糊，方向就整个跑偏，变成劣质墨水屏模拟。</p>
+
+  <h2>四、颗粒要"若有若无"</h2>
+
+  <p>AG 涂层的微纹理是柔光屏的手感来源。网页上用一个 SVG 分形噪声，<code>opacity</code> 控制在 <code>0.02–0.03</code>。这个值很窄：低于 0.02 感觉不到，高于 0.04 文字开始发糊。</p>
+
+  <p>夜间主题要特别处理：颗粒的混合模式必须从 <code>multiply</code> 翻成 <code>screen</code>，否则深色底上会出现脏斑。这个切换跟着主题走，不需要手动调。</p>
+
+  <h2>五、排印：标题必须压得住正文</h2>
+
+  <p>这是长文档最容易出问题的地方。旧版把标题写死成固定 <code>rem</code>——<code>h3</code> 是 <code>1.02rem</code>（16.32px），正文 <code>1.10rem</code>（17.6px）。<strong>三级标题比正文还小</strong>，读者扫视时找不到层级，结构化阅读直接失效。</p>
+
+  <p>现在改用模数化字阶：正文 <code>--pm-fs</code> 是唯一基准，<code>h1 / h2 / h3</code> 全部由它乘系数得出。拖"正文字号"时整个层级等比缩放，比例永远不会塌。</p>
+
+  <table>
+    <caption>字阶计算关系</caption>
+    <thead><tr><th>层级</th><th>计算公式</th><th>默认值（正文 1.05rem）</th><th>与正文比</th></tr></thead>
+    <tbody>
+      <tr><td>H1</td><td><code>h2 × 1.36</code></td><td>1.995rem / 31.9px</td><td>1.90×</td></tr>
+      <tr><td>H2</td><td><code>滑杆值（默认 1.42）</code></td><td>1.491rem / 23.9px</td><td>1.42×</td></tr>
+      <tr><td>H3</td><td><code>1 + (h2-1) × 0.34</code></td><td>1.143rem / 18.3px</td><td>1.14×</td></tr>
+      <tr><td>正文</td><td><code>--pm-fs</code></td><td>1.05rem / 16.8px</td><td>1.00×</td></tr>
+    </tbody>
+  </table>
+
+  <p>H3 的公式刻意压低幅度：它只需要"比正文大一点点 + 加粗 + 上留白"就能被识别为标题，不需要靠字号拉开。这正是技术文档的做法——层级多了以后，字号差太大会让页面碎掉。</p>
+
+  <h3>行长与行高</h3>
+  <p>正文栏宽默认 <code>42rem</code>，折合单行约 65–70 个汉字。行高 1.8。这两个数字不是审美偏好，是眼球移动成本——行长太宽，读完一行回扫到下一行开头时容易串行。</p>
+
+  <h3>段距大于行距</h3>
+  <p>段间距约 1.15rem，行距约 1.9rem。段落之间留白比行间更松，读起来才有"翻段"的节奏，而不是一整块墙。</p>
+
+  <h3>字族：四种都试一遍</h3>
+  <p>面板里有<strong>宋 / 黑 / 楷 / 粗黑</strong>四档。宋体最接近纸质印刷，长文疲劳度低；黑体在屏幕上更锐利，适合技术文档；楷体笔画舒展，读散文舒服但小字号容易发虚；粗黑（SimHei）字重沉，适合标题或强对比场景。换字族不影响字号与行高——它们分属不同层。</p>
+
+  <pre><code>-webkit-font-smoothing: antialiased;
+text-rendering: optimizeLegibility;</code></pre>
+  <p>让字形边缘顺滑，模拟柔光屏的字体渲染，不会发毛。</p>
+
+  <h2>六、夜间不是黑底白字</h2>
+
+  <p>切到夜间主题看看。底色是 <code>#181818</code> 深灰，文字是 <code>#C8C6C0</code> 暖灰——刻意避开 <code>#000</code> + <code>#FFF</code> 的强对比。纯黑白在暗环境下会让瞳孔反复收缩，比白天更容易累。</p>
+
+  <p>夜间主题本身只换色。柔光强度需要单独调低：<code>contrast</code> 到 85%、<code>brightness</code> 到 92%、颗粒降到 0.020。这也是分层的好处——同一套柔光参数在深色纸上会显得过重，你可以只调柔光不动主题。</p>
+
+  <h2>七、边界：这套方案做不到什么</h2>
+
+  <table>
+    <caption>能力边界</caption>
+    <thead><tr><th>能做到</th><th>做不到</th></tr></thead>
+    <tbody>
+      <tr><td>弱化纯白硬反光的观感</td><td>真正消除镜面反射</td></tr>
+      <tr><td>降低蓝光刺激、压对比</td><td>替代硬件 AG 涂层</td></tr>
+      <tr><td>模拟纸面颗粒与暖调</td><td>在强光下依旧不反光</td></tr>
+      <tr><td>长文阅读的舒适排版</td><td>达到墨水屏的无背光体验</td></tr>
+    </tbody>
+  </table>
+
+  <p>强光环境下，浏览器屏幕依然会反光——那是物理层的事。这套方案是<strong>软件层的视觉模拟</strong>，适合私有化阅读器、文档阅读页面。</p>
+
+  <hr>
+
+  <p style="color:var(--pm-ink-3);font-size:var(--pm-fs-sm)">拖动右下角面板，找到你觉得舒服的组合，点「复制当前参数」把数值告诉我，我照着改 MDReader 与 MDLens 的主题层。</p>
+</main>
+
+</div><!-- /.pm-sheet -->
+
+<aside class="pm-panel" id="panel">
+  <h4>柔光与排印 <span id="stateTag">开启</span></h4>
+
+  <div class="pm-group">柔光滤镜</div>
+  <div class="pm-row"><label>sepia</label><input type="range" id="rSepia" min="0" max="25" step="1"><output id="oSepia"></output></div>
+  <div class="pm-row"><label>saturate</label><input type="range" id="rSat" min="50" max="110" step="1"><output id="oSat"></output></div>
+  <div class="pm-row"><label>contrast</label><input type="range" id="rCon" min="75" max="105" step="1"><output id="oCon"></output></div>
+  <div class="pm-row"><label>brightness</label><input type="range" id="rBri" min="85" max="105" step="1"><output id="oBri"></output></div>
+  <div class="pm-row"><label>颗粒</label><input type="range" id="rNoise" min="0" max="6" step="0.1"><output id="oNoise"></output></div>
+
+  <hr>
+
+  <div class="pm-group">排印</div>
+  <div class="pm-fonts" id="fontPick">
+    <button data-f="serif" aria-pressed="true">宋</button>
+    <button data-f="sans" aria-pressed="false">黑</button>
+    <button data-f="kai" aria-pressed="false">楷</button>
+    <button data-f="hei" aria-pressed="false">粗黑</button>
+  </div>
+  <div class="pm-row"><label>正文字号</label><input type="range" id="rFs" min="85" max="130" step="1"><output id="oFs"></output></div>
+  <div class="pm-row"><label>行高</label><input type="range" id="rLh" min="150" max="210" step="1"><output id="oLh"></output></div>
+  <div class="pm-row"><label>栏宽</label><input type="range" id="rW" min="30" max="58" step="1"><output id="oW"></output></div>
+  <div class="pm-row"><label>标题比例</label><input type="range" id="rScale" min="115" max="145" step="1"><output id="oScale"></output></div>
+
+  <!-- 字阶预览：拖「正文字号 / 标题比例」时这里等比变化，
+       目的就是让「标题是否压得住正文」一眼可见，不用来回滚页面找感觉。 -->
+  <div class="pm-scale" id="scalePreview">
+    <div><span class="k">H1</span><span class="s1">标题层级</span></div>
+    <div><span class="k">H2</span><span class="s2">二级标题</span></div>
+    <div><span class="k">H3</span><span class="s3">三级标题</span></div>
+    <div><span class="k">正文</span><span class="sp">正文十七字左右</span></div>
+  </div>
+
+  <hr>
+  <button class="pm-btn" id="btnCopy">复制当前参数</button>
+  <button class="pm-btn" id="btnReset">恢复推荐值</button>
+  <div class="pm-hint" id="hintBox">
+    <b>关键临界：</b>contrast 超过 95% 就退回普通屏；颗粒超过 4% 文字发糊。
+  </div>
+</aside>
+
+<script>
+(function(){
+  var root = document.documentElement;
+
+  /*
+    两套参数互相独立：
+    - SOFT 是「玻璃有多柔」，与主题无关，关掉柔光时原样保留，开回来就还原
+    - TYPE 是「字怎么排」，与柔光也无关
+    早先按 day/night/native 三档打包，等于把两件事绑死：
+    想在墨绿纸上用轻度柔光就做不到。现在拆开后任意组合 4×2×4 都能成立。
+  */
+  var SOFT = { sepia:12, sat:78, con:89, bri:97, noise:2.8 };
+  var TYPE = { fs:105, lh:180, w:42, scale:142 };
+
+  var THEMES = {
+    light: { name:'米黄纸', dot:'#FDFBF4' },
+    sepia: { name:'旧书本', dot:'#F4ECD8' },
+    ink:   { name:'墨绿纸', dot:'#F2F3F0' },
+    night: { name:'夜间',   dot:'#181818' }
+  };
+
+  var curTheme = 'light';
+  var curFont  = 'serif';
+  var softOn   = true;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var els = {
+    sepia:$('rSepia'), sat:$('rSat'), con:$('rCon'), bri:$('rBri'),
+    noise:$('rNoise'), fs:$('rFs'), lh:$('rLh'), w:$('rW'), scale:$('rScale')
+  };
+  var outs = {
+    sepia:$('oSepia'), sat:$('oSat'), con:$('oCon'), bri:$('oBri'),
+    noise:$('oNoise'), fs:$('oFs'), lh:$('oLh'), w:$('oW'), scale:$('oScale')
+  };
+
+  /*
+    字阶（modular scale）的计算都在这里。
+    --pm-fs 是正文，其余全由它乘系数得到，所以拖字号时层级等比缩放。
+    标题比例滑杆直接改 h2 的系数（h1/h3 围绕它推算），
+    保证 h1 > h2 > h3 > 正文 永远成立 —— 这是"结构化阅读"的底线。
+  */
+  function paintType(){
+    var fs   = TYPE.fs / 100;        // 正文，单位 rem
+    var lh   = TYPE.lh / 100;
+    var w    = TYPE.w;
+    var sc   = TYPE.scale / 100;     // h2 相对正文的倍数
+
+    /*
+      关键：下面算出来的是「相对正文的倍数」，必须再乘 fs 才是 rem 绝对值。
+      曾经漏乘，导致 --pm-h1 恒为 1.93rem：拖字号时正文变了、标题不动，
+      h3 反被正文超过，层级当场塌陷 —— 正是这次要修的那个毛病。
+    */
+    var m2 = sc;                     // h2 倍数，由滑杆给定
+    var m1 = sc * 1.36;
+    var m3 = 1 + (sc - 1) * 0.34;    // h3 只比正文高一点，倍数永远 > 1
+
+    root.style.setProperty('--pm-fs', fs.toFixed(3) + 'rem');
+    root.style.setProperty('--pm-lh', lh.toFixed(2));
+    root.style.setProperty('--pm-w',  w + 'rem');
+    root.style.setProperty('--pm-h1', (fs * m1).toFixed(3) + 'rem');
+    root.style.setProperty('--pm-h2', (fs * m2).toFixed(3) + 'rem');
+    root.style.setProperty('--pm-h3', (fs * m3).toFixed(3) + 'rem');
+    root.style.setProperty('--pm-fs-sm', (fs * 0.88).toFixed(3) + 'rem');
+    root.style.setProperty('--pm-fs-xs', (fs * 0.78).toFixed(3) + 'rem');
+
+    outs.fs.textContent    = fs.toFixed(2) + 'rem';
+    outs.lh.textContent    = lh.toFixed(2);
+    outs.w.textContent     = w + 'rem';
+    outs.scale.textContent = sc.toFixed(2) + '×';
+
+    root.setAttribute('data-font', curFont);
+    [].forEach.call(document.querySelectorAll('#fontPick button'), function(b){
+      b.setAttribute('aria-pressed', b.dataset.f === curFont ? 'true' : 'false');
+    });
+  }
+
+  function paintSoft(){
+    root.style.setProperty('--pm-sepia', SOFT.sepia + '%');
+    root.style.setProperty('--pm-sat',   SOFT.sat + '%');
+    root.style.setProperty('--pm-con',   SOFT.con + '%');
+    root.style.setProperty('--pm-bri',   SOFT.bri + '%');
+    root.style.setProperty('--pm-noise', (SOFT.noise/100).toFixed(3));
+
+    outs.sepia.textContent = SOFT.sepia + '%';
+    outs.sat.textContent   = SOFT.sat + '%';
+    outs.con.textContent   = SOFT.con + '%';
+    outs.bri.textContent   = SOFT.bri + '%';
+    outs.noise.textContent = (SOFT.noise/100).toFixed(3);
+
+    root.setAttribute('data-pm', softOn ? 'on' : 'off');
+    $('stateTag').textContent = softOn ? '开启' : '关闭';
+    $('swLabel').textContent = softOn ? '柔光开启' : '柔光关闭';
+    $('pmSwitch').setAttribute('aria-checked', softOn ? 'true' : 'false');
+    [$('rSepia'),$('rSat'),$('rCon'),$('rBri'),$('rNoise')].forEach(function(r){
+      r.disabled = !softOn;
+    });
+  }
+
+  function paintHints(){
+    var warns = [];
+    if(!softOn){
+      $('hintBox').innerHTML = '<b>柔光已关闭。</b>当前是主题原始色值，用于对照与截图。';
+      return;
+    }
+    if(SOFT.con > 95)  warns.push('contrast 偏高，柔光感正在消失');
+    if(SOFT.noise > 4) warns.push('颗粒过重，文字会发糊');
+    if(SOFT.sat > 90)  warns.push('饱和度过高，色彩会刺眼');
+    if(SOFT.sepia > 18) warns.push('sepia 过量，会偏黄成旧纸');
+
+    // 结构化阅读的硬约束：h3 必须明显大于正文，否则层级塌陷
+    var m3 = 1 + (TYPE.scale/100 - 1) * 0.34;
+    if(m3 < 1.05) warns.push('标题比例偏低，三级标题与正文几乎同大');
+
+    $('hintBox').innerHTML = warns.length
+      ? '<b style="color:#A33">注意：</b>' + warns.join('；')
+      : '<b>状态良好。</b>对比与颗粒都在柔光区间，标题层级清晰。';
+  }
+
+  function paint(){ paintType(); paintSoft(); paintHints(); }
+
+  // ---- 柔光开关 ----
+  $('pmSwitch').addEventListener('click', function(e){
+    // 点文字部分 = 打开参数面板；点开关本体 = 切换柔光
+    if(e.target.classList.contains('lbl')){
+      $('panel').hidden = false;
+      $('btnPanel').textContent = '收起';
+      return;
+    }
+    softOn = !softOn;
+    paintSoft(); paintHints();
+  });
+  $('pmSwitch').addEventListener('keydown', function(e){
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      softOn = !softOn; paintSoft(); paintHints();
+    }
+  });
+
+  // ---- 主题 ----
+  function setTheme(t){
+    curTheme = t;
+    root.setAttribute('data-theme', t);
+    $('themeName').textContent = THEMES[t].name;
+    $('themeDot').style.background = THEMES[t].dot;
+    [].forEach.call(document.querySelectorAll('#themeDrop button'), function(b){
+      b.setAttribute('aria-checked', b.dataset.theme === t ? 'true' : 'false');
+    });
+  }
+  $('btnTheme').addEventListener('click', function(){
+    var d = $('themeDrop');
+    d.hidden = !d.hidden;
+    this.setAttribute('aria-expanded', d.hidden ? 'false' : 'true');
+  });
+  $('themeDrop').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-theme]');
+    if(!b) return;
+    setTheme(b.dataset.theme);
+    $('themeDrop').hidden = true;
+    $('btnTheme').setAttribute('aria-expanded','false');
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.pm-menu')){
+      $('themeDrop').hidden = true;
+      $('btnTheme').setAttribute('aria-expanded','false');
+    }
+  });
+
+  // ---- 字族 ----
+  $('fontPick').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-f]');
+    if(!b) return;
+    curFont = b.dataset.f;
+    paintType();
+  });
+
+  // ---- 滑杆绑定 ----
+  var bind = function(el, key, isSoft){
+    el.addEventListener('input', function(){
+      var v = parseFloat(el.value);
+      if(isSoft) SOFT[key] = v; else TYPE[key] = v;
+      isSoft ? (paintSoft(), paintHints()) : (paintType(), paintHints());
+    });
+  };
+  bind(els.sepia,'sepia',1); bind(els.sat,'sat',1);
+  bind(els.con,'con',1);     bind(els.bri,'bri',1);
+  bind(els.noise,'noise',1);
+  bind(els.fs,'fs',0); bind(els.lh,'lh',0);
+  bind(els.w,'w',0);   bind(els.scale,'scale',0);
+
+  // ---- 面板开合 ----
+  $('btnPanel').addEventListener('click', function(){
+    var p = $('panel');
+    p.hidden = !p.hidden;
+    this.textContent = p.hidden ? '调参' : '收起';
+  });
+
+  // ---- 复制参数 ----
+  $('btnCopy').addEventListener('click', function(){
+    var fs = TYPE.fs/100;
+    var m2 = TYPE.scale/100, m1 = m2*1.36, m3 = 1+(m2-1)*0.34;
+    var txt = [
+      '/* 主题 */',
+      'data-theme: ' + curTheme + '  (' + THEMES[curTheme].name + ')',
+      'data-font: ' + curFont,
+      '',
+      '/* 柔光 */',
+      'data-pm: ' + (softOn ? 'on' : 'off'),
+      'filter: sepia(' + SOFT.sepia + '%) saturate(' + SOFT.sat + '%) contrast(' + SOFT.con + '%) brightness(' + SOFT.bri + '%);',
+      '颗粒 opacity: ' + (SOFT.noise/100).toFixed(3) + ';',
+      '',
+      '/* 排印 */',
+      '--pm-fs: ' + fs.toFixed(3) + 'rem;   /* 正文 */',
+      '--pm-lh: ' + (TYPE.lh/100).toFixed(2) + ';',
+      '--pm-w: ' + TYPE.w + 'rem;',
+      '--pm-h1: ' + (fs*m1).toFixed(3) + 'rem;',
+      '--pm-h2: ' + (fs*m2).toFixed(3) + 'rem;',
+      '--pm-h3: ' + (fs*m3).toFixed(3) + 'rem;'
+    ].join('\n');
+    var btn = this;
+    var done = function(){
+      btn.textContent = '已复制';
+      setTimeout(function(){ btn.textContent = '复制当前参数'; }, 1400);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){
+        window.prompt('复制这段参数：', txt);
+      });
+    } else {
+      window.prompt('复制这段参数：', txt);
+    }
+  });
+
+  // ---- 恢复推荐值 ----
+  $('btnReset').addEventListener('click', function(){
+    softOn = true; curFont = 'serif';
+    SOFT = { sepia:12, sat:78, con:89, bri:97, noise:2.8 };
+    TYPE = { fs:105, lh:180, w:42, scale:142 };
+    els.sepia.value=SOFT.sepia; els.sat.value=SOFT.sat;
+    els.con.value=SOFT.con; els.bri.value=SOFT.bri; els.noise.value=SOFT.noise;
+    els.fs.value=TYPE.fs; els.lh.value=TYPE.lh; els.w.value=TYPE.w; els.scale.value=TYPE.scale;
+    paint();
+  });
+
+  // 初始化：滑杆初值来自参数对象，避免 DOM 默认值与逻辑值两套
+  els.sepia.value=SOFT.sepia; els.sat.value=SOFT.sat;
+  els.con.value=SOFT.con; els.bri.value=SOFT.bri; els.noise.value=SOFT.noise;
+  els.fs.value=TYPE.fs; els.lh.value=TYPE.lh; els.w.value=TYPE.w; els.scale.value=TYPE.scale;
+  setTheme('light');
+  paint();
+
+  // 供自动化测试读取内部状态
+  window.__PM__ = function(){
+    return { theme:curTheme, font:curFont, softOn:softOn,
+             SOFT:JSON.parse(JSON.stringify(SOFT)),
+             TYPE:JSON.parse(JSON.stringify(TYPE)) };
+  };
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@
 ## 提 Bug 前
 
 1. 先看右下角状态栏版本号（`MD Reader v1.3 · 本地窗口 / 桌面版 / 预览网页环境`），旧版本先更新再复现
-2. 搜一下 [已有 Issue](https://github.com/OWNER/mdreader/issues)
+2. 搜一下 [已有 Issue](https://github.com/guizige-890323/mdreader/issues)
 3. 尽量给出：系统版本、发行形态（便携版 / 安装版）、复现步骤、能公开的示例 md
 
 > ⚠️ 不要上传含内网 IP、账号、密钥、客户资料的文档。程序本身不联网，但 Issue 是公开的。
@@ -24,6 +24,7 @@
 python MDReader/src/build.py                        # 生成 dist/MDReader.html
 python MDReader/desktop/scripts/sync-app.py          # 同步进桌面壳
 python MDReader/desktop/scripts/verify-portable.py   # 便携版 17 项回归，必须全过
+python MDReader/desktop/scripts/verify-themes.py    # 主题矩阵 11 项回归，必须全过
 python MDReader/src/pack.py                          # 重新打便携版 zip
 ```
 

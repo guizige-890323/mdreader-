@@ -1,0 +1,438 @@
+[
+ [
+  "P0 · 核心差异化",
+  "P0 · CORE"
+ ],
+ [
+  "P1 · 体验领先",
+  "P1 · LEADING"
+ ],
+ [
+  "P2 · 交付完备",
+  "P2 · COMPLETE"
+ ],
+ [
+  "复制 AI 吐出的 Markdown，悬停「创建 MD」就变成一页排版完整的文档。三条通道按环境自动降级，本地 file:// 下按一次 Ctrl+V 也能成文。",
+  "Paste Markdown from your AI, hover \"Create MD\" and it becomes a fully typeset document. Three fallback channels adapt to the environment, so a single Ctrl+V still works under local file://."
+ ],
+ [
+  "复制 → 开编辑器 → 存盘 → 再拖进阅读器",
+  "Copy → open editor → save → drag into reader"
+ ],
+ [
+  "复制、悬停、点击，三步成文",
+  "Copy, hover, click — a document in three steps"
+ ],
+ [
+  "剪贴板检测",
+  "Clipboard detect"
+ ],
+ [
+  "三通道降级",
+  "3 fallbacks"
+ ],
+ [
+  "一键存 md",
+  "Save as .md"
+ ],
+ [
+  "选中两列就出图：柱状 / 折线 / 趋势 / 圆角环形 / 南丁格尔玫瑰，外加自动选型。环形扇区角度按百分比精确累计，可以拿量角器验算。",
+  "Select two columns and a chart appears: bar / line / trend / rounded donut / Nightingale rose, with automatic type selection. Donut sectors accumulate angles by percentage, so you can verify them with a protractor."
+ ],
+ [
+  "预览器只给一张静态表",
+  "A previewer that only gives you a static table"
+ ],
+ [
+  "角度即百分比，数据经得起追问",
+  "Angle equals percentage; the data stands up to scrutiny"
+ ],
+ [
+  "6 型图表",
+  "6 chart types"
+ ],
+ [
+  "精确累计",
+  "Exact angles"
+ ],
+ [
+  "Mermaid 原生、文本箭头、Unicode 框线字符画三条入口，统一落到同一张可拖拽编辑的矢量图；5 种结构 × 5 套风格 = 25 种外观。",
+  "Mermaid, text arrows and Unicode box-drawing all feed one editable vector diagram; 5 structures × 5 styles = 25 looks."
+ ],
+ [
+  "画图工具要联网、要订阅、导出死图",
+  "Diagramming tools need internet, subscriptions and export dead images"
+ ],
+ [
+  "纯本地算法识别，零调用、可编辑",
+  "Pure local recognition — no calls, no waiting, still editable"
+ ],
+ [
+  "ASCII 识别",
+  "ASCII parsing"
+ ],
+ [
+  "5 × 5 外观",
+  "5 × 5 looks"
+ ],
+ [
+  "导出即编辑态",
+  "Export keeps edits"
+ ],
+ [
+  "四套文档风格不是只改强调色：分段背景、图表色板、流程图强调色、代码关键字同时换装。",
+  "Four document styles do more than recolor the accent: section backgrounds, chart palettes, flowchart accents and code keywords all change together."
+ ],
+ [
+  "一份文档里三种蓝、两种红",
+  "One document with three blues and two reds"
+ ],
+ [
+  "换风格不会出现「深底压深字」",
+  "Changing style never produces dark text on dark ground"
+ ],
+ [
+  "4 套风格",
+  "4 doc styles"
+ ],
+ [
+  "三主题派生",
+  "3 theme variants"
+ ],
+ [
+  "导出不丢色",
+  "Colors survive export"
+ ],
+ [
+  "Obsidian 的 [[双链]]、![[嵌入]]、Callout 提示块、YAML frontmatter、#标签 开箱即渲染；上千文件的库拖进来就能读。",
+  "Obsidian [[links]], ![[embeds]], Callouts, YAML frontmatter and #tags render out of the box; drop in a library of thousands of files and it just reads."
+ ],
+ [
+  "先导入整库，再装一堆社区插件",
+  "Import the whole vault first, then install a pile of community plugins"
+ ],
+ [
+  "拖入文件夹即建树，打开就是能读的页面",
+  "Drop in a folder to build the tree; open it and it reads"
+ ],
+ [
+  "双链 / 嵌入",
+  "Links / embeds"
+ ],
+ [
+  "整库懒加载",
+  "Lazy vault"
+ ],
+ [
+  "独立 HTML 保留交互——图表可切型、CSV 可复制、表格可排序；Word 与打印 PDF 保真排版，SVG 和 Markdown 源码一键带走。",
+  "Standalone HTML keeps its interactions — switch chart types, copy CSV, sort tables; Word and print PDF keep the layout, and SVG plus Markdown source export in one click."
+ ],
+ [
+  "导出就是一张死了的图",
+  "Exporting means a dead image"
+ ],
+ [
+  "导出 = 当前 DOM 克隆，即最后编辑态",
+  "Export = a clone of the current DOM, i.e. your last edit"
+ ],
+ [
+  "单文件可分发",
+  "One-file share"
+ ],
+ [
+  "mdlens 同时提供 CLI / HTTP / MCP 三种接入，AI 工具直接把 Markdown 渲染成页面；引擎内联在本地。",
+  "mdlens speaks CLI / HTTP / MCP, so AI tools render Markdown straight into pages; the engine is inlined locally."
+ ],
+ [
+  "在聊天窗口里读竖线和反引号",
+  "Reading pipes and backticks inside a chat window"
+ ],
+ [
+  "Agent 自己渲染，用户只负责校对",
+  "The agent renders; you only proofread"
+ ],
+ [
+  "离线引擎",
+  "Offline engine"
+ ],
+ [
+  "AI 直连",
+  "Direct to AI"
+ ],
+ [
+  "侧栏大纲点标题即跳；编辑切成独立小块，只重渲染受影响那块，几万字的大表格也不乱序。",
+  "Click any heading in the sidebar outline to jump; editing is split into independent blocks and only the affected one re-renders, so huge tables stay in order."
+ ],
+ [
+  "整篇塞进 textarea，一保存 diff 全炸",
+  "The whole file in one textarea; one save and the diff explodes"
+ ],
+ [
+  "块级改动，只脏那一块",
+  "Block-level edits dirty only that block"
+ ],
+ [
+  "块级编辑",
+  "Block editing"
+ ],
+ [
+  "换行保真",
+  "Exact newlines"
+ ],
+ [
+  "大纲跳转",
+  "Outline jump"
+ ],
+ [
+  "卡片 = 分节面板 + 深色编号头部；纸张 = 描图纸面 + 装订刻度 + 衬线标题。配色、字体、圆角整套切换。",
+  "Card = sectioned panel with dark numbered headers; Paper = drafting sheet with binding marks and serif titles. Colors, fonts and radii switch as a set."
+ ],
+ [
+  "所谓皮肤就是换个边框颜色",
+  "A \"skin\" that just changes a border color"
+ ],
+ [
+  "衬线 / 无衬线、圆角 / 直角成套换",
+  "Serif / sans, rounded / square — switched as a set"
+ ],
+ [
+  "卡片 / 纸张",
+  "Card / Paper"
+ ],
+ [
+  "三主题正交",
+  "3 orthogonal themes"
+ ],
+ [
+  "打印友好",
+  "Print friendly"
+ ],
+ [
+  "最多 30 条记录。点历史时按绝对路径重读磁盘原文，不是打开一张旧快照；文件被移走自动退回正文缓存。",
+  "Up to 30 entries. Clicking history re-reads the file from disk by absolute path rather than opening a stale snapshot; if the file moved it falls back to the cached body."
+ ],
+ [
+  "缓存快照，改完还看老内容",
+  "A cached snapshot that still shows the old content"
+ ],
+ [
+  "昨天改过的，今天点进来就是最新",
+  "What you changed yesterday is what you see today"
+ ],
+ [
+  "30 条",
+  "30 entries"
+ ],
+ [
+  "按路径重读",
+  "Re-read by path"
+ ],
+ [
+  "位置记忆",
+  "Position memory"
+ ],
+ [
+  "语言、排版、字号 12–22px、行高四档、皮肤、柔光、图表自动展开、流程图结构与风格——分三组卡片，每项都有一句人话解释。",
+  "Language, layout, font size 12–22px, four line heights, skin, soft light, chart auto-expand, flowchart structure and style — in three grouped cards, each explained in plain words."
+ ],
+ [
+  "一屏看不懂的黑话开关",
+  "A screen of jargon switches nobody understands"
+ ],
+ [
+  "全部本地记忆，不登录、不上传",
+  "Everything remembered locally — no login, no upload"
+ ],
+ [
+  "3 组 15 项",
+  "3 groups, 15 items"
+ ],
+ [
+  "本地记忆",
+  "Local memory"
+ ],
+ [
+  "恢复默认",
+  "Reset to default"
+ ],
+ [
+  "一键隐去侧栏与工具条，只留正文和阅读进度；渲染快捷菜单仍然可用，专注不等于砍功能。",
+  "Hide the sidebar and toolbar in one click, leaving only the text and reading progress; the render menu still works, because focus should not mean losing features."
+ ],
+ [
+  "折叠面板，功能跟着一起消失",
+  "Collapse the panels and the features vanish too"
+ ],
+ [
+  "只砍干扰，不砍能力",
+  "Cut only the noise, not the capability"
+ ],
+ [
+  "零干扰",
+  "Zero noise"
+ ],
+ [
+  "保留渲染菜单",
+  "Render menu kept"
+ ],
+ [
+  "一键还原",
+  "Restore in one click"
+ ],
+ [
+  "柔光覆盖顶栏、侧栏、标签栏、阅读区、弹层，一处不落；色阶连续不出现「贴上去的一块」。",
+  "Soft light covers the toolbar, sidebar, tab bar, reading area and overlays with none left out; the gradient stays continuous, with no visible patch."
+ ],
+ [
+  "夜间模式 = 背景调暗、文字调亮",
+  "Night mode = darker background, brighter text"
+ ],
+ [
+  "全链路同一条渐变色阶，可与三主题叠加",
+  "One continuous gradient across the app, stackable with all three themes"
+ ],
+ [
+  "全链路柔化",
+  "Whole-app softening"
+ ],
+ [
+  "色阶连续",
+  "Continuous gradient"
+ ],
+ [
+  "可叠加",
+  "Composable"
+ ],
+ [
+  "护眼是低蓝光暖米黄（卡片 #faf3e0 / 纸张 #fdf3d8 + 琥珀褐强调），与纯白一眼可辨。",
+  "Eye care is a low-blue warm beige (card #faf3e0 / paper #fdf3d8 with an amber accent), unmistakably different from plain white."
+ ],
+ [
+  "白底加一点点黄就叫护眼",
+  "Any white background with a hint of yellow called eye care"
+ ],
+ [
+  "三种主题各自成套，不是盖一层滤镜",
+  "Three complete themes, not a filter pasted on top"
+ ],
+ [
+  "低蓝光暖米黄",
+  "Low-blue warm beige"
+ ],
+ [
+  "字号 12–22",
+  "Size 12–22"
+ ],
+ [
+  "行高四档",
+  "4 line heights"
+ ],
+ [
+  "简体中文 / English / 跟随系统。运行时按 key 长度降序替换，未收录词条保留中文原文，不会冒出大片 undefined。",
+  "Simplified Chinese / English / follow system. Replacements run longest-key first, and missing entries keep the Chinese original instead of showing undefined."
+ ],
+ [
+  "半机翻的界面，顺手把正文也翻了",
+  "Half machine-translated UI that translates your text too"
+ ],
+ [
+  "只翻界面文案，文档正文一个字不动",
+  "UI text only; document bodies stay untouched"
+ ],
+ [
+  "长 key 优先",
+  "Longest key first"
+ ],
+ [
+  "正文不译",
+  "Body untouched"
+ ],
+ [
+  "MD 复制即创建",
+  "Create from Markdown"
+ ],
+ [
+  "表格秒变六种图表",
+  "Tables to six charts"
+ ],
+ [
+  "双引擎流程图",
+  "Dual-engine flowcharts"
+ ],
+ [
+  "一套令牌五处同频",
+  "One palette, everywhere"
+ ],
+ [
+  "知识库原生双链",
+  "Native wiki links"
+ ],
+ [
+  "导出仍是活页面",
+  "Exports stay alive"
+ ],
+ [
+  "MCP 连接器",
+  "MCP connector"
+ ],
+ [
+  "大纲与块编辑",
+  "Outline & block editing"
+ ],
+ [
+  "两套经典排版",
+  "Two classic layouts"
+ ],
+ [
+  "最近，重读磁盘",
+  "Recent, re-read from disk"
+ ],
+ [
+  "15 项偏好全记住",
+  "All 15 preferences remembered"
+ ],
+ [
+  "专注模式",
+  "Focus mode"
+ ],
+ [
+  "原创云晰柔光",
+  "Original Soft Light"
+ ],
+ [
+  "爱护你的双眼",
+  "Kind to your eyes"
+ ],
+ [
+  "国际化版本",
+  "International editions"
+ ],
+ [
+  "上一个功能亮点",
+  "Previous feature"
+ ],
+ [
+  "下一个功能亮点",
+  "Next feature"
+ ],
+ [
+  "项功能",
+  "feature"
+ ],
+ [
+  "功能截图",
+  "feature screenshot"
+ ],
+ [
+  "核心差异化",
+  "Core differentiator"
+ ],
+ [
+  "体验领先",
+  "Leading experience"
+ ],
+ [
+  "交付完备",
+  "Complete delivery"
+ ]
+]

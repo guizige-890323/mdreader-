@@ -9,7 +9,7 @@ on:
 
 jobs:
   verify:
-    name: 语法检查 + 单文件构建 + 便携版回归
+    name: 语法检查 + 单文件构建 + 便携版/主题回归
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +59,10 @@ jobs:
       - name: 便携版 17 项回归（无头 Edge）
         shell: bash
         run: python MDReader/desktop/scripts/verify-portable.py
+
+      - name: 主题矩阵 11 项回归（护眼不被皮肤覆盖）
+        shell: bash
+        run: python MDReader/desktop/scripts/verify-themes.py
 
       - uses: actions/upload-artifact@v4
         with:

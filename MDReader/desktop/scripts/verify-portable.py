@@ -11,6 +11,7 @@
 import json
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -18,7 +19,7 @@ HERE = Path(__file__).resolve().parent.parent
 ROOT = HERE.parent
 DIST = ROOT / "dist"
 EDGE = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-PROFILE = HERE / ".everify"
+PROFILE = Path(tempfile.mkdtemp(prefix="mdreader-verify-portable-"))
 
 MD = (DIST / "示例文档.md").read_text(encoding="utf-8")
 
@@ -128,7 +129,7 @@ def main():
         ("版本与环境标签", R["env"]["stBuild"] == "MD Reader v1.3 · 本地窗口"),
         ("默认卡片皮肤", R["env"]["layout"] == "card"),
         ("分节 8 张卡片", R["env"]["cards"] == 8),
-        ("大纲 10 项", R["env"]["outline"] == 10),
+        ("大纲项数 %s ≥ 10（示例文档含新增章节）" % R["env"]["outline"], R["env"]["outline"] >= 10),
         ("表格与 Mermaid 正常", R["env"]["tables"] >= 1 and R["env"]["mermaid"] >= 1),
         ("卡片画布 #fafafa", R["env"]["canvas"] == "rgb(250, 250, 250)"),
         ("卡片纸面纯白", R["env"]["paper_bg"] == "rgb(255, 255, 255)"),

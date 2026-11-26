@@ -8,7 +8,7 @@
 
 | # | 操作 | 位置 |
 | --- | --- | --- |
-| 1 | 把 `OWNER` 全局替换成你的 GitHub 用户名 | `README.md`（badge / 链接 / 示例，共 8 处）、`CONTRIBUTING.md`、本文件 |
+| 1 | 把 `guizige-890323` 全局替换成你的 GitHub 用户名 | `README.md`（badge / 链接 / 示例，共 8 处）、`CONTRIBUTING.md`、本文件 |
 | 2 | 确认仓库名是 `mdreader`，`package.json` 里 `appId` 用 `cn.mdreader.app` | `desktop/package.json` |
 | 3 | 确认 `LICENSE` 里的版权人符合你的署名习惯 | `LICENSE` |
 | 4 | 加 Topics（见第四节） | GitHub 仓库页 → About → ⚙ |
@@ -16,10 +16,10 @@
 
 ```bash
 # 查一下还有哪些占位符
-grep -rn "OWNER" --include="*.md" --include="*.yml" .
+grep -rn "guizige-890323" --include="*.md" --include="*.yml" .
 
 # Linux / macOS 替换
-grep -rl "OWNER" --include="*.md" --include="*.yml" . | xargs sed -i 's/OWNER/你的用户名/g'
+grep -rl "guizige-890323" --include="*.md" --include="*.yml" . | xargs sed -i 's/guizige-890323/你的用户名/g'
 ```
 
 ---
@@ -38,7 +38,7 @@ git add .
 git commit -m "feat: v1.3.0 双排版皮肤 + 桌面安装版 + 最近打开"
 git checkout -b main
 git merge dev
-git remote add origin git@github.com:OWNER/mdreader.git
+git remote add origin git@github.com:guizige-890323/mdreader.git
 git push -u origin main
 ```
 
@@ -51,6 +51,7 @@ node --check MDReader/desktop/preload.js
 python MDReader/src/build.py
 python MDReader/desktop/scripts/sync-app.py
 python MDReader/desktop/scripts/verify-portable.py    # 应输出 17 / 17 passed
+python MDReader/desktop/scripts/verify-themes.py       # 应输出 11 / 11 passed
 ```
 
 ---
@@ -143,11 +144,11 @@ chinese  documentation  viewer
 > 开 VS Code 要等插件、传在线编辑器怕内网资料出网、系统自带预览又是一整页黑字滚不到底。
 > 于是做了个双击就开的本地阅读器：卡片皮肤按 `##` 把手册切成 8 块带编号的面板，纸张皮肤换成衬线排版适合打印；表格能点表头排序、一键出柱状图；Mermaid 和 Obsidian 双链也能看。
 > 一个 HTML 文件 3.4 MB，零联网零上传；也可以装成桌面版，直接把 `.md` 默认交给它打开。
-> 项目地址：github.com/OWNER/mdreader
+> 项目地址：github.com/guizige-890323/mdreader
 
 ### 知乎 / V2EX 相关话题下的短回复
 
-> 如果只是"看" md 不想开 IDE，可以试试我这个：单文件 HTML，双击即用，不用装依赖也不用联网。表格支持排序和出图，长文档有两种排版皮肤，最近打开会按路径重读磁盘而不是给你旧缓存。想要桌面图标和 `.md` 关联的话有 NSIS 安装包。仓库：github.com/OWNER/mdreader
+> 如果只是"看" md 不想开 IDE，可以试试我这个：单文件 HTML，双击即用，不用装依赖也不用联网。表格支持排序和出图，长文档有两种排版皮肤，最近打开会按路径重读磁盘而不是给你旧缓存。想要桌面图标和 `.md` 关联的话有 NSIS 安装包。仓库：github.com/guizige-890323/mdreader
 
 ### B 站 60 秒演示脚本
 

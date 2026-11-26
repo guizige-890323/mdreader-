@@ -1,0 +1,210 @@
+[
+ {
+  "key": "clip",
+  "name": "Markdown 复制即创建",
+  "n": 1,
+  "file": "clip-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-903Z-c17973df.jpg",
+  "bytes": 29710
+ },
+ {
+  "key": "focus",
+  "name": "专注模式",
+  "n": 1,
+  "file": "focus-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-911Z-b63a8138.jpg",
+  "bytes": 35560
+ },
+ {
+  "key": "settings",
+  "name": "丰富设置",
+  "n": 1,
+  "file": "settings-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-918Z-e48ac62b.jpg",
+  "bytes": 25516
+ },
+ {
+  "key": "theme",
+  "name": "多色主题，风格统一",
+  "n": 1,
+  "file": "theme-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-926Z-07c4e528.png",
+  "bytes": 24790
+ },
+ {
+  "key": "theme",
+  "name": "多色主题，风格统一",
+  "n": 2,
+  "file": "theme-2.webp",
+  "src": "clipboard-2026-11-18T14-54-54-932Z-489e81c0.png",
+  "bytes": 28534
+ },
+ {
+  "key": "theme",
+  "name": "多色主题，风格统一",
+  "n": 3,
+  "file": "theme-3.webp",
+  "src": "clipboard-2026-11-18T14-54-54-939Z-b2f315b7.png",
+  "bytes": 25696
+ },
+ {
+  "key": "chart",
+  "name": "多样图表",
+  "n": 1,
+  "file": "chart-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-945Z-e92af94d.png",
+  "bytes": 19722
+ },
+ {
+  "key": "chart",
+  "name": "多样图表",
+  "n": 2,
+  "file": "chart-2.webp",
+  "src": "clipboard-2026-11-18T14-54-54-951Z-1be3781d.png",
+  "bytes": 21530
+ },
+ {
+  "key": "chart",
+  "name": "多样图表",
+  "n": 3,
+  "file": "chart-3.webp",
+  "src": "clipboard-2026-11-18T14-54-54-957Z-2a6fb393.png",
+  "bytes": 18298
+ },
+ {
+  "key": "chart",
+  "name": "多样图表",
+  "n": 4,
+  "file": "chart-4.webp",
+  "src": "clipboard-2026-11-18T14-54-54-963Z-884d11da.png",
+  "bytes": 50984
+ },
+ {
+  "key": "flow",
+  "name": "双引擎流程图",
+  "n": 1,
+  "file": "flow-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-969Z-75f72665.png",
+  "bytes": 20890
+ },
+ {
+  "key": "flow",
+  "name": "双引擎流程图",
+  "n": 2,
+  "file": "flow-2.webp",
+  "src": "clipboard-2026-11-18T14-54-54-976Z-e2ab88b8.png",
+  "bytes": 37038
+ },
+ {
+  "key": "flow",
+  "name": "双引擎流程图",
+  "n": 3,
+  "file": "flow-3.webp",
+  "src": "clipboard-2026-11-18T14-54-54-982Z-3b251bac.png",
+  "bytes": 19034
+ },
+ {
+  "key": "flow",
+  "name": "双引擎流程图",
+  "n": 4,
+  "file": "flow-4.webp",
+  "src": "clipboard-2026-11-18T14-54-54-989Z-1113bfb5.png",
+  "bytes": 21514
+ },
+ {
+  "key": "wiki",
+  "name": "知识库原生双链",
+  "n": 1,
+  "file": "wiki-1.webp",
+  "src": "clipboard-2026-11-18T14-54-54-994Z-69cf6fb8.jpg",
+  "bytes": 44722
+ },
+ {
+  "key": "recent",
+  "name": "最近极速打开",
+  "n": 1,
+  "file": "recent-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-002Z-3294b9be.jpg",
+  "bytes": 34756
+ },
+ {
+  "key": "outline",
+  "name": "文档大纲与块编辑",
+  "n": 1,
+  "file": "outline-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-010Z-bbbc9b85.jpg",
+  "bytes": 43462
+ },
+ {
+  "key": "outline",
+  "name": "文档大纲与块编辑",
+  "n": 2,
+  "file": "outline-2.webp",
+  "src": "clipboard-2026-11-18T14-54-55-019Z-95022ad3.jpg",
+  "bytes": 45974
+ },
+ {
+  "key": "typo",
+  "name": "设计师经典排版",
+  "n": 1,
+  "file": "typo-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-029Z-41ad3e9d.jpg",
+  "bytes": 42560
+ },
+ {
+  "key": "typo",
+  "name": "设计师经典排版",
+  "n": 2,
+  "file": "typo-2.webp",
+  "src": "clipboard-2026-11-18T14-54-55-038Z-dfd5c24f.png",
+  "bytes": 42368
+ },
+ {
+  "key": "softlight",
+  "name": "原创云晰柔光阅读",
+  "n": 1,
+  "file": "softlight-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-045Z-c80c1483.jpg",
+  "bytes": 27374
+ },
+ {
+  "key": "eyecare",
+  "name": "爱护你的双眼",
+  "n": 1,
+  "file": "eyecare-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-053Z-bb8453fa.jpg",
+  "bytes": 48552
+ },
+ {
+  "key": "export",
+  "name": "多样导出",
+  "n": 1,
+  "file": "export-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-061Z-d1e421ed.jpg",
+  "bytes": 37210
+ },
+ {
+  "key": "export",
+  "name": "多样导出",
+  "n": 2,
+  "file": "export-2.webp",
+  "src": "clipboard-2026-11-18T14-54-55-069Z-ed02914f.png",
+  "bytes": 22698
+ },
+ {
+  "key": "mcp",
+  "name": "MCP 连接器",
+  "n": 1,
+  "file": "mcp-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-077Z-44f30208.jpg",
+  "bytes": 23598
+ },
+ {
+  "key": "i18n",
+  "name": "国际化版本",
+  "n": 1,
+  "file": "i18n-1.webp",
+  "src": "clipboard-2026-11-18T14-54-55-085Z-674f0e1b.png",
+  "bytes": 32056
+ }
+]

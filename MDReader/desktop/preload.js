@@ -27,6 +27,18 @@ contextBridge.exposeInMainWorld('__MD_DESKTOP__', {
   onShowHelp: (cb) => {
     ipcRenderer.on('md:show-help', () => cb());
   },
+  onEdit: (cb) => {
+    ipcRenderer.on('md:edit', () => cb());
+  },
+  onSave: (cb) => {
+    ipcRenderer.on('md:save', () => cb());
+  },
+  onNew: (cb) => {
+    ipcRenderer.on('md:new', () => cb());
+  },
+  onNewFromClipboard: (cb) => {
+    ipcRenderer.on('md:new-from-clipboard', () => cb());
+  },
 
   /* 文本 / 二进制 / 目录读取 */
   readFile: (p) => ipcRenderer.invoke('md:read-file', p),
@@ -35,6 +47,15 @@ contextBridge.exposeInMainWorld('__MD_DESKTOP__', {
 
   /* 系统交互 */
   openDialog: (dirMode) => ipcRenderer.invoke('md:open-dialog', !!dirMode),
+  writeFile: (p, text, enc) => ipcRenderer.invoke('md:write-file', p, text, enc),
+  /* 新建文档另存为：弹系统保存对话框并写盘（UTF-8） */
+  saveAs: (suggestName, text) => ipcRenderer.invoke('md:save-as', suggestName, text),
+  /* 读取系统剪贴板文本（用于「创建 MD」悬停快速粘贴） */
+  readClipboard: () => ipcRenderer.invoke('md:read-clipboard'),
+  /* 同时带 LOGO 组，让桌面窗口 / 任务栏图标跟随「应用图标」设置与深浅主题 */
+  setTheme: (t, logo) => ipcRenderer.invoke('md:set-theme', { theme: t, logo: logo || 'cartoon' }),
+  /* 界面语言：同步桌面壳原生菜单 / 对话框的中英文 */
+  setLang: (lang) => ipcRenderer.invoke('md:set-lang', lang),
   showInFolder: (p) => ipcRenderer.invoke('md:show-in-folder', p),
   openExternal: (u) => ipcRenderer.invoke('md:open-external', u),
   openHelp: () => ipcRenderer.invoke('md:open-help'),

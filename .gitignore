@@ -6,8 +6,8 @@ npm-install.log
 electron-dl.log
 MDReader/desktop/release*/
 MDReader/desktop/.buildcache/
-MDReader/desktop/.everify/
-MDReader/desktop/.eshot*/
+# 浏览器测试 profile（验证脚本现在改用系统临时目录，这些是历史残留）
+MDReader/desktop/.e*/
 MDReader/desktop/*.log
 MDReader/desktop/app/_autoload.js
 
@@ -23,6 +23,7 @@ MDReader/src/.edge*/
 MDReader/src/.e[0-9]*/
 MDReader/src/.es*/
 MDReader/src/.ef*/
+MDReader/src/.et*/
 MDReader/src/_*
 __pycache__/
 *.py[cod]
@@ -49,3 +50,20 @@ desktop.ini
 .workbuddy/
 .finalcheck/
 .finalcheck2/
+
+# ---- 根目录 / MDReader 根下的临时分析产物（截图、探针、草稿）----
+# 只忽略仓库顶层，不动 docs/ 与 MDReader/dist 里的正式素材
+/_*
+MDReader/_new_snippets.txt
+MDReader/_shots/
+MDReader/_skin-icons-preview.png
+MDReader/desktop/scripts/_slogan_*.png
+# 自研技能的安装包不随产品仓库发布（技能有自己的分发链路）
+github-repo-bootstrap.zip
+
+# ---- 超过 GitHub 100MB 单文件限制的历史发布包 ----
+# 这些走 GitHub Releases 分发，不进 git 历史；磁盘保留，仅取消跟踪
+*.exe
+MDReader-Windows11免安装版.zip
+MDReader/发布包/MDReader-Win免安装-v1.3.0.zip
+mdreader-release-v1.7.0/05-安装包/MDReader-Win免安装-v1.7.0.zip

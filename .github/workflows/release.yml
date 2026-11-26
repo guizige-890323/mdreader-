@@ -1,0 +1,47 @@
+name: Release
+
+# 推 tag 时自动创建 GitHub Release。
+# 说明文件按 tag 名匹配 docs/releases/<tag>.md；没有对应文件时回退到自动生成。
+# 本工作流不上传任何二进制附件 —— 预编译包另行发布。
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 创建 Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 查找说明文件
+        id: notes
+        shell: bash
+        run: |
+          f="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "$f" ]; then
+            echo "path=$f" >> "$GITHUB_OUTPUT"
+            echo "使用 $f"
+          else
+            echo "path=" >> "$GITHUB_OUTPUT"
+            echo "无 $f，回退自动生成"
+          fi
+
+      - name: 创建 Release（带说明文件）
+        if: steps.notes.outputs.path != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.notes.outputs.path }}
+          name: MD Reader ${{ github.ref_name }}
+
+      - name: 创建 Release（自动生成说明）
+        if: steps.notes.outputs.path == ''
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          name: MD Reader ${{ github.ref_name }}

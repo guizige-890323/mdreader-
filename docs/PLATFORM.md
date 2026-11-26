@@ -37,7 +37,7 @@
 
 ```json
 "fileAssociations": [
-  { "ext": "md", "name": "Markdown Document", "mimeType": "text/markdown", "role": "Viewer", "icon": "build/mdfile.ico" },
+  { "ext": "md", "name": "Markdown Document", "mimeType": "text/markdown", "role": "Editor", "icon": "build/mdfile.ico" },
   { "ext": "markdown" }, { "ext": "mdown" }, { "ext": "mkd" }
 ]
 ```
@@ -108,3 +108,46 @@ python -m http.server 8000 --bind 0.0.0.0
 ## 六、便携版依然在
 
 `MDReader/dist/` 保持原样：解压即用、免安装、不改注册表，适合 U 盘和内网离线机器。桌面安装版只是多了一层壳，iOS PWA 包只是加了 manifest 与图标，**三者共用同一份 `MDReader.html`，功能完全一致**。改渲染层时三边同时更新（`build.py` → `sync-app.py` / `ios/build-pwa.py`）。
+
+### 「创建 MD · 剪贴板快速创建」在三端的真实差异
+
+这一条**不是**三端一致的能力，实现路径按宿主环境分岔：
+
+| 宿主 | 读取方式 | 能否自动读剪贴板 |
+| --- | --- | --- |
+| 桌面安装版（Electron） | `preload` 暴露 `readClipboard()` → IPC → 主进程 `clipboard.readText()` | ✅ 可以，一次性读取且**不弹授权** |
+| 便携版 / 直接双击 HTML（`file://`） | `navigator.clipboard.readText()` | ❌ **不行** |
+| iOS PWA / 任何 `http(s)://` | `navigator.clipboard.readText()` | ✅ 可以（需用户授权一次） |
+
+**`file://` 为什么不行（实测结论，不要再试）：** Chromium 在这个协议下会照常弹出「允许读取剪贴板」，但即使用户点了允许，`readText()` 依旧返回 `NotAllowedError: Read permission denied`。用 CDP `Browser.grantPermissions` 显式授予 `clipboardReadWrite` 也无法绕过——这是对 `file:` scheme 的硬限制，不是权限问题。
+
+所以便携版**不弹授权、不浪费用户一次点击**，直接把光标放进输入框，提示按 `Ctrl+V`（`clipManualOnly()` 分支）。这条路径不受任何权限限制，一次按键即可创建，功能上没有缺失，只是少了"自动"。
+
+> 想彻底避开这个限制：让便携版走 `http://127.0.0.1` 起一个本地静态服务再打开（`isSecureContext` + 真实 origin，`readText()` 正常工作）。代价是需要多一个常驻进程，目前没做——便携版的第一原则是"双击就能用"。
+
+---
+
+## 七、图标资源与替换清单
+
+两版品牌素材在 `MDReader/desktop/brand-source/`：
+
+| 素材 | 外观 | 用在哪里 |
+| --- | --- | --- |
+| `light.png`（图片-16） | 深色圆角方块 + 白色耳机 MD | 浅色 / 护眼主题的应用内 logo；Windows 安装包、快捷方式、`.md` 文件类型；iOS 主屏固定图标 |
+| `dark.png`（图片-7） | 浅色圆角方块 + 深色 MD | 深色主题的应用内 logo；窗口 / 任务栏图标随主题切换 |
+
+`npm run icons`（`desktop/scripts/make-icons.py`）派生：
+
+| 平台 / 位置 | 产物 | 规格 |
+| --- | --- | --- |
+| Windows 应用与文档 | `build/icon.ico` `build/icon-light.ico` `build/icon-dark.ico` `build/mdfile.ico` | ICO 多尺寸 16 / 24 / 32 / 48 / 64 / 128 / 256 |
+| Windows 安装向导 | `installerIcon.ico` `uninstallerIcon.ico` `installerHeaderIcon.ico` `installerHeader.bmp` `installerSidebar.bmp` `uninstallerSidebar.bmp` | 位图 150×57 / 164×314，替换 NSIS 默认蓝条 |
+| 运行时主题切换 | `build/icons/icon-light.*` `build/icons/icon-dark.*` | extraResources，`md:set-theme` 调 `win.setIcon()` |
+| macOS / Linux | `build/icon.png` | 1024 PNG，electron-builder 转 icns |
+| 应用内 logo | `src/brand-light.png` `src/brand-dark.png` | 128 PNG，由 `src/build.py` 内嵌成 base64 |
+
+`python MDReader/ios/build-pwa.py` 继续派生 iOS / PWA 全套：主屏 180 / 167 / 152 / 120，manifest 192 / 512，maskable 512，favicon 16 / 32 / ICO，以及 1024 源图。
+
+> **只替换 `build/` 里的图片不重打包，安装包里仍旧是旧图标。** 正确顺序：
+> `npm run icons` → `src/build.py` → `sync-app.py` → `npm run build:win` / `src/pack.py` / `ios/build-pwa.py`。
+> iOS 已添加过主屏幕的，需要删除图标后重新「添加到主屏幕」；Service Worker 缓存名同步升版（当前 `v2`，页面 network-first）。

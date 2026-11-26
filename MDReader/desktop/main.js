@@ -9,6 +9,8 @@
 const { app, BrowserWindow, BrowserView, ipcMain, Menu, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+let iconv = null;
+try { iconv = require('iconv-lite'); } catch (e) { /* 便携版无此依赖，保存退化为 UTF-8 */ }
 
 const MD_EXT = /\.(md|markdown|mdown|mkd|mdown|mdtext)$/i;
 const APP_HTML = path.join(__dirname, 'app', 'MDReader.html');
@@ -100,8 +102,9 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1360,
     height: 900,
-    minWidth: 940,
-    minHeight: 620,
+    /* 最小宽度放宽：顶栏已支持分档收纳 + 横向滚动，不再需要靠"禁止缩小"来防止溢出 */
+    minWidth: 560,
+    minHeight: 520,
     title: 'MD Reader',
     backgroundColor: '#fafafa',
     icon: path.join(__dirname, 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
@@ -142,46 +145,56 @@ function createWindow() {
   });
 }
 
+/* ---------- 界面语言：渲染进程在设置里切换语言时通过 md:set-lang 同步 ---------- */
+let UI_LANG = 'zh-CN';
+/* 双参数写法：L('中文', 'English')，避免维护一份易漏的映射表 */
+function L(zh, en) { return UI_LANG === 'en' ? en : zh; }
+
 /* ---------- 应用菜单（保留常用快捷键，隐藏菜单栏） ---------- */
 function buildMenu() {
   const template = [
     {
-      label: '文件',
+      label: L('文件', 'File'),
       submenu: [
-        { label: '打开文件…', accelerator: 'CmdOrCtrl+O', click: () => chooseAndOpen() },
-        { label: '打开文件夹…', accelerator: 'CmdOrCtrl+Shift+O', click: () => chooseAndOpen(true) },
+        { label: L('新建 Markdown…', 'New Markdown…'), accelerator: 'CmdOrCtrl+N', click: () => win && win.webContents.send('md:new') },
+        { label: L('从剪贴板新建…', 'New from Clipboard…'), accelerator: 'CmdOrCtrl+Shift+N', click: () => win && win.webContents.send('md:new-from-clipboard') },
         { type: 'separator' },
-        { label: '重新读取', accelerator: 'F5', click: () => win && win.webContents.send('md:reload') },
-        { label: '打印 / 另存为 PDF', accelerator: 'CmdOrCtrl+P', click: () => win && win.webContents.print() },
+        { label: L('打开文件…', 'Open File…'), accelerator: 'CmdOrCtrl+O', click: () => chooseAndOpen() },
+        { label: L('打开文件夹…', 'Open Folder…'), accelerator: 'CmdOrCtrl+Shift+O', click: () => chooseAndOpen(true) },
         { type: 'separator' },
-        { role: 'quit', label: '退出' }
+        { label: L('重新读取', 'Reload'), accelerator: 'F5', click: () => win && win.webContents.send('md:reload') },
+        { label: L('编辑 / 预览', 'Edit / Preview'), click: () => win && win.webContents.send('md:edit') },
+        { label: L('保存', 'Save'), click: () => win && win.webContents.send('md:save') },
+        { label: L('打印 / 另存为 PDF', 'Print / Save as PDF'), accelerator: 'CmdOrCtrl+P', click: () => win && win.webContents.print() },
+        { type: 'separator' },
+        { role: 'quit', label: L('退出', 'Quit') }
       ]
     },
     {
-      label: '编辑',
+      label: L('编辑', 'Edit'),
       submenu: [
-        { role: 'undo', label: '撤销' }, { role: 'redo', label: '重做' },
+        { role: 'undo', label: L('撤销', 'Undo') }, { role: 'redo', label: L('重做', 'Redo') },
         { type: 'separator' },
-        { role: 'copy', label: '复制' }, { role: 'selectAll', label: '全选' }
+        { role: 'copy', label: L('复制', 'Copy') }, { role: 'selectAll', label: L('全选', 'Select All') }
       ]
     },
     {
-      label: '视图',
+      label: L('视图', 'View'),
       submenu: [
-        { label: '卡片皮肤', accelerator: 'CmdOrCtrl+1', click: () => win && win.webContents.send('md:layout', 'card') },
-        { label: '纸张皮肤', accelerator: 'CmdOrCtrl+2', click: () => win && win.webContents.send('md:layout', 'paper') },
+        { label: L('卡片皮肤', 'Card Layout'), accelerator: 'CmdOrCtrl+1', click: () => win && win.webContents.send('md:layout', 'card') },
+        { label: L('纸张皮肤', 'Paper Layout'), accelerator: 'CmdOrCtrl+2', click: () => win && win.webContents.send('md:layout', 'paper') },
         { type: 'separator' },
-        { role: 'resetZoom', label: '实际大小' }, { role: 'zoomIn', label: '放大' }, { role: 'zoomOut', label: '缩小' },
+        { role: 'resetZoom', label: L('实际大小', 'Actual Size') }, { role: 'zoomIn', label: L('放大', 'Zoom In') }, { role: 'zoomOut', label: L('缩小', 'Zoom Out') },
         { type: 'separator' },
-        { role: 'togglefullscreen', label: '全屏' },
-        { role: 'toggleDevTools', label: '开发者工具' }
+        { role: 'togglefullscreen', label: L('全屏', 'Full Screen') },
+        { role: 'toggleDevTools', label: L('开发者工具', 'Developer Tools') }
       ]
     },
     {
-      label: '帮助',
+      label: L('帮助', 'Help'),
       submenu: [
-        { label: '使用说明', click: () => win && win.webContents.send('md:show-help') },
-        { label: '关于 MD Reader', click: () => showAbout() }
+        { label: L('使用说明', 'User Guide'), click: () => win && win.webContents.send('md:show-help') },
+        { label: L('关于 MD Reader', 'About MD Reader'), click: () => showAbout() }
       ]
     }
   ];
@@ -194,7 +207,7 @@ function chooseAndOpen(dirMode) {
     ? ['openDirectory', 'multiSelections']
     : ['openFile', 'multiSelections'];
   dialog.showOpenDialog(win, {
-    title: dirMode ? '选择包含 Markdown 的文件夹' : '打开 Markdown 文件',
+    title: dirMode ? L('选择包含 Markdown 的文件夹', 'Choose a Folder Containing Markdown Files') : L('打开 Markdown 文件', 'Open Markdown Files'),
     properties: props,
     filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'mdown', 'mkd', 'txt'] }]
   }).then((res) => {
@@ -210,13 +223,18 @@ function chooseAndOpen(dirMode) {
 function showAbout() {
   dialog.showMessageBox(win, {
     type: 'info',
-    title: '关于 MD Reader',
-    message: 'MD Reader v1.3.0 · 桌面版',
-    detail: '零安装、零联网、零上传的本地 Markdown 阅读器。\n\n'
-      + '卡片 / 纸张双排版皮肤、表格可视化、Mermaid、Obsidian 语法、最近打开。\n'
-      + '全部解析在本机完成，程序不发起任何网络请求。\n\n'
-      + '内核：marked 15 / highlight.js 11 / mermaid 10 · Electron ' + process.versions.electron,
-    buttons: ['好的']
+    title: L('关于 MD Reader', 'About MD Reader'),
+    message: L('MD Reader v1.3.0 · 桌面版', 'MD Reader v1.3.0 · Desktop Edition'),
+    detail: UI_LANG === 'en'
+      ? 'A local Markdown reader with zero install, zero network calls and zero uploads.\n\n'
+        + 'Card / Paper layouts, table charts, Mermaid, Obsidian syntax and recent files.\n'
+        + 'All parsing happens on this machine; the app makes no network requests.\n\n'
+        + 'Powered by marked 15 / highlight.js 11 / mermaid 10 · Electron ' + process.versions.electron
+      : '零安装、零联网、零上传的本地 Markdown 阅读器。\n\n'
+        + '卡片 / 纸张双排版皮肤、表格可视化、Mermaid、Obsidian 语法、最近打开。\n'
+        + '全部解析在本机完成，程序不发起任何网络请求。\n\n'
+        + '内核：marked 15 / highlight.js 11 / mermaid 10 · Electron ' + process.versions.electron,
+    buttons: [L('好的', 'OK')]
   });
 }
 
@@ -237,6 +255,101 @@ ipcMain.handle('md:read-file', (_e, p) => {
   } catch (e) {
     return { ok: false, error: e.message };
   }
+});
+
+/* 写回原文件：原子替换（临时文件 + rename），避免写一半损坏原文。
+   GB18030 文档用 iconv-lite 编码回写，避免中文变乱码。 */
+ipcMain.handle('md:write-file', (_e, p, text, enc) => {
+  let tmp = '';
+  try {
+    if (typeof p !== 'string' || !p || typeof text !== 'string') return { ok: false, error: '参数无效' };
+    const abs = path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);
+    if (!MD_EXT.test(abs)) return { ok: false, error: '只允许写入 Markdown 文档' };
+    if (!fs.existsSync(abs)) return { ok: false, error: '原文件已不存在，请另存为' };
+    const isGb = /gb18030|gbk|gb2312/i.test(enc || '');
+    const buf = (isGb && iconv) ? iconv.encode(text, 'gb18030') : Buffer.from(text, 'utf8');
+    tmp = abs + '.mdreader-tmp';
+    fs.writeFileSync(tmp, buf);
+    fs.renameSync(tmp, abs);
+    return { ok: true, enc: (isGb && iconv) ? 'GB18030' : 'UTF-8', bytes: buf.length };
+  } catch (e) {
+    try { if (tmp) fs.unlinkSync(tmp); } catch (_) { }
+    return { ok: false, error: e.message };
+  }
+});
+
+/* 新建文档「另存为」：弹系统保存对话框，写 UTF-8（带 BOM 与否由系统 Word 无关，
+   Markdown 一律纯 UTF-8 无 BOM，避免部分编辑器显示 \ufeff）。 */
+ipcMain.handle('md:save-as', async (_e, suggestName, text) => {
+  let tmp = '';
+  try {
+    if (typeof text !== 'string') return { ok: false, error: '内容无效' };
+    const name = (typeof suggestName === 'string' && suggestName.trim()) ? suggestName.trim() : '未命名文档.md';
+    const safeName = MD_EXT.test(name) ? name : (name.replace(/\.\w+$/, '') + '.md');
+    const res = await dialog.showSaveDialog(win, {
+      title: L('另存为 Markdown 文档', 'Save as Markdown'),
+      defaultPath: path.join(app.getPath('documents'), safeName),
+      filters: [{ name: 'Markdown', extensions: ['md'] }, { name: L('所有文件', 'All Files'), extensions: ['*'] }]
+    });
+    if (res.canceled || !res.filePath) return { ok: true, canceled: true };
+    const abs = res.filePath;
+    if (!MD_EXT.test(abs)) return { ok: false, error: L('请使用 .md 扩展名', 'Please use a .md extension') };
+    tmp = abs + '.mdreader-tmp';
+    fs.writeFileSync(tmp, Buffer.from(text, 'utf8'));
+    fs.renameSync(tmp, abs);
+    return { ok: true, path: abs, name: path.basename(abs), bytes: Buffer.byteLength(text, 'utf8') };
+  } catch (e) {
+    try { if (tmp) fs.unlinkSync(tmp); } catch (_) { }
+    return { ok: false, error: e.message };
+  }
+});
+
+/* 读取系统剪贴板文本：渲染进程在 file:// 下 navigator.clipboard 常被拒，主进程读最可靠。
+   注意：某些 Electron 版本里 clipboard.readText() 会返回 Promise，
+   直接把它塞进 IPC 返回值会抛 "An object could not be cloned"，
+   所以这里一律 await 并强制转成字符串。 */
+ipcMain.handle('md:read-clipboard', async () => {
+  try {
+    const { clipboard } = require('electron');
+    const raw = await clipboard.readText();
+    const text = raw == null ? '' : String(raw);
+    return { ok: true, text, length: text.length };
+  } catch (e) {
+    return { ok: false, text: '', error: String((e && e.message) || e) };
+  }
+});
+
+/* 主题 + 应用图标组切换时同步窗口 / 任务栏图标（图标文件放在 extraResources/icons）。
+   命名：icon-<minimal|cartoon>-<light|dark>.<ico|png>，兼容旧别名与 build/icon.* 兜底。 */
+function themedIconPath(theme, logo) {
+  const ext = process.platform === 'win32' ? '.ico' : '.png';
+  const tone = theme === 'dark' ? 'dark' : 'light';
+  const set = (logo === 'minimal' || logo === 'cartoon') ? logo : 'cartoon';
+  const names = ['icon-' + set + '-' + tone + ext, 'icon-' + tone + ext,
+                 'icon' + ext];
+  const dirs = [path.join(process.resourcesPath || '', 'icons'),
+                path.join(__dirname, 'build')];
+  for (const name of names) {
+    for (const dir of dirs) {
+      const f = path.join(dir, name);
+      if (fs.existsSync(f)) return f;
+    }
+  }
+  return null;
+}
+ipcMain.handle('md:set-theme', (_e, payload) => {
+  const theme = typeof payload === 'string' ? payload : (payload && payload.theme) || 'light';
+  const logo = typeof payload === 'string' ? 'cartoon' : (payload && payload.logo) || 'cartoon';
+  const p = themedIconPath(theme, logo);
+  if (p && win) { try { win.setIcon(p); } catch (e) { } }
+  return !!p;
+});
+
+/* 语言切换：重建原生菜单与对话框文案（应用内 UI 由渲染进程自己翻译） */
+ipcMain.handle('md:set-lang', (_e, lang) => {
+  UI_LANG = lang === 'en' ? 'en' : 'zh-CN';
+  try { buildMenu(); } catch (e) { }
+  return UI_LANG;
 });
 
 ipcMain.handle('md:read-binary', (_e, p) => {
@@ -284,10 +397,10 @@ ipcMain.handle('md:open-help', async () => {
     if (fs.existsSync(p)) { await shell.openPath(p); return true; }
   }
   dialog.showMessageBox(win, {
-    type: 'info', title: '使用说明',
-    message: '完整说明随便携版提供（使用说明.md）',
-    detail: '也可以在应用内点「✨ 查看示例文档」快速了解全部功能。',
-    buttons: ['好的']
+    type: 'info', title: L('使用说明', 'User Guide'),
+    message: L('完整说明随便携版提供（使用说明.md）', 'The full guide ships with the portable edition (使用说明.md)'),
+    detail: L('也可以在应用内点「✨ 查看示例文档」快速了解全部功能。', 'You can also click "✨ View Sample Document" inside the app for a quick feature tour.'),
+    buttons: [L('好的', 'OK')]
   });
   return false;
 });

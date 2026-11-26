@@ -1,0 +1,238 @@
+{
+ "en": [
+  {
+   "title": "Create from Markdown",
+   "tag": "New",
+   "prio": "P0 · CORE",
+   "en": "CLIPBOARD → DOC",
+   "desc": "Paste Markdown from your AI, hover \"Create MD\" and it becomes a fully typeset document. Three fallback channels adapt to the environment, so a single Ctrl+V still works under local file://.",
+   "them": "Copy → open editor → save → drag into reader",
+   "us": "Copy, hover, click — a document in three steps",
+   "tags": [
+    "Clipboard detect",
+    "3 fallbacks",
+    "Save as .md"
+   ]
+  },
+  {
+   "title": "Tables to six charts",
+   "tag": "New",
+   "prio": "P0 · CORE",
+   "en": "SIX CHART TYPES",
+   "desc": "Select two columns and a chart appears: bar / line / trend / rounded donut / Nightingale rose, with automatic type selection. Donut sectors accumulate angles by percentage, so you can verify them with a protractor.",
+   "them": "A previewer that only gives you a static table",
+   "us": "Angle equals percentage; the data stands up to scrutiny",
+   "tags": [
+    "6 chart types",
+    "Exact angles",
+    "CSV / TSV"
+   ]
+  },
+  {
+   "title": "Dual-engine flowcharts",
+   "tag": "New",
+   "prio": "P0 · CORE",
+   "en": "DUAL-ENGINE FLOW",
+   "desc": "Mermaid, text arrows and Unicode box-drawing all feed one editable vector diagram; 5 structures × 5 styles = 25 looks.",
+   "them": "Diagramming tools need internet, subscriptions and export dead images",
+   "us": "Pure local recognition — no calls, no waiting, still editable",
+   "tags": [
+    "ASCII parsing",
+    "5 × 5 looks",
+    "Export keeps edits"
+   ]
+  },
+  {
+   "title": "One palette, everywhere",
+   "tag": "",
+   "prio": "P0 · CORE",
+   "en": "ONE PALETTE, EVERYWHERE",
+   "desc": "Four document styles do more than recolor the accent: section backgrounds, chart palettes, flowchart accents and code keywords all change together.",
+   "them": "One document with three blues and two reds",
+   "us": "Changing style never produces dark text on dark ground",
+   "tags": [
+    "4 doc styles",
+    "3 theme variants",
+    "Colors survive export"
+   ]
+  },
+  {
+   "title": "Native wiki links",
+   "tag": "",
+   "prio": "P0 · CORE",
+   "en": "NATIVE WIKI LINKS",
+   "desc": "Obsidian [[links]], ![[embeds]], Callouts, YAML frontmatter and #tags render out of the box; drop in a library of thousands of files and it just reads.",
+   "them": "Import the whole vault first, then install a pile of community plugins",
+   "us": "Drop in a folder to build the tree; open it and it reads",
+   "tags": [
+    "Links / embeds",
+    "Callout",
+    "Lazy vault"
+   ]
+  },
+  {
+   "title": "Exports stay alive",
+   "tag": "",
+   "prio": "P0 · CORE",
+   "en": "EXPORT THAT LIVES",
+   "desc": "Standalone HTML keeps its interactions — switch chart types, copy CSV, sort tables; Word and print PDF keep the layout, and SVG plus Markdown source export in one click.",
+   "them": "Exporting means a dead image",
+   "us": "Export = a clone of the current DOM, i.e. your last edit",
+   "tags": [
+    "HTML / Word",
+    "PDF / SVG",
+    "One-file share"
+   ]
+  },
+  {
+   "title": "MCP connector",
+   "tag": "New",
+   "prio": "P0 · CORE",
+   "en": "MCP READY",
+   "desc": "mdlens speaks CLI / HTTP / MCP, so AI tools render Markdown straight into pages; the engine is inlined locally.",
+   "them": "Reading pipes and backticks inside a chat window",
+   "us": "The agent renders; you only proofread",
+   "tags": [
+    "CLI · HTTP · MCP",
+    "Offline engine",
+    "Direct to AI"
+   ]
+  },
+  {
+   "title": "Outline & block editing",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "OUTLINE & BLOCK EDIT",
+   "desc": "Click any heading in the sidebar outline to jump; editing is split into independent blocks and only the affected one re-renders, so huge tables stay in order.",
+   "them": "The whole file in one textarea; one save and the diff explodes",
+   "us": "Block-level edits dirty only that block",
+   "tags": [
+    "Block editing",
+    "Exact newlines",
+    "Outline jump"
+   ]
+  },
+  {
+   "title": "Two classic layouts",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "TWO TYPOGRAPHIC SKINS",
+   "desc": "Card = sectioned panel with dark numbered headers; Paper = drafting sheet with binding marks and serif titles. Colors, fonts and radii switch as a set.",
+   "them": "A \"skin\" that just changes a border color",
+   "us": "Serif / sans, rounded / square — switched as a set",
+   "tags": [
+    "Card / Paper",
+    "3 orthogonal themes",
+    "Print friendly"
+   ]
+  },
+  {
+   "title": "Recent, re-read from disk",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "RECENT, RE-READ FROM DISK",
+   "desc": "Up to 30 entries. Clicking history re-reads the file from disk by absolute path rather than opening a stale snapshot; if the file moved it falls back to the cached body.",
+   "them": "A cached snapshot that still shows the old content",
+   "us": "What you changed yesterday is what you see today",
+   "tags": [
+    "30 entries",
+    "Re-read by path",
+    "Position memory"
+   ]
+  },
+  {
+   "title": "All 15 preferences remembered",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "GRANULAR SETTINGS",
+   "desc": "Language, layout, font size 12–22px, four line heights, skin, soft light, chart auto-expand, flowchart structure and style — in three grouped cards, each explained in plain words.",
+   "them": "A screen of jargon switches nobody understands",
+   "us": "Everything remembered locally — no login, no upload",
+   "tags": [
+    "3 groups, 15 items",
+    "Local memory",
+    "Reset to default"
+   ]
+  },
+  {
+   "title": "Focus mode",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "FOCUS MODE",
+   "desc": "Hide the sidebar and toolbar in one click, leaving only the text and reading progress; the render menu still works, because focus should not mean losing features.",
+   "them": "Collapse the panels and the features vanish too",
+   "us": "Cut only the noise, not the capability",
+   "tags": [
+    "Zero noise",
+    "Render menu kept",
+    "Restore in one click"
+   ]
+  },
+  {
+   "title": "Original Soft Light",
+   "tag": "Original",
+   "prio": "P1 · LEADING",
+   "en": "SOFT LIGHT",
+   "desc": "Soft light covers the toolbar, sidebar, tab bar, reading area and overlays with none left out; the gradient stays continuous, with no visible patch.",
+   "them": "Night mode = darker background, brighter text",
+   "us": "One continuous gradient across the app, stackable with all three themes",
+   "tags": [
+    "Whole-app softening",
+    "Continuous gradient",
+    "Composable"
+   ]
+  },
+  {
+   "title": "Kind to your eyes",
+   "tag": "",
+   "prio": "P1 · LEADING",
+   "en": "EYE CARE",
+   "desc": "Eye care is a low-blue warm beige (card #faf3e0 / paper #fdf3d8 with an amber accent), unmistakably different from plain white.",
+   "them": "Any white background with a hint of yellow called eye care",
+   "us": "Three complete themes, not a filter pasted on top",
+   "tags": [
+    "Low-blue warm beige",
+    "Size 12–22",
+    "4 line heights"
+   ]
+  },
+  {
+   "title": "International editions",
+   "tag": "",
+   "prio": "P2 · COMPLETE",
+   "en": "I18N",
+   "desc": "Simplified Chinese / English / follow system. Replacements run longest-key first, and missing entries keep the Chinese original instead of showing undefined.",
+   "them": "Half machine-translated UI that translates your text too",
+   "us": "UI text only; document bodies stay untouched",
+   "tags": [
+    "zh-CN / English",
+    "Longest key first",
+    "Body untouched"
+   ]
+  }
+ ],
+ "attrs": {
+  "dots": [
+   "Feature 1",
+   "Feature 2",
+   "Feature 3",
+   "Feature 4",
+   "Feature 5",
+   "Feature 6",
+   "Feature 7",
+   "Feature 8",
+   "Feature 9",
+   "Feature 10",
+   "Feature 11",
+   "Feature 12",
+   "Feature 13",
+   "Feature 14",
+   "Feature 15"
+  ],
+  "nav": [
+   "Previous feature",
+   "Next feature"
+  ],
+  "slogan": "Make Markdown reading a pleasure"
+ }
+}

@@ -1,15 +1,21 @@
 # MD Reader
 
+[English](README.en.md) · **简体中文**
+
 > **双击 `.md` 就能看的本地阅读器：不装 IDE、不开浏览器标签、不把内网文档传到任何在线编辑器。**
 
-[![Release](https://img.shields.io/github/v/release/OWNER/mdreader?label=release)](https://github.com/OWNER/mdreader/releases)
-[![Downloads](https://img.shields.io/github/downloads/OWNER/mdreader/total?label=downloads)](https://github.com/OWNER/mdreader/releases)
-[![Stars](https://img.shields.io/github/stars/OWNER/mdreader?style=flat)](https://github.com/OWNER/mdreader/stargazers)
+[![Release](https://img.shields.io/github/v/release/guizige-890323/mdreader?label=release)](https://github.com/guizige-890323/mdreader/releases)
+[![Downloads](https://img.shields.io/github/downloads/guizige-890323/mdreader/total?label=downloads)](https://github.com/guizige-890323/mdreader/releases)
+[![Stars](https://img.shields.io/github/stars/guizige-890323/mdreader?style=flat)](https://github.com/guizige-890323/mdreader/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20macOS%2011%2B-2f6feb.svg)](https://github.com/OWNER/mdreader/releases)
+[![Platform](https://img.shields.io/badge/Windows%2011%20%7C%20macOS%2011%2B-2f6feb.svg)](https://github.com/guizige-890323/mdreader/releases)
 [![Offline](https://img.shields.io/badge/network-0%20requests-2e7d32.svg)](#隐私与安全)
 
 **一个 HTML 文件就是完整程序**：marked、highlight.js、mermaid 全部内嵌，运行时不发起任何网络请求。
+
+![MD Reader 功能演示](docs/assets/demo-carousel.gif)
+
+<p align="center"><sub>十五个亮点轮播 · 表格秒变图表 · 复制即创建 · 断网可用 · 零上传</sub></p>
 
 ---
 
@@ -51,8 +57,12 @@
 | --- | --- |
 | 基础语法 | GFM 表格、标题、列表、任务列表、引用、分割线、粗斜体、删除线、行内代码、链接、图片 |
 | 表格可视化 | 斑马纹 / 悬停高亮 / 表头固定、**点击表头排序**、数值列自动右对齐、**一键生成柱状图**、复制为 CSV / TSV |
+| **数据图表** | 表格一键生成柱状 / 折线 / 趋势 / 圆角环形图 / 南丁格尔玫瑰图；**环形图扇区角度按分项百分比精确累计划分**（33.0% → 118.8°，0.3% → 1.08°），不做等角均分，图例百分比与扇区一一对应 |
 | 代码 | 40+ 语言语法高亮、语言标签、一键复制 |
 | 图表 | ` ```mermaid ` 流程图 / 时序图 / 甘特图，跟随明暗主题 |
+| 流程图结构 | 设置 → 流程图结构：**自动 / 多彩流水 / 思维导图 / 组织结构图 / 时间图**。结构决定「怎么排」，与配色风格是两条独立的轴（5 × 5 = 25 种外观）。**自动**按图形态选型：有汇聚→流水，树深叶多→导图，浅树→组织图，显式 `RL`/`BT` 保持流水方向 |
+| **流程图可视化编辑** | 工具条 **✎ 编辑**：拖拽节点（连线实时跟随）、双击改文字、8 色强调色、复位位置、新增节点 / 连线 / 删除节点、撤销、重置。双层状态自动记忆，切结构 / 换主题 / 重开文档都不丢。**下载 SVG / 复制源码 / 导出 HTML / Word / 打印 PDF 全部以最后编辑状态为准**，导出只剥离编辑器 UI，不重绘回自动布局 |
+| **字符架构图识别** | 用 `┌─┐│└┘` 等 Unicode 框线画的功能架构图（直接粘在正文里或放进代码块都行），**不依赖 AI、不联网**，由纯 JS 算法按 UAX #11 显示列宽展开字符网格、聚类框行带与竖线槽、提取框内文字与层间连线证据，还原成 `{nodes, edges}` 语义图后交给 MD FLOW 出图。中英混排、顶边缺失、边界列漂移、扇出 / 汇合、左侧外部输入标注都能容错；识别结果保留原图折叠区，导出 HTML / Word / PDF 自动隐藏。出来的是**可拖拽、可编辑、可导出**的矢量流程图，不是一张死图 |
 | Obsidian | `[[双链]]`、`![[图片]]` 嵌入、`[!note]` Callout、YAML frontmatter 属性表、`#标签` 高亮 |
 
 ### 两套排版皮肤
@@ -68,7 +78,7 @@
 | 结构 | 按 `##` 分节，每节一卡，深色编号 `01`/`02` + 字数 | 连续长文 + 页边装订竖线 |
 | 适合 | 手册 / 排查指南 / 分条目文档 | 长文阅读、正式报告、打印预览 |
 
-两套皮肤都支持浅色 / 深色 / 护眼三种主题；卡片模式下大纲与锚点跳转照常可用（标题 `id` 原样保留）。
+两套皮肤都支持 **浅色 / 深色 / 护眼** 三套独立主题，主题与皮肤正交：切换主题会整体替换画布、纸面、文字、边框、强调色、代码块与表格配色。**护眼**是低蓝光的暖米黄（卡片纸面 `#faf3e0` / 纸张纸面 `#fdf3d8` + 琥珀褐强调），与浅色的纯白 / 象牙白一眼可辨；深色在两套皮肤下也各自成套。卡片模式下大纲与锚点跳转照常可用（标题 `id` 原样保留）。
 
 ### 阅读与文件
 
@@ -99,7 +109,7 @@
 
 ### Windows 桌面版（推荐）
 
-1. 到 [Releases](https://github.com/OWNER/mdreader/releases) 下载 `MD Reader Setup 1.3.0.exe`
+1. 到 [Releases](https://github.com/guizige-890323/mdreader/releases) 下载 `MD Reader Setup 1.3.0.exe`
 2. 双击安装（默认当前用户，无需管理员权限）
 3. 安装完成自动在**桌面**与**开始菜单**生成「MD Reader」入口
 4. 双击任意 `.md` 即可打开；已开着程序时会复用现有窗口
@@ -155,7 +165,7 @@
 ## 从源码构建
 
 ```bash
-git clone https://github.com/OWNER/mdreader.git
+git clone https://github.com/guizige-890323/mdreader.git
 cd mdreader/MDReader/desktop
 
 npm install                 # 安装 Electron 与 electron-builder
@@ -171,6 +181,8 @@ python src/build.py                    # 重新生成单文件 MDReader.html
 python src/pack.py                     # → MDReader-Windows11便携版.zip
 python MDReader/ios/build-pwa.py       # → MDReader-iOS-PWA.zip
 ```
+
+> **换图标必须重打包**：`npm run icons` 从 `brand-source/` 生成 ICO、NSIS 向导位图和应用内 logo 后，还要依次跑 `src/build.py` → `sync-app.py` → `build:win` → `pack.py` → `ios/build-pwa.py`。只改 `build/` 里的图片，已生成的安装包和便携版里仍旧是旧图。完整规格见 [平台能力说明 · 图标资源与替换清单](docs/PLATFORM.md#七图标资源与替换清单)。
 
 国内网络建议设置镜像（GitHub 二进制下载常被拦）：
 
@@ -195,21 +207,26 @@ python src/pack.py                   # 重新打便携版 zip
 
 ```
 mdreader/
-├── README.md                    ← 本文件
+├── README.md                    中文版（本文件）
+├── README.en.md                 英文版
 ├── LICENSE                      MIT
 ├── CHANGELOG.md                 版本变更记录
 ├── CONTRIBUTING.md              贡献指南
+├── CODE_OF_CONDUCT.md           贡献者公约 2.1
+├── SECURITY.md                  安全漏洞上报流程
 ├── .github/
 │   ├── ISSUE_TEMPLATE/           Bug / 需求模板
+│   ├── PULL_REQUEST_TEMPLATE.md  PR 自查清单
 │   ├── dependabot.yml            依赖漏洞自动扫描
 │   └── workflows/ci.yml          语法检查 + 单文件构建校验
 ├── docs/
 │   ├── screenshots/             6 张界面截图
 │   ├── PLATFORM.md               三平台能力边界
-│   └── RELEASE.md                发版流程 / Release 文案模板 / Topics
+│   ├── RELEASE.md                发版流程 / Release 文案模板 / Topics
+│   └── THIRD-PARTY-LICENSES.md   第三方依赖许可清单
 └── MDReader/
     ├── dist/                    便携版成品（解压即用）
-    │   ├── MDReader.html          主程序，3.44 MB 单文件
+    │   ├── MDReader.html          主程序，3.8 MB 单文件
     │   ├── 启动 MDReader.bat
     │   ├── 用此程序打开MD.bat
     │   ├── open-with.ps1
@@ -218,7 +235,9 @@ mdreader/
     ├── src/                      源码
     │   ├── template.html         界面与两套皮肤 CSS
     │   ├── app.js                 全部逻辑
-    │   ├── vendor/               marked / hljs / mermaid（离线）
+    │   ├── mermaid-flow.js        自研 Mermaid 渲染器（MD FLOW）
+    │   ├── text-flow.js           文本流程图 → 图形
+    │   ├── vendor/               marked 15 / hljs 11 / mermaid 10（离线）
     │   ├── build.py               内嵌依赖 → 单文件 HTML
     │   └── pack.py                便携版打包
     └── desktop/                  桌面安装版
@@ -247,10 +266,11 @@ mdreader/
 
 ## 版本与路线图
 
-见 [CHANGELOG.md](CHANGELOG.md)。当前 **v1.3.0**。
+见 [CHANGELOG.md](CHANGELOG.md)。当前 **v1.7.0**。
 
 | 计划 | 状态 |
 | --- | --- |
+| 单图结构选择 + 统一文档风格 | ✅ v1.7.0 |
 | 卡片 / 纸张双皮肤 + 最近打开 | ✅ v1.3.0 |
 | Windows 安装包 + `.md` 关联 + 桌面图标 | ✅ v1.3.0 |
 | macOS `.dmg` 构建配置 | ✅ 配置就绪，需在 Mac 上编译 |
@@ -259,15 +279,11 @@ mdreader/
 
 ---
 
-## 发布前必改
+## 仓库信息
 
-仓库里的 `OWNER` 是占位符，出现在 `README.md`（8 处）、`CONTRIBUTING.md`、`docs/RELEASE.md`，发布前全局替换成你的 GitHub 用户名：
-
-```bash
-# 在仓库根目录执行
-grep -rl "OWNER" --include="*.md" --include="*.yml" . # 先看一眼
-# 然后按 docs/RELEASE.md 里的清单逐项替换
-```
+- 仓库地址：<https://github.com/guizige-890323/mdreader>
+- 当前版本：**v1.7.0**
+- 许可证：MIT
 
 Topics 建议：`markdown` `markdown-viewer` `offline` `electron` `obsidian` `mermaid` `table-visualization` `windows` `file-association` `中文`。
 

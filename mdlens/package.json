@@ -1,0 +1,44 @@
+{
+  "name": "mdlens",
+  "version": "0.1.0",
+  "description": "Render Markdown into something humans can actually read — a CLI, HTTP service and MCP server for AI output.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "lib/mcp.js",
+  "bin": {
+    "mdlens": "bin/mdlens.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "engine/",
+    "scripts/build-engine.py",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:engine": "python scripts/build-engine.py",
+    "doctor": "node bin/mdlens.js doctor",
+    "test": "node scripts/test-all.cjs"
+  },
+  "peerDependencies": {
+    "playwright-core": ">=1.40.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright-core": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "markdown",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "renderer",
+    "cli",
+    "llm",
+    "agent"
+  ]
+}

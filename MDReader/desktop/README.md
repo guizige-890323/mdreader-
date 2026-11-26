@@ -69,6 +69,7 @@ desktop/
 │   ├── sync-app.py               从 dist/ 同步渲染产物
 │   ├── make-icons.py              纯 Pillow 生成图标
 │   ├── verify-portable.py         便携版 17 项回归
+│   ├── verify-themes.py           主题矩阵 11 项回归（护眼不被皮肤覆盖）
 │   └── build-mac.sh               macOS 构建
 └── release/                构建输出
 ```
@@ -102,7 +103,7 @@ function initDesktop() {
 }
 ```
 
-改动必须过 `python scripts/verify-portable.py`（17 项回归）。CI 也会跑这一步。
+改动必须过 `python scripts/verify-portable.py`（17 项）与 `python scripts/verify-themes.py`（主题矩阵 11 项）。CI 会跑这两步，后者专门防止主题变量被皮肤层叠覆盖。
 
 ---
 
@@ -124,6 +125,7 @@ function initDesktop() {
 
 - [ ] `node --check main.js` / `preload.js` / `src/app.js` 全通过
 - [ ] `python scripts/verify-portable.py` 输出 `17 / 17 passed`
+- [ ] `python scripts/verify-themes.py` 输出 `11 / 11 passed`
 - [ ] 安装包装完桌面出现「MD Reader」图标，开始菜单也有
 - [ ] 右键 `.md` 的「打开方式」里能看到 MD Reader，文档图标正确
 - [ ] 双击 `.md` 冷启动能打开内容；已开窗口时双击第二个文件复用同一窗口
